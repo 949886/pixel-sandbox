@@ -3,6 +3,11 @@ name: Build
 on: 
   workflow_call:
 
+env:
+  GODOT_ANDROID_KEYSTORE_RELEASE_PATH: ${{ github.workspace }}/release.keystore 
+  GODOT_ANDROID_KEYSTORE_RELEASE_USER: Unknown
+  GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD: 123456
+
 jobs:
   build:
     name: Build
@@ -25,9 +30,9 @@ jobs:
             extension: ".x86_64"
           # - name: Web
           #   extension: ".html"
-          # - name: Android
-          #   system: "ubuntu-latest"
-          #   extension: ".apk"
+          - name: Android
+            system: "ubuntu-latest"
+            extension: ".apk"
           # - name: iOS
           #   system: "macos-latest"
           #   extension: ".ipa"
@@ -72,6 +77,27 @@ jobs:
       - name: Verify Godot Version
         run: |
           godot --version
+
+      # Setup android
+      - name: Set up JDK 17
+        if: matrix.platform.name == 'Android'
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Setup Android SDK
+        if: matrix.platform.name == 'Android'
+        uses: android-actions/setup-android@v3
+
+      - name: Generate Keystore
+        if: matrix.platform.name == 'Android'
+        run: |
+          if [ ! -f $GODOT_ANDROID_KEYSTORE_RELEASE_PATH ]; then
+            keytool -genkey -v -keystore release.keystore -alias $GODOT_ANDROID_KEYSTORE_RELEASE_USER -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass $GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD -keypass $GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD -dname "CN=Unknown, OU=Unknown, O=Unknown, L=Unknown, S=Unknown, C=Unknown"
+          fi
+          env
 
       # Build the project for each platform
       - name: Build Godot Solutions
