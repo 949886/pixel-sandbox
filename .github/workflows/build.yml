@@ -36,14 +36,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Check if the project is using C#
+      - name: Check if project is using C#
+        id: check_dotnet
+        run: |
+          if [ -f *.csproj ]; then
+            echo "::set-output name=using_dotnet::true"
+          else
+            echo "::set-output name=using_dotnet::false"
+          fi
+
       # Setup .NET
       - name: Setup .NET SDK
+        if: steps.check_dotnet.outputs.using_dotnet == 'true'
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.x
 
-      - name: Restore Packages
-        run: dotnet restore
+      - name: Build C# Projects
+        if: steps.check_dotnet.outputs.using_dotnet == 'true'
+        run: |
+            dotnet restore
+            dotnet build
 
       # Setup Godot
       - name: Setup Godot
@@ -55,18 +69,13 @@ jobs:
           use-dotnet: true
           include-templates: true
 
-      - name: Verify Setup
+      - name: Verify Godot Version
         run: |
-          dotnet --version
           godot --version
-
 
       # Build the project for each platform
       - name: Build Godot Solutions
         run: godot --headless --build-solutions --quit || exit 0
-
-      - name: Build C# Projects
-        run: dotnet build
         
       - name: Export Project
         run: |
