@@ -28,8 +28,9 @@ jobs:
           - name: Linux
             system: "ubuntu-latest"
             extension: ".x86_64"
-          # - name: Web
-          #   extension: ".html"
+          - name: Web
+            system: "ubuntu-latest"
+            extension: ".html"
           - name: Android
             system: "ubuntu-latest"
             extension: ".apk"
@@ -42,13 +43,19 @@ jobs:
         uses: actions/checkout@v4
 
       # Check if the project is using C#
+      # Web job will be skipped if the project is using C#.
       - name: Check if project is using C#
         id: check_dotnet
         run: |
           if [ -f *.csproj ]; then
-            echo "::set-output name=using_dotnet::true"
+            echo "using_dotnet=true" >> $GITHUB_OUTPUT
+            echo "C# project detected."
+            if [ "${{ matrix.platform.name }}" == "Web" ]; then
+              echo "web_csharp=true" >> $GITHUB_OUTPUT
+              echo "Godot 4.x does not support building C# projects for Web platform."
+            fi
           else
-            echo "::set-output name=using_dotnet::false"
+            echo "using_dotnet=false" >> $GITHUB_OUTPUT
           fi
 
       # Setup .NET
@@ -71,7 +78,7 @@ jobs:
           # Version must include major, minor, and patch, and be >= 4.0.0
           # Pre-release label is optional.
           version: 4.3.0 # also valid: 4.0.0.rc1 or 4.0.0, etc
-          use-dotnet: true
+          use-dotnet: ${{ steps.check_dotnet.outputs.using_dotnet }}
           include-templates: true
 
       - name: Verify Godot Version
@@ -101,20 +108,24 @@ jobs:
 
       # Build the project for each platform
       - name: Build Godot Solutions
+        if: steps.check_dotnet.outputs.web_csharp != 'true'
         run: godot --headless --build-solutions --quit || exit 0
         
       - name: Export Project
+        if: steps.check_dotnet.outputs.web_csharp != 'true'
         run: |
           mkdir -v -p build
           godot --headless --verbose --export-release "${{ matrix.platform.name }}" ./build/${{ github.event.repository.name }}${{ matrix.platform.extension }}
 
       # Compress the build files and upload them as an artifact
       - name: Compress build files
+        if: steps.check_dotnet.outputs.web_csharp != 'true'
         run: |
           cd build
           sudo zip -r ./${{ matrix.platform.name }}.zip *
 
       - name: Display structure of build files
+        continue-on-error: true
         run: ls -R ./build
 
       - name: Upload Artifact
