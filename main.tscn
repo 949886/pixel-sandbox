@@ -1,3 +1,17 @@
-[gd_scene format=3 uid="uid://cqn4icys44pn4"]
+[gd_scene load_steps=2 format=3 uid="uid://cqn4icys44pn4"]
+
+[ext_resource type="Script" path="res://Test.cs" id="1_ggqfv"]
 
 [node name="Node2D" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 7.0
+offset_top = 6.0
+offset_right = 1148.0
+offset_bottom = 646.0
+theme_override_font_sizes/font_size = 100
+text = "0
+"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("1_ggqfv")
