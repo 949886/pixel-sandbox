@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://fht538hkp6pa"]
+
+[ext_resource type="Texture2D" uid="uid://nb2hglbbxvs4" path="res://samples/physics/rapier/prefabs/texture.png" id="1"]
+[ext_resource type="Script" path="res://samples/physics/rapier/prefabs/ColPol.gd" id="2"]
+
+[node name="ColPol" type="CollisionPolygon2D"]
+script = ExtResource("2")
+
+[node name="Polygon2D" type="Polygon2D" parent="."]
+texture = ExtResource("1")

@@ -25,9 +25,18 @@ entry_symbol="example_library_init"
 compatibility_minimum="4.1"
 reloadable=true
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
 [dotnet]
 
 project/assembly_name="game"
+
+[physics]
+
+2d/physics_engine="Rapier2D"
 
 [rendering]
 

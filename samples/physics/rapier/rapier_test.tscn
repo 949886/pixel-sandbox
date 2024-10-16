@@ -1,0 +1,2823 @@
+[gd_scene load_steps=3 format=3 uid="uid://cdyi1mrnxdqvu"]
+
+[ext_resource type="Script" path="res://samples/physics/rapier/physics_test.gd" id="1_y6er6"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rhufo"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_y6er6")
+quadrant_size = null
+quadrant_grid_size = null
+carve_radius = null
+min_movement_update = null
+
+[node name="CarveArea" type="Polygon2D" parent="."]
+color = Color(1, 0.635294, 0.635294, 0.784314)
+
+[node name="RigidBodies" type="Node2D" parent="."]
+
+[node name="Node2D" type="Node2D" parent="."]
+position = Vector2(18, 6)
+
+[node name="RigidBody2D" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D2" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D2"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D3" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D3"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D4" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D4"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D5" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D5"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D6" type="RigidBody2D" parent="Node2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D6"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D7" type="RigidBody2D" parent="Node2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D7"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D8" type="RigidBody2D" parent="Node2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D8"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D9" type="RigidBody2D" parent="Node2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D9"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D10" type="RigidBody2D" parent="Node2D"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D10"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D11" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D11"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D12" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D12"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D13" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D13"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D14" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D14"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D15" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D15"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D16" type="RigidBody2D" parent="Node2D"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D16"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D17" type="RigidBody2D" parent="Node2D"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D17"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D18" type="RigidBody2D" parent="Node2D"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D18"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D19" type="RigidBody2D" parent="Node2D"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D19"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D20" type="RigidBody2D" parent="Node2D"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D20"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D21" type="RigidBody2D" parent="Node2D"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D21"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D22" type="RigidBody2D" parent="Node2D"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D22"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D23" type="RigidBody2D" parent="Node2D"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D23"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D24" type="RigidBody2D" parent="Node2D"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D24"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D25" type="RigidBody2D" parent="Node2D"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D25"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D26" type="RigidBody2D" parent="Node2D"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D26"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D27" type="RigidBody2D" parent="Node2D"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D27"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D28" type="RigidBody2D" parent="Node2D"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D28"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D29" type="RigidBody2D" parent="Node2D"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D29"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D30" type="RigidBody2D" parent="Node2D"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D30"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D31" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D31"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D32" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D32"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D33" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D33"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D34" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D34"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D35" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D35"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D36" type="RigidBody2D" parent="Node2D"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D36"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D37" type="RigidBody2D" parent="Node2D"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D37"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D38" type="RigidBody2D" parent="Node2D"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D38"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D39" type="RigidBody2D" parent="Node2D"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D39"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D40" type="RigidBody2D" parent="Node2D"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D40"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D41" type="RigidBody2D" parent="Node2D"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D41"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D42" type="RigidBody2D" parent="Node2D"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D42"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D43" type="RigidBody2D" parent="Node2D"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D43"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D44" type="RigidBody2D" parent="Node2D"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D44"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D45" type="RigidBody2D" parent="Node2D"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D45"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D46" type="RigidBody2D" parent="Node2D"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D46"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D47" type="RigidBody2D" parent="Node2D"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D47"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D48" type="RigidBody2D" parent="Node2D"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D48"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D49" type="RigidBody2D" parent="Node2D"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D49"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D50" type="RigidBody2D" parent="Node2D"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D50"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D51" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D51"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D52" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D52"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D53" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D53"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D54" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D54"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D55" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D55"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D56" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D56"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D57" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D57"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D58" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D58"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D59" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D59"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D60" type="RigidBody2D" parent="Node2D"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D60"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D61" type="RigidBody2D" parent="Node2D"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D61"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D62" type="RigidBody2D" parent="Node2D"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D62"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D63" type="RigidBody2D" parent="Node2D"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D63"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D64" type="RigidBody2D" parent="Node2D"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D64"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D65" type="RigidBody2D" parent="Node2D"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D65"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D66" type="RigidBody2D" parent="Node2D"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D66"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D67" type="RigidBody2D" parent="Node2D"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D67"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D68" type="RigidBody2D" parent="Node2D"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D68"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D69" type="RigidBody2D" parent="Node2D"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D69"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D70" type="RigidBody2D" parent="Node2D"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D70"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D71" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D71"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D72" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D72"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D73" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D73"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D74" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D74"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D75" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D75"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D76" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D76"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D77" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D77"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D78" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D78"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D79" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D79"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D80" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D80"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D81" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D81"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D82" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D82"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D83" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D83"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D84" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D84"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D85" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D85"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D86" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D86"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D87" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D87"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D88" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D88"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D89" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D89"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D90" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D90"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D91" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D91"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D92" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D92"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D93" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D93"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D94" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D94"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D95" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D95"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D96" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D96"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D97" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D97"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D98" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D98"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D99" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D99"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D100" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D100"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D101" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D101"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D102" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D102"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D103" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D103"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D104" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D104"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D105" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D105"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D106" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D106"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D107" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D107"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D108" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D108"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D109" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D109"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D110" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D110"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D111" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D111"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D112" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D112"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D113" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D113"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D114" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D114"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D115" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D115"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D116" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D116"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D117" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D117"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D118" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D118"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D119" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D119"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D120" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D120"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D121" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D121"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D122" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D122"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D123" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D123"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D124" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D124"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D125" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D125"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D126" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D126"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D127" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D127"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D128" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D128"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D129" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D129"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D130" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D130"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D131" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D131"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D132" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D132"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D133" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D133"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D134" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D134"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D135" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D135"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D136" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D136"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D137" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D137"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D138" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D138"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D139" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D139"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D140" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D140"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D141" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D141"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D142" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D142"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D143" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D143"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D144" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D144"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D145" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D145"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D146" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D146"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D147" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D147"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D148" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D148"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D149" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D149"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D150" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D150"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D151" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D151"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D152" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D152"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D153" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D153"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D154" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D154"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D155" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D155"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D156" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D156"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D157" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D157"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D158" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D158"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D159" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D159"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D160" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D160"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D161" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D161"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D162" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D162"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D163" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D163"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D164" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D164"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D165" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D165"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D166" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D166"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D167" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D167"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D168" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D168"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D169" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D169"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D170" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D170"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D171" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D171"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D172" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D172"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D173" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D173"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D174" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D174"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D175" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D175"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D176" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D176"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D177" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D177"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D178" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D178"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D179" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D179"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D180" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D180"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D181" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D181"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D182" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D182"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D183" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D183"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D184" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D184"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D185" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D185"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D186" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D186"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D187" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D187"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D188" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D188"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D189" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D189"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D190" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D190"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D191" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D191"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D192" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D192"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D193" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D193"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D194" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D194"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D195" type="RigidBody2D" parent="Node2D"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D195"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D196" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D196"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D197" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D197"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D198" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D198"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D199" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D199"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D200" type="RigidBody2D" parent="Node2D"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/RigidBody2D200"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="Node2D2" type="Node2D" parent="."]
+position = Vector2(18, 6)
+
+[node name="RigidBody2D" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D2" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D2"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D3" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D3"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D4" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D4"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D5" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D5"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D6" type="RigidBody2D" parent="Node2D2"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D6"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D7" type="RigidBody2D" parent="Node2D2"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D7"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D8" type="RigidBody2D" parent="Node2D2"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D8"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D9" type="RigidBody2D" parent="Node2D2"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D9"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D10" type="RigidBody2D" parent="Node2D2"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D10"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D11" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D11"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D12" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D12"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D13" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D13"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D14" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D14"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D15" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-7, 18)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D15"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D16" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D16"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D17" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D17"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D18" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D18"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D19" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D19"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D20" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(11, 24)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D20"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D21" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D21"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D22" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D22"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D23" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D23"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D24" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D24"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D25" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(18, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D25"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D26" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D26"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D27" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D27"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D28" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D28"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D29" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D29"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D30" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(36, 16)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D30"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D31" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D31"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D32" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D32"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D33" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D33"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D34" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D34"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D35" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-18, 41)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D35"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D36" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D36"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D37" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D37"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D38" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D38"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D39" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D39"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D40" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(0, 47)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D40"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D41" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D41"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D42" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D42"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D43" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D43"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D44" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D44"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D45" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(20, 45)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D45"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D46" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D46"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D47" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D47"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D48" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D48"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D49" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D49"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D50" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(38, 51)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D50"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D51" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D51"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D52" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D52"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D53" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D53"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D54" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D54"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D55" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-60, 11)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D55"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D56" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D56"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D57" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D57"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D58" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D58"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D59" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D59"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D60" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(-42, 17)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D60"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D61" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D61"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D62" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D62"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D63" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D63"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D64" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D64"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D65" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(42, 32)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D65"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D66" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D66"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D67" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D67"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D68" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D68"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D69" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D69"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D70" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(60, 38)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D70"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D71" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D71"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D72" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D72"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D73" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D73"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D74" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D74"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D75" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D75"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D76" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D76"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D77" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D77"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D78" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D78"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D79" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D79"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D80" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D80"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D81" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D81"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D82" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D82"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D83" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D83"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D84" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D84"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D85" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D85"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D86" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D86"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D87" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D87"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D88" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D88"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D89" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D89"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D90" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D90"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D91" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D91"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D92" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D92"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D93" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D93"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D94" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D94"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D95" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D95"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D96" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D96"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D97" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D97"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D98" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D98"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D99" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D99"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D100" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D100"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D101" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D101"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D102" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D102"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D103" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D103"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D104" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D104"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D105" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D105"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D106" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D106"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D107" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D107"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D108" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D108"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D109" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D109"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D110" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D110"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D111" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D111"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D112" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D112"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D113" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D113"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D114" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D114"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D115" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D115"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D116" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D116"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D117" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D117"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D118" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D118"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D119" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D119"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D120" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D120"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D121" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D121"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D122" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D122"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D123" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D123"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D124" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D124"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D125" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D125"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D126" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D126"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D127" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D127"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D128" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D128"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D129" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D129"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D130" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D130"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D131" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D131"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D132" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D132"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D133" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D133"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D134" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D134"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D135" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D135"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D136" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D136"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D137" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D137"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D138" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D138"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D139" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D139"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D140" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D140"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D141" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D141"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D142" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D142"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D143" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D143"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D144" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D144"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D145" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D145"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D146" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D146"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D147" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D147"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D148" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D148"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D149" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D149"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D150" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D150"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D151" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D151"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D152" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D152"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D153" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D153"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D154" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D154"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D155" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D155"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D156" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D156"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D157" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D157"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D158" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D158"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D159" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D159"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D160" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D160"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D161" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D161"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D162" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D162"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D163" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D163"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D164" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D164"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D165" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D165"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D166" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D166"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D167" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D167"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D168" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D168"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D169" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D169"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D170" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D170"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D171" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D171"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D172" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D172"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D173" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D173"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D174" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D174"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D175" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D175"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D176" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D176"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D177" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D177"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D178" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D178"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D179" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D179"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D180" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D180"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D181" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D181"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D182" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D182"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D183" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D183"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D184" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D184"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D185" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D185"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D186" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D186"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D187" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D187"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D188" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D188"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D189" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D189"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D190" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D190"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D191" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D191"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D192" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D192"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D193" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D193"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D194" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D194"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D195" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(32, -2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D195"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D196" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D196"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D197" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D197"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D198" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D198"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D199" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D199"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="RigidBody2D200" type="RigidBody2D" parent="Node2D2"]
+position = Vector2(50, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D2/RigidBody2D200"]
+position = Vector2(573, 103)
+shape = SubResource("CircleShape2D_rhufo")
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="StaticBody2D"]
+position = Vector2(25, -2)
+polygon = PackedVector2Array(470, 430, 665, 430, 977, 198, 975, 650, 162, 649, 158, 187)
+
+[node name="Quadrants" type="Node2D" parent="."]
