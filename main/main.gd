@@ -6,7 +6,7 @@ class_name Main
 
 var sim: SandSimulation
 
-var active: bool = false
+static var active: bool = false
 
 func _ready() -> void:
 	sim = SandSimulation.new()

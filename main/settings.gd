@@ -9,7 +9,7 @@ var flat_mode: bool = false
 var sound_on: bool = true
 var fps: bool = false
 var custom_element_ordering: Array[int]
-var bg_color: Color = Color("#355c96"):
+var bg_color: Color = Color(0, 0, 0, 0): #Color("#355c96"):
 	set(val):
 		bg_color = val
 		background_updated.emit(val)
@@ -24,7 +24,7 @@ func _ready() -> void:
 		sound_on = config.sound_on 
 		fps = config.fps
 		custom_element_ordering = config.custom_element_ordering
-		bg_color = config.bg_color
+#		bg_color = config.bg_color
 
 func save_settings() -> void:
 	var config: Config = Config.new()
@@ -35,5 +35,5 @@ func save_settings() -> void:
 	config.sound_on = sound_on
 	config.fps = fps
 	config.custom_element_ordering = custom_element_ordering
-	config.bg_color = bg_color
+#	config.bg_color = bg_color
 	ResourceSaver.save(config, "user://config.tres")

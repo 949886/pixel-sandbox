@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://dw1cki2oc7fqr"]
+[gd_scene load_steps=33 format=3 uid="uid://dw1cki2oc7fqr"]
 
 [ext_resource type="Script" path="res://main/main.gd" id="1_p2xd8"]
 [ext_resource type="Script" path="res://main/ui/canvas/canvas.gd" id="2_0skrq"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://main/ui/ui.gd" id="4_m7bip"]
 [ext_resource type="Texture2D" uid="uid://o2dtwnhoumtj" path="res://main/ui/_icons/split_icon.png" id="5_5xvyo"]
 [ext_resource type="Texture2D" uid="uid://frfosxi3v3fq" path="res://main/ui/_icons/eraser.png" id="6_3suwh"]
+[ext_resource type="Script" path="res://samples/physics/dynamic-collider/scripts/texture_collider.gd" id="6_6r8r2"]
 [ext_resource type="Script" path="res://main/ui/element_selector/element_button.gd" id="7_q8tc0"]
 [ext_resource type="Texture2D" uid="uid://5l1d3c5tr7nj" path="res://main/ui/_icons/tap.png" id="8_bd47h"]
 [ext_resource type="Texture2D" uid="uid://cpkynolj0wx14" path="res://main/ui/_icons/edit.png" id="9_bgkvh"]
@@ -104,6 +105,13 @@ offset_bottom = 357.0
 size_flags_stretch_ratio = 2.0
 expand_mode = 1
 script = ExtResource("2_0skrq")
+
+[node name="TextureCollider" type="StaticBody2D" parent="." node_paths=PackedStringArray("texture_rect")]
+visible = false
+script = ExtResource("6_6r8r2")
+texture_rect = NodePath("../Canvas")
+update = null
+update_interval = null
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = 5
@@ -238,7 +246,6 @@ tap_button = NodePath("../ButtonRow/Tap")
 
 [node name="FpsLabel" parent="CanvasLayer/UI" instance=ExtResource("14_t8mok")]
 unique_name_in_owner = true
-visible = false
 layout_mode = 0
 
 [node name="SelectInfo" type="MarginContainer" parent="CanvasLayer/UI"]

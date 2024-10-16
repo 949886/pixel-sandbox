@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://dbcah2qkyxld"]
+
+[ext_resource type="Script" path="res://samples/physics/dynamic-collider/scripts/texture_collider.gd" id="2_mmi4e"]
+[ext_resource type="Texture2D" uid="uid://cnan77853rkkx" path="res://samples/physics/dynamic-collider/textures/arrow2.png" id="3_fxwdh"]
+
+[node name="TextureTest" type="Node"]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_left = 721.0
+offset_top = 408.0
+offset_right = 1121.0
+offset_bottom = 712.0
+texture = ExtResource("3_fxwdh")
+
+[node name="TextureCollider" type="StaticBody2D" parent="." node_paths=PackedStringArray("texture_rect")]
+script = ExtResource("2_mmi4e")
+texture_rect = NodePath("../TextureRect")
+update = null
+update_interval = null

@@ -55,6 +55,12 @@ public partial class Test : Label
 #elif GODOT_WEB
         this.Text += " WEB";
 #endif
+
+#if DEBUG
+        this.Text += " DEBUG";
+#else
+        this.Text += " RELEASE";
+#endif
         
     }
 }
