@@ -21,7 +21,7 @@ func _on_resized() -> void:
 	size = %SizeCopy.size
 	
 func _exit_tree():
-	_thread.wait_to_finish()
+	_thread.stop()
 		
 func repaint() -> void:
 	var width: int = CommonReference.main.sim.get_width()
