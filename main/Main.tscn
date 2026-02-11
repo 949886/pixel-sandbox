@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://ggbp6fch244c"]
+[gd_scene load_steps=33 format=3 uid="uid://ggbp6fch244c"]
 
 [ext_resource type="Script" path="res://main/main.gd" id="1_2pidp"]
 [ext_resource type="Theme" uid="uid://co20v1mxv2dfm" path="res://main/ui/_theme/theme.tres" id="2_nb65v"]
@@ -22,8 +22,8 @@
 [ext_resource type="Texture2D" uid="uid://cwrw6b4hfr57h" path="res://main/ui/_icons/icon_circle2.png" id="19_nbax8"]
 [ext_resource type="Script" path="res://main/ui/element_selector/element_select_info.gd" id="19_ys0g5"]
 [ext_resource type="Script" path="res://main/world_environment.gd" id="24_vnhd0"]
-[ext_resource type="Script" path="res://main/save_file/save_file_manager.gd" id="87_5tqe6"]
 [ext_resource type="Script" path="res://main/world_generator/world_generator.gd" id="28_wgen"]
+[ext_resource type="Script" path="res://main/save_file/save_file_manager.gd" id="87_5tqe6"]
 [ext_resource type="Script" path="res://main/ui/element_selector/element_button.gd" id="107_ic066"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rhx1h"]

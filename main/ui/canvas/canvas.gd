@@ -13,7 +13,7 @@ var _static_body: StaticBody2D = StaticBody2D.new()
 
 func _ready() -> void:
 	%SizeCopy.resized.connect(_on_resized)
-	texture = ImageTexture.create_from_image(Image.create(128, 128, false, Image.FORMAT_RGB8))
+	texture = ImageTexture.create_from_image(Image.create(128, 128, false, Image.FORMAT_RGBA8))
 	add_child(_static_body)
 	_thread.start(background_task.bind("generate_collider"))
 
