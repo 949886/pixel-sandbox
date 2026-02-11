@@ -98,10 +98,9 @@ func update_custom_elements() -> void:
 	if simple:
 		for child in %Basic.get_children():
 			if child.id >= 2048:
-				%Basic.remove_child(child)
+				%Basic.remove_child(child) 
 				child.queue_free()
-	for element_id in Settings.custom_element_ordering:
-		var custom_element: CustomElement = CommonReference.element_manager.custom_element_map[element_id]
+	for custom_element in CommonReference.element_manager.custom_element_map.values():
 		var new_button: CustomElementButton = ELEMENT_BUTTON.instantiate()
 		new_button.initialize(custom_element)
 		%Custom.add_child(new_button)

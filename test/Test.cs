@@ -10,12 +10,12 @@ public partial class Test : Label
     public static extern int MessageBox(IntPtr hWnd, String text, String caption, uint type);
 
 #if DEBUG
-  #if GODOT_WINDOWS
+#if GODOT_WINDOWS
     // [DllImport("./bin/luna/Luna.cpp.dll", CharSet = CharSet.Unicode)]
     [DllImport("./bin/example/libgdexample.windows.template_debug.x86_64.dll", CharSet = CharSet.Unicode)]
-  #elif GODOT_ANDROID
+#elif GODOT_ANDROID
 	[DllImport("libgdexample.android.template_debug.arm64.so", CharSet = CharSet.Unicode)]
-  #endif
+#endif
 #else
   #if GODOT_WINDOWS
 	// [DllImport("Luna.cpp.dll", CharSet = CharSet.Unicode)]
@@ -24,6 +24,7 @@ public partial class Test : Label
 	[DllImport("libgdexample.android.template_release.arm64.so", CharSet = CharSet.Unicode)]
   #endif
 #endif
+    
     public static extern int Add(int n1, int n2);
 
 
@@ -49,7 +50,7 @@ public partial class Test : Label
 #elif GODOT_OSX
         this.Text += " OSX";
 #elif GODOT_ANDROID
-		this.Text += " ANDROID";
+	this.Text += " ANDROID";
 #elif GODOT_IOS
         this.Text += " IOS";
 #elif GODOT_WEB

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://brx136pv4vukm"]
+[gd_scene load_steps=10 format=3 uid="uid://brx136pv4vukm"]
 
 [ext_resource type="Texture2D" uid="uid://bo6yt2h6l0rwl" path="res://samples/physics/dynamic-collider/textures/star.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://dl2hxrjteuwxt" path="res://samples/physics/dynamic-collider/textures/cog.png" id="2"]
@@ -6,8 +6,6 @@
 [ext_resource type="Texture2D" uid="uid://cnan77853rkkx" path="res://samples/physics/dynamic-collider/textures/arrow2.png" id="3_p8mmf"]
 [ext_resource type="Texture2D" uid="uid://1iqesyxvf0ao" path="res://samples/physics/dynamic-collider/textures/arrow.png" id="4"]
 [ext_resource type="Script" path="res://samples/physics/dynamic-collider/scripts/rigid_body_generator.gd" id="4_1eiib"]
-[ext_resource type="Script" path="res://samples/physics/dynamic-collider/scripts/sprite_collider.gd" id="7_t0f0g"]
-[ext_resource type="Texture2D" uid="uid://bhpg8i2bbi00j" path="res://samples/physics/dynamic-collider/textures/small Potions.png" id="8_xub2p"]
 
 [sub_resource type="RectangleShape2D" id="1"]
 size = Vector2(1920, 64)
@@ -34,6 +32,8 @@ polygon = PackedVector2Array(0, 656, 1920, 656, 1920, 720, 0, 720)
 
 [node name="star" type="RigidBody2D" parent="."]
 position = Vector2(1592, 320)
+rotation = -0.240855
+scale = Vector2(1, 1)
 physics_material_override = SubResource("2")
 
 [node name="Sprite2D" type="Sprite2D" parent="star"]
@@ -50,7 +50,7 @@ script = ExtResource("3_k60j8")
 [node name="Area2D" type="Area2D" parent="arrow"]
 
 [node name="arrow2" type="RigidBody2D" parent="."]
-position = Vector2(1228, 136)
+position = Vector2(1228, 150)
 physics_material_override = SubResource("2")
 script = ExtResource("4_1eiib")
 
@@ -58,7 +58,7 @@ script = ExtResource("4_1eiib")
 texture = ExtResource("3_p8mmf")
 
 [node name="arrow3" type="RigidBody2D" parent="."]
-position = Vector2(711, 157)
+position = Vector2(711, 150)
 physics_material_override = SubResource("2")
 
 [node name="Sprite2D" type="Sprite2D" parent="arrow3"]
@@ -80,12 +80,3 @@ texture = ExtResource("2")
 
 [node name="RigidBody2D" type="RigidBody2D" parent="."]
 position = Vector2(855, 5)
-
-[node name="SpriteCollider" type="StaticBody2D" parent="." node_paths=PackedStringArray("sprite")]
-position = Vector2(706.155, 856)
-script = ExtResource("7_t0f0g")
-sprite = NodePath("SmallPotions")
-update = true
-
-[node name="SmallPotions" type="Sprite2D" parent="SpriteCollider"]
-texture = ExtResource("8_xub2p")
