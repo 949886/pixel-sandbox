@@ -23,6 +23,7 @@
 [ext_resource type="Script" path="res://main/ui/element_selector/element_select_info.gd" id="19_ys0g5"]
 [ext_resource type="Script" path="res://main/world_environment.gd" id="24_vnhd0"]
 [ext_resource type="Script" path="res://main/save_file/save_file_manager.gd" id="87_5tqe6"]
+[ext_resource type="Script" path="res://main/world_generator/world_generator.gd" id="28_wgen"]
 [ext_resource type="Script" path="res://main/ui/element_selector/element_button.gd" id="107_ic066"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rhx1h"]
@@ -321,6 +322,10 @@ script = ExtResource("18_mpubp")
 [node name="Painter" type="Node" parent="."]
 unique_name_in_owner = true
 script = ExtResource("18_mer41")
+
+[node name="WorldGenerator" type="Node" parent="."]
+unique_name_in_owner = true
+script = ExtResource("28_wgen")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_6bfny")
