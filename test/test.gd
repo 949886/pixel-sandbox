@@ -1,6 +1,7 @@
 extends Label
 
-# var s: SandSimulation 
+var s: SandSimulation 
+var t: Test
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

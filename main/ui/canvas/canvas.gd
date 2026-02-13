@@ -7,6 +7,10 @@ var image: Image:
 	set(val):
 		image = val
 		texture.set_image(image)
+		
+var solid_image: Image:
+	set(val):
+		solid_image = val
 
 var _thread = Thread.new()
 var _static_body: StaticBody2D = StaticBody2D.new()
@@ -28,8 +32,10 @@ func repaint() -> void:
 	var height: int = CommonReference.main.sim.get_height()
 	if width <= 0 or height <= 0: return
 	var data: PackedByteArray = CommonReference.main.sim.get_color_image(Settings.flat_mode)
+	var solid_data: PackedByteArray = CommonReference.main.sim.get_color_image_of_state(0)
 	var start_time = Time.get_ticks_usec()
 	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, data)
+	solid_image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, solid_data)
 #	generate_collider(image)
 #	texture.set_image(image)
 	var end_time = Time.get_ticks_usec()
@@ -76,13 +82,13 @@ func repaint() -> void:
 func background_task(param):
 	# This function will be executed in the thread
 	while true:
-		if !Main.active || image == null:
+		if !Main.active || solid_image == null:
 			OS.delay_msec(10)
 			continue
 			
 		var start_time = Time.get_ticks_usec()
 		var bitmap = BitMap.new()
-		bitmap.create_from_image_alpha(image)
+		bitmap.create_from_image_alpha(solid_image)
 		var polys = bitmap.opaque_to_polygons(Rect2(Vector2.ZERO, image.get_size()), 0.5)
 		
 		_handle_polys.call_deferred(polys)
@@ -122,4 +128,3 @@ func _handle_polys(polys: Array) -> void:
 	print("Elapsed time (polys): ", elapsed_time, " μs")
 	
 	semaphore.post()
-	
