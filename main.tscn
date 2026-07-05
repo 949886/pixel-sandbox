@@ -1,11 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://cqn4icys44pn4"]
+[gd_scene format=3 uid="uid://cqn4icys44pn4"]
 
-[ext_resource type="Script" path="res://test/Test.cs" id="1_ggqfv"]
-[ext_resource type="Script" path="res://test/test.gd" id="2_ui7vh"]
+[ext_resource type="Script" uid="uid://kdkxik2af6w0" path="res://test/Test.cs" id="1_ggqfv"]
+[ext_resource type="Script" uid="uid://dpavhyos2x3wt" path="res://test/test.gd" id="2_ui7vh"]
 
-[node name="Node2D" type="Node2D"]
+[node name="Node2D" type="Node2D" unique_id=1333294732]
 
-[node name="C# Label" type="Label" parent="."]
+[node name="C# Label" type="Label" parent="." unique_id=2098922579]
 visible = false
 offset_left = 7.0
 offset_top = 6.0
@@ -18,7 +18,7 @@ horizontal_alignment = 1
 vertical_alignment = 1
 script = ExtResource("1_ggqfv")
 
-[node name="GDScript Label" type="Label" parent="."]
+[node name="GDScript Label" type="Label" parent="." unique_id=561984704]
 offset_left = 7.0
 offset_top = 6.0
 offset_right = 1148.0
