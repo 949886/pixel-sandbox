@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://cqn4icys44pn4"]
 
-[ext_resource type="Script" uid="uid://kdkxik2af6w0" path="res://test/Test.cs" id="1_ggqfv"]
-[ext_resource type="Script" uid="uid://dpavhyos2x3wt" path="res://test/test.gd" id="2_ui7vh"]
+[ext_resource type="Script" uid="uid://kdkxik2af6w0" path="res://samples/dll-test/Test.cs" id="1_ggqfv"]
+[ext_resource type="Script" uid="uid://dpavhyos2x3wt" path="res://samples/dll-test/test.gd" id="2_ui7vh"]
 
 [node name="Node2D" type="Node2D" unique_id=1333294732]
 
