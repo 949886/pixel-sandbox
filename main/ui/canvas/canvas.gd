@@ -81,6 +81,11 @@ func repaint() -> void:
 
 
 @export var update_collider: bool = false
+@export_range(0.0, 1.0, 0.01) var collider_alpha_threshold: float = 0.1
+@export_range(0.1, 16.0, 0.1) var collider_outline_epsilon: float = 2.0
+@export var collider_min_island_area: float = 8.0
+@export var collider_min_hole_area: float = 8.0
+@export var max_collision_triangles: int = 12000
 
 func background_task(param):
 	# This function will be executed in the thread
@@ -90,9 +95,12 @@ func background_task(param):
 			continue
 			
 		var start_time = Time.get_ticks_usec()
-		var bitmap = BitMap.new()
-		bitmap.create_from_image_alpha(solid_image)
-		var polys = bitmap.opaque_to_polygons(Rect2(Vector2.ZERO, image.get_size()), 0.5)
+		var builder := HoledCollisionBuilder2D.new()
+		builder.alpha_threshold = collider_alpha_threshold
+		builder.outline_epsilon = collider_outline_epsilon
+		builder.min_island_area = collider_min_island_area
+		builder.min_hole_area = collider_min_hole_area
+		var polys: Array[PackedVector2Array] = builder.build_triangles_from_image(solid_image)
 		
 		_handle_polys.call_deferred(polys)
 
@@ -104,8 +112,8 @@ func background_task(param):
 		OS.delay_msec(max(polys.size() * 0.2, 50))
 
 var semaphore: Semaphore = Semaphore.new()
-func _handle_polys(polys: Array) -> void:
-	if polys.size() > 3000:
+func _handle_polys(polys: Array[PackedVector2Array]) -> void:
+	if polys.size() > max_collision_triangles:
 		semaphore.post()
 		return
 
@@ -119,9 +127,11 @@ func _handle_polys(polys: Array) -> void:
 
 	var collider = StaticBody2D.new()
 	collider.name = "DynamicCollider"
-	for poly in polys:
-		var collision_polygon = CollisionPolygon2D.new()
-		#collision_polygon.build_mode = CollisionPolygon2D.BUILD_SEGMENTS
+	for poly: PackedVector2Array in polys:
+		var collision_polygon := CollisionPolygon2D.new()
+		# Every polygon is already a convex triangle. BUILD_SOLIDS preserves holes
+		# because only triangles belonging to opaque pixels are emitted.
+		collision_polygon.build_mode = CollisionPolygon2D.BUILD_SOLIDS
 		collision_polygon.polygon = poly
 		collider.add_child(collision_polygon)
 
