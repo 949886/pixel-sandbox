@@ -15,6 +15,8 @@ var solid_image: Image:
 var _thread = Thread.new()
 var _static_body: StaticBody2D = StaticBody2D.new()
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+
 func _ready() -> void:
 	%SizeCopy.resized.connect(_on_resized)
 	texture = ImageTexture.create_from_image(Image.create(128, 128, false, Image.FORMAT_RGBA8))
@@ -28,11 +30,12 @@ func _exit_tree():
 	_thread.stop()
 		
 func repaint() -> void:
-	var width: int = CommonReference.main.sim.get_width()
-	var height: int = CommonReference.main.sim.get_height()
+	var sim: SandSimulation = main.sim
+	var width: int = sim.get_width()
+	var height: int = sim.get_height()
 	if width <= 0 or height <= 0: return
-	var data: PackedByteArray = CommonReference.main.sim.get_color_image(Settings.flat_mode)
-	var solid_data: PackedByteArray = CommonReference.main.sim.get_color_image_of_state(0)
+	var data: PackedByteArray = sim.get_color_image(Settings.flat_mode)
+	var solid_data: PackedByteArray = sim.get_color_image_of_state(0)
 	var start_time = Time.get_ticks_usec()
 	image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, data)
 	solid_image = Image.create_from_data(width, height, false, Image.FORMAT_RGBA8, solid_data)

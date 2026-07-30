@@ -23,9 +23,12 @@ var end_draw: Vector2
 
 signal mouse_pressed(start, end)
 
+@onready var main: Main = get_parent() as Main
+@onready var canvas: Canvas = main.get_node("%Canvas") as Canvas
+
 func _ready() -> void:
 	await get_tree().get_root().ready
-	sim = CommonReference.main.sim
+	sim = main.sim
 	
 	for i in [3, 5, 20, 21, 24, 28, 30, 37, 39, 41, 44, 47, 66, 118, 127, 136, 146, 161, 163]:
 		is_fluid[i] = true
@@ -36,7 +39,7 @@ func _ready() -> void:
 	mouse_pressed.connect(_on_mouse_pressed)
 
 func _process(_delta: float) -> void:
-	if not CommonReference.main.active:
+	if not main.active:
 		next_release_invalid = true
 		press_released = true
 		return
@@ -59,7 +62,7 @@ func clear() -> void:
 		for j in range(sim.get_width()):
 			sim.draw_cell(i, j, 0)
 	# Ensures that the canvas is updated even in the pause menu
-	CommonReference.canvas.repaint()
+	canvas.repaint()
 
 func _on_mouse_pressed(start: Vector2, end: Vector2) -> void:
 	if start.distance_to(end) > Settings.brush_size / 2.0:

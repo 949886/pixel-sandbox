@@ -4,6 +4,9 @@ class_name ElementEditorMenu
 
 var current: CustomElement
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+@onready var element_manager: ElementManager = main.get_node("%ElementManager") as ElementManager
+
 func _ready() -> void:
 	super._ready()
 	visible = false
@@ -39,7 +42,7 @@ func _on_element_deleted() -> void:
 	var dir: DirAccess = DirAccess.open("user://")
 	dir.remove(str(current.id) + current.display_name + ".tres")
 	
-	CommonReference.element_manager.custom_element_map.erase(current.id)
+	element_manager.custom_element_map.erase(current.id)
 	Settings.custom_element_ordering.remove_at(Settings.custom_element_ordering.find(current.id))
 	exit()
 

@@ -5,6 +5,10 @@ class_name SaveFileManager
 
 var files: Array[SaveFile] = []
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+@onready var painter: Painter = main.get_node("%Painter") as Painter
+@onready var canvas: Canvas = main.get_node("%Canvas") as Canvas
+
 func _ready() -> void:
 	update_files()
 
@@ -86,33 +90,33 @@ func delete_save_file(file: SaveFile) -> void:
 	update_files()
 
 func save_image(path: String) -> void:
-	var sim: SandSimulation = CommonReference.main.sim
+	var sim: SandSimulation = main.sim
 	
-	var image: Image = Image.create_from_data(sim.get_width(), sim.get_height(), false, Image.FORMAT_RGBA8, CommonReference.main.sim.get_data())
+	var image: Image = Image.create_from_data(sim.get_width(), sim.get_height(), false, Image.FORMAT_RGBA8, sim.get_data())
 	image.save_png(path)
 
 func save_thumbnail(path: String) -> void:
-	var sim: SandSimulation = CommonReference.main.sim
+	var sim: SandSimulation = main.sim
 	
-	var image: Image = Image.create_from_data(sim.get_width(), sim.get_height(), false, Image.FORMAT_RGBA8, CommonReference.main.sim.get_color_image(false))
+	var image: Image = Image.create_from_data(sim.get_width(), sim.get_height(), false, Image.FORMAT_RGBA8, sim.get_color_image(false))
 	image.save_png(path)
 
 func load_image(path: String, version: String) -> void:
-	var sim: SandSimulation = CommonReference.main.sim
+	var sim: SandSimulation = main.sim
 	
-	CommonReference.painter.clear()
+	painter.clear()
 	if version.begins_with("4"):
 		var img: Image = Image.load_from_file(path)
 		for i in range(sim.get_height()):
 			for j in range(sim.get_width()):
 				if j >= img.get_width() or i >= img.get_height():
 					continue
-				CommonReference.main.sim.set_cell(i, j, img.get_pixel(j, i).to_rgba32())
+				sim.set_cell(i, j, img.get_pixel(j, i).to_rgba32())
 	else:
 		# Loading files before the limit increase
 		var img: Image = Image.load_from_file(path)
-		for i in range(CommonReference.main.sim.get_height()):
-			for j in range(CommonReference.main.sim.get_width()):
+		for i in range(sim.get_height()):
+			for j in range(sim.get_width()):
 				if j >= img.get_width() or i >= img.get_height():
 					continue
 				var id: int = int(255 * img.get_pixel(j, i).r)
@@ -120,8 +124,8 @@ func load_image(path: String, version: String) -> void:
 				if id >= 128:
 					id -= 128
 					id += 4097
-				CommonReference.main.sim.set_cell(i, j, id)
-	CommonReference.canvas.repaint()
+				sim.set_cell(i, j, id)
+	canvas.repaint()
 
 func load_thumbnail(path: String, version: String) -> Resource:
 	if version.begins_with("4"):

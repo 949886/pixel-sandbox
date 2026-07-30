@@ -4,6 +4,10 @@ class_name SettingsMenu
 
 var selected_panel: SaveFilePanel
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+@onready var painter: Painter = main.get_node("%Painter") as Painter
+@onready var canvas: Canvas = main.get_node("%Canvas") as Canvas
+
 func _ready() -> void:
 	visible = false
 	modulate.a = 0
@@ -14,7 +18,7 @@ func _ready() -> void:
 	%SizeSlider.value_changed.connect(_on_size_changed)
 	%SpeedSlider.value_changed.connect(_on_speed_changed)
 	%ZoomSlider.value_changed.connect(_on_zoom_changed)
-	%ClearButton.pressed.connect(CommonReference.painter.clear)
+	%ClearButton.pressed.connect(painter.clear)
 	%CheckButton.toggled.connect(_on_mode_changed)
 	%FpsButton.toggled.connect(_on_fps_changed)
 	%BackgroundPicker.color_changed.connect(_on_bg_color_changed)
@@ -53,7 +57,7 @@ func _on_speed_changed(new_speed: int) -> void:
 
 func _on_zoom_changed(new_zoom: int) -> void:
 	Settings.px_scale = new_zoom
-	CommonReference.canvas.resized.emit()
+	canvas.resized.emit()
 
 func _on_mode_changed(_pressed: bool) -> void:
 	Settings.sound_on = not Settings.sound_on

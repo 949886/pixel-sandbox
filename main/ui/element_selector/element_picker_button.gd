@@ -4,13 +4,16 @@ extends ElementButton
 @export var element_picker: ElementSelector
 var current_id: int = -1
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+@onready var element_manager: ElementManager = main.get_node("%ElementManager") as ElementManager
+
 func initialize():
 	if current_id >= 2048:
-		if not current_id in CommonReference.element_manager.custom_element_map:
+		if not current_id in element_manager.custom_element_map:
 			current_id = -1
 	
 	if current_id >= 2048:
-		var custom_element: CustomElement = CommonReference.element_manager.custom_element_map[current_id]
+		var custom_element: CustomElement = element_manager.custom_element_map[current_id]
 		initialize_with_custom(custom_element)
 	else:
 		initialize_with_basic(current_id)

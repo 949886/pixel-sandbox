@@ -15,6 +15,10 @@ class_name UI
 
 var player
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+@onready var painter: Painter = main.get_node("%Painter") as Painter
+@onready var element_manager: ElementManager = main.get_node("%ElementManager") as ElementManager
+
 func _ready() -> void:
 	save_button.pressed.connect(_on_save_selected)
 	save_control.exited.connect(_on_save_control_exited)
@@ -28,7 +32,7 @@ func _ready() -> void:
 	edit_button.pressed.connect(_on_edit_selected)
 	edit_control.exited.connect(_on_edit_control_exited)
 	
-	CommonReference.main.active = true
+	main.active = true
 	
 	var c = get_children()
 	player = AudioStreamPlayer.new()
@@ -57,38 +61,38 @@ func _on_button_down(_x=0):
 	player.playing = true
 
 func _on_edit_selected() -> void:
-	CommonReference.main.active = false
-	var id: int = CommonReference.painter.selected_element
+	main.active = false
+	var id: int = painter.selected_element
 	if id >= 4097:
 		id -= 4097
-	edit_control.edit_element(CommonReference.element_manager.custom_element_map[id])
+	edit_control.edit_element(element_manager.custom_element_map[id])
 	edit_control.enter()
 
 func _on_edit_control_exited() -> void:
-	CommonReference.main.active = true
+	main.active = true
 	edit_control.save_changes()
 	%ElementSelector.update_custom_elements()
 	Settings.save_settings()
-	CommonReference.element_manager.save_elements()
-	CommonReference.element_manager.initialize_custom_elements()
+	element_manager.save_elements()
+	element_manager.initialize_custom_elements()
 
 func _on_save_selected() -> void:
-	CommonReference.main.active = false
+	main.active = false
 	save_control.enter()
 
 func _on_save_control_exited() -> void:
-	CommonReference.main.active = true
+	main.active = true
 
 func _on_settings_selected() -> void:
-	CommonReference.main.active = false
+	main.active = false
 	settings_control.enter()
 
 func _on_settings_control_exited() -> void:
-	CommonReference.main.active = true
+	main.active = true
 
 func _on_help_selected() -> void:
-	CommonReference.main.active = false
+	main.active = false
 	help_control.enter()
 
 func _on_help_control_exited() -> void:
-	CommonReference.main.active = true
+	main.active = true

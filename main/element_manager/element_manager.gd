@@ -7,6 +7,9 @@ var element_materials: Array[Element]
 var element_map: Dictionary
 var custom_element_map: Dictionary
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+@onready var canvas: Canvas = main.get_node("%Canvas") as Canvas
+
 func _ready() -> void:
 	Settings.background_updated.connect(set_background_color)
 	
@@ -119,7 +122,7 @@ func initialize_custom_elements() -> void:
 		pass_dict[custom_element.id].append(custom_element.reactant_3)
 		pass_dict[custom_element.id].append(custom_element.product_3)
 		
-	CommonReference.main.sim.initialize_custom_elements(pass_dict)
+	main.sim.initialize_custom_elements(pass_dict)
 	initialize_element_graphics()
 
 func initialize_element_graphics() -> void:
@@ -128,7 +131,7 @@ func initialize_element_graphics() -> void:
 		if not mat is FlatColor:
 			continue
 		flat_color[mat.id] = mat.color.to_rgba32()
-	CommonReference.main.sim.initialize_flat_color(flat_color)
+	main.sim.initialize_flat_color(flat_color)
 	var gradient_color: Dictionary = {}
 	for mat in element_materials:
 		if not mat is GradientColor:
@@ -143,7 +146,7 @@ func initialize_element_graphics() -> void:
 			mat.offset_2,
 			mat.offset_3
 		]
-	CommonReference.main.sim.initialize_gradient_color(gradient_color)
+	main.sim.initialize_gradient_color(gradient_color)
 	
 	var fluid_color: Dictionary = {}
 	for mat in element_materials:
@@ -160,7 +163,7 @@ func initialize_element_graphics() -> void:
 			element.color_b.to_rgba32(),
 			element.color_c.to_rgba32(),
 		]
-	CommonReference.main.sim.initialize_fluid_color(fluid_color)
+	main.sim.initialize_fluid_color(fluid_color)
 	var metal_color: Dictionary = {}
 	for mat in element_materials:
 		if not mat is Metal:
@@ -169,9 +172,9 @@ func initialize_element_graphics() -> void:
 			mat.color_a.to_rgba32(),
 			mat.color_b.to_rgba32(),
 		]
-	CommonReference.main.sim.initialize_metal_color(metal_color)
+	main.sim.initialize_metal_color(metal_color)
 
 func set_background_color(color: Color) -> void:
 	element_map[0].color = color
 	initialize_element_graphics()
-	CommonReference.canvas.repaint()
+	canvas.repaint()

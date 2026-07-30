@@ -8,6 +8,10 @@ var converter: ImageToElementConverter
 # Set to true to run a test on startup that generates a 256x256 procedural image
 @export var run_test_on_ready: bool = true
 
+@onready var main: Main = get_tree().get_root().get_node("Main") as Main
+@onready var canvas: Canvas = main.get_node("%Canvas") as Canvas
+@onready var element_manager: ElementManager = main.get_node("%ElementManager") as ElementManager
+
 
 func _ready() -> void:
 	converter = ImageToElementConverter.new()
@@ -15,7 +19,7 @@ func _ready() -> void:
 	await get_tree().get_root().ready
 	
 	# Build the palette from loaded elements
-	converter.build_palette_from_elements(CommonReference.element_manager.element_map)
+	converter.build_palette_from_elements(element_manager.element_map)
 	
 	if run_test_on_ready:
 		_run_test()
@@ -25,7 +29,7 @@ func generate_from_image(image: Image, offset: Vector2i = Vector2i.ZERO) -> void
 	## Converts an image and places the resulting elements onto the simulation grid.
 	## Elements are placed at (row + offset.y, col + offset.x).
 	## Pixels outside the simulation bounds are silently clipped.
-	var sim: SandSimulation = CommonReference.main.sim
+	var sim: SandSimulation = main.sim
 	var element_data: Array[PackedInt32Array] = converter.convert_image(image)
 	
 	for row in range(element_data.size()):
@@ -41,7 +45,7 @@ func generate_from_image(image: Image, offset: Vector2i = Vector2i.ZERO) -> void
 			if element_id != 0:
 				sim.draw_cell(target_row, target_col, element_id)
 	
-	CommonReference.canvas.repaint()
+	canvas.repaint()
 
 
 func generate_from_path(path: String, offset: Vector2i = Vector2i.ZERO) -> void:
@@ -74,7 +78,7 @@ func _create_test_image(width: int, height: int) -> Image:
 	
 	# Gather element colors for bands
 	var band_colors: Array = []
-	var element_map: Dictionary = CommonReference.element_manager.element_map
+	var element_map: Dictionary = element_manager.element_map
 	
 	# Pick a representative set of common elements
 	var test_ids: Array = []
