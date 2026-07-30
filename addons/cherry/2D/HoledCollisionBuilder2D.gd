@@ -2,8 +2,14 @@ class_name HoledCollisionBuilder2D
 extends RefCounted
 
 ## Converts alpha-mask images into convex triangle polygons suitable for
-## CollisionPolygon2D. Holes are bridged into their owning opaque island before
-## triangulation, so transparent enclosed regions remain collision-free.
+## CollisionPolygon2D.
+##
+## Polygons with holes are triangulated with Earcut, which accepts hole rings
+## directly. This avoids the weakly-simple contour produced by the old bridge
+## method and keeps triangle count proportional to contour complexity rather
+## than opaque pixel area.
+
+const EarcutTriangulatorScript = preload("res://addons/cherry/2D/EarcutTriangulator2D.cs")
 
 var alpha_threshold: float = 0.1
 var outline_epsilon: float = 2.0
@@ -13,52 +19,162 @@ var min_hole_area: float = 8.0
 var last_island_count: int = 0
 var last_hole_count: int = 0
 var last_triangle_count: int = 0
+var last_failed_island_count: int = 0
+## Kept for compatibility with the previous build. It now counts islands that
+## had to use Godot's legacy bridge triangulation after Earcut returned no data.
+var last_fallback_island_count: int = 0
+
+var _earcut
+var _image_builder: ImageHoledPolygonBuilder
+
+
+func _init() -> void:
+	_earcut = EarcutTriangulatorScript.new()
+	_image_builder = ImageHoledPolygonBuilder.new()
 
 
 func build_triangles_from_image(image: Image) -> Array[PackedVector2Array]:
 	last_island_count = 0
 	last_hole_count = 0
 	last_triangle_count = 0
+	last_failed_island_count = 0
+	last_fallback_island_count = 0
 
-	var image_builder := ImageHoledPolygonBuilder.new()
-	image_builder.alpha_threshold = alpha_threshold
-	image_builder.outline_epsilon = outline_epsilon
-	image_builder.min_island_area = min_island_area
-	image_builder.min_hole_area = min_hole_area
+	_image_builder.alpha_threshold = alpha_threshold
+	_image_builder.outline_epsilon = outline_epsilon
+	_image_builder.min_island_area = min_island_area
+	_image_builder.min_hole_area = min_hole_area
 
-	var shapes: Array[Dictionary] = image_builder.build_from_image(image)
-	last_island_count = image_builder.last_island_count
-	last_hole_count = image_builder.last_hole_count
+	var shapes: Array[Dictionary] = _image_builder.build_from_image(image)
+	last_island_count = _image_builder.last_island_count
+	last_hole_count = _image_builder.last_hole_count
 
 	var triangles: Array[PackedVector2Array] = []
-	for shape_data: Dictionary in shapes:
-		var outer: PackedVector2Array = shape_data.get("outer", PackedVector2Array())
+	for island_index in shapes.size():
+		var shape_data: Dictionary = shapes[island_index]
+		var outer: PackedVector2Array = _sanitize_contour(shape_data.get("outer", PackedVector2Array()))
 		if outer.size() < 3:
 			continue
 
-		var merged: PackedVector2Array = _ensure_ccw(outer)
+		var holes: Array[PackedVector2Array] = []
 		var raw_holes: Array = shape_data.get("holes", [])
 		for raw_hole: Variant in raw_holes:
-			var hole: PackedVector2Array = raw_hole
-			if hole.size() >= 3:
-				merged = _bridge_hole(merged, _ensure_cw(hole))
+			var hole: PackedVector2Array = _sanitize_contour(raw_hole)
+			if hole.size() >= 3 and absf(_polygon_area(hole)) >= min_hole_area:
+				holes.append(hole)
 
-		var indices: PackedInt32Array = Geometry2D.triangulate_polygon(merged)
-		if indices.size() < 3:
-			push_warning("HoledCollisionBuilder2D: triangulation failed for an island.")
+		var flattened := _flatten_rings(outer, holes)
+		var vertices: PackedVector2Array = flattened["vertices"]
+		var hole_indices: PackedInt32Array = flattened["hole_indices"]
+		var indices: PackedInt32Array = _earcut.triangulate(vertices, hole_indices)
+
+		if indices.size() >= 3 and indices.size() % 3 == 0:
+			_append_indexed_triangles(triangles, vertices, indices)
 			continue
 
-		for i in range(0, indices.size(), 3):
-			var triangle := PackedVector2Array([
-				merged[indices[i]],
-				merged[indices[i + 1]],
-				merged[indices[i + 2]],
-			])
-			if absf(_polygon_area(triangle)) > 0.001:
-				triangles.append(triangle)
+		# Earcut is the normal path. Keep the previous bridge implementation only as
+		# a rare compatibility fallback; unlike the old raster fallback, it does not
+		# make shape count grow with filled pixel area.
+		var merged: PackedVector2Array = _ensure_ccw(outer)
+		for hole: PackedVector2Array in holes:
+			merged = _bridge_hole(merged, _ensure_cw(hole))
+		merged = _sanitize_merged_contour(merged)
+		indices = Geometry2D.triangulate_polygon(merged)
+		if indices.size() >= 3:
+			last_fallback_island_count += 1
+			_append_indexed_triangles(triangles, merged, indices)
+		else:
+			last_failed_island_count += 1
+			push_warning("HoledCollisionBuilder2D: Earcut and legacy triangulation failed for island %d." % island_index)
 
 	last_triangle_count = triangles.size()
 	return triangles
+
+
+func _flatten_rings(outer: PackedVector2Array, holes: Array[PackedVector2Array]) -> Dictionary:
+	var vertices := PackedVector2Array()
+	var hole_indices := PackedInt32Array()
+
+	# Earcut accepts either winding, but normalizing it makes the input stable and
+	# keeps results deterministic if contours came from different sources.
+	vertices.append_array(_ensure_ccw(outer))
+	for hole: PackedVector2Array in holes:
+		hole_indices.append(vertices.size())
+		vertices.append_array(_ensure_cw(hole))
+
+	return {
+		"vertices": vertices,
+		"hole_indices": hole_indices,
+	}
+
+
+func _append_indexed_triangles(output: Array[PackedVector2Array], points: PackedVector2Array, indices: PackedInt32Array) -> void:
+	for i in range(0, indices.size(), 3):
+		var ia := indices[i]
+		var ib := indices[i + 1]
+		var ic := indices[i + 2]
+		if ia < 0 or ib < 0 or ic < 0:
+			continue
+		if ia >= points.size() or ib >= points.size() or ic >= points.size():
+			continue
+
+		var triangle := PackedVector2Array([
+			points[ia],
+			points[ib],
+			points[ic],
+		])
+		if absf(_polygon_area(triangle)) > 0.001:
+			output.append(triangle)
+
+
+func _sanitize_contour(points: PackedVector2Array) -> PackedVector2Array:
+	var result := PackedVector2Array()
+	for point: Vector2 in points:
+		if result.is_empty() or not _same_point(result[-1], point):
+			result.append(point)
+	if result.size() > 1 and _same_point(result[0], result[-1]):
+		result.remove_at(result.size() - 1)
+
+	# Repeat because deleting one collinear/spike point can expose another one.
+	var previous_size := -1
+	while result.size() >= 3 and result.size() != previous_size:
+		previous_size = result.size()
+		result = _remove_degenerate_points(result)
+	return result
+
+
+func _remove_degenerate_points(points: PackedVector2Array) -> PackedVector2Array:
+	if points.size() < 4:
+		return points
+	var result := PackedVector2Array()
+	for i in points.size():
+		var previous := points[(i - 1 + points.size()) % points.size()]
+		var current := points[i]
+		var next := points[(i + 1) % points.size()]
+		if _same_point(previous, current) or _same_point(current, next):
+			continue
+
+		var before := current - previous
+		var after := next - current
+		var cross := before.cross(after)
+		var scale := maxf(before.length() * after.length(), 1.0)
+		if absf(cross) <= 0.00001 * scale:
+			# Remove both ordinary collinear points and zero-area backtracking spikes.
+			continue
+		result.append(current)
+	return result if result.size() >= 3 else points
+
+
+func _sanitize_merged_contour(points: PackedVector2Array) -> PackedVector2Array:
+	# Non-consecutive duplicates encode entering/leaving a bridged hole and must
+	# remain. Only zero-length consecutive edges are removed here.
+	var result := PackedVector2Array()
+	for point: Vector2 in points:
+		if result.is_empty() or not _same_point(result[-1], point):
+			result.append(point)
+	if result.size() > 1 and _same_point(result[0], result[-1]):
+		result.remove_at(result.size() - 1)
+	return result
 
 
 func _ensure_ccw(points: PackedVector2Array) -> PackedVector2Array:

@@ -88,27 +88,33 @@ func repaint() -> void:
 @export var max_collision_triangles: int = 12000
 
 func background_task(param):
-	# This function will be executed in the thread
+	# This function will be executed in the thread. Reuse the builder so the
+	# managed Earcut bridge and image polygon builder do not allocate every pass.
+	var builder := HoledCollisionBuilder2D.new()
 	while true:
 		if !Main.active || solid_image == null:
 			OS.delay_msec(10)
 			continue
 			
 		var start_time = Time.get_ticks_usec()
-		var builder := HoledCollisionBuilder2D.new()
 		builder.alpha_threshold = collider_alpha_threshold
 		builder.outline_epsilon = collider_outline_epsilon
 		builder.min_island_area = collider_min_island_area
 		builder.min_hole_area = collider_min_hole_area
 		var polys: Array[PackedVector2Array] = builder.build_triangles_from_image(solid_image)
+		var build_succeeded := builder.last_failed_island_count == 0
 		
-		_handle_polys.call_deferred(polys)
+		# Never replace the current body with a partial collider. In the unlikely
+		# event both triangulators reject an island, keep the last valid collider.
+		if build_succeeded:
+			_handle_polys.call_deferred(polys)
 
 		var end_time = Time.get_ticks_usec()
 		var elapsed_time = end_time - start_time
 		print("Elapsed time: ", elapsed_time, " μs")
 		
-		semaphore.wait()
+		if build_succeeded:
+			semaphore.wait()
 		OS.delay_msec(max(polys.size() * 0.2, 50))
 
 var semaphore: Semaphore = Semaphore.new()
