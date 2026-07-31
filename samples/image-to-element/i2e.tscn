@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://v72umxnmrisu"]
 
-[ext_resource type="Script" uid="uid://cfx1x3ynf08mm" path="res://main/main.gd" id="1_j7xha"]
+[ext_resource type="Script" uid="uid://cfx1x3ynf08mm" path="res://main/painting.gd" id="1_j7xha"]
 [ext_resource type="Script" uid="uid://d2tx46sha6wst" path="res://main/ui/canvas/canvas.gd" id="2_gvpmr"]
 [ext_resource type="Theme" uid="uid://co20v1mxv2dfm" path="res://main/ui/_theme/theme.tres" id="3_isgqk"]
 [ext_resource type="Script" uid="uid://0bxp4qm3tmjj" path="res://main/ui/ui.gd" id="4_vam6v"]
@@ -25,6 +25,7 @@
 [ext_resource type="Script" uid="uid://cjldqi31xvua2" path="res://main/painter/painter.gd" id="23_xy30y"]
 [ext_resource type="Script" uid="uid://duc6igtsr3am2" path="res://samples/image-to-element/world_generator/world_generator.gd" id="24_5u34r"]
 [ext_resource type="Script" uid="uid://b08scs0d4drmp" path="res://main/world_environment.gd" id="25_xqud3"]
+
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rhx1h"]
 

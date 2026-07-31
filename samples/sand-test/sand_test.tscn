@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dw1cki2oc7fqr"]
 
-[ext_resource type="Script" uid="uid://cfx1x3ynf08mm" path="res://main/main.gd" id="1_dfuug"]
+[ext_resource type="Script" uid="uid://cfx1x3ynf08mm" path="res://main/painting.gd" id="1_dfuug"]
 [ext_resource type="Script" uid="uid://d2tx46sha6wst" path="res://main/ui/canvas/canvas.gd" id="2_qfrea"]
 [ext_resource type="Script" uid="uid://ckrj16x6e3l8" path="res://samples/physics/dynamic-collider/scripts/texture_collider.gd" id="3_2ojwr"]
 [ext_resource type="Theme" uid="uid://co20v1mxv2dfm" path="res://main/ui/_theme/theme.tres" id="4_c7d6x"]
@@ -25,6 +25,7 @@
 [ext_resource type="Script" uid="uid://dspnnpl7nkq5m" path="res://main/element_manager/element_manager.gd" id="23_sfur0"]
 [ext_resource type="Script" uid="uid://cjldqi31xvua2" path="res://main/painter/painter.gd" id="24_0fjrl"]
 [ext_resource type="Script" uid="uid://b08scs0d4drmp" path="res://main/world_environment.gd" id="25_xkvdc"]
+
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rhx1h"]
 
