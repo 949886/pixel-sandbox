@@ -9,7 +9,7 @@ extends RefCounted
 ## method and keeps triangle count proportional to contour complexity rather
 ## than opaque pixel area.
 
-const EarcutTriangulatorScript = preload("res://addons/cherry/2D/EarcutTriangulator2D.cs")
+const EarcutTriangulatorScript = preload("res://addons/cherry/2D/EarcutTriangulator2D.gd")
 
 var alpha_threshold: float = 0.1
 var outline_epsilon: float = 2.0
