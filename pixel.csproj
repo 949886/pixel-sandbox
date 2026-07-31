@@ -1,7 +1,11 @@
-<Project Sdk="Godot.NET.Sdk/4.7.0">
+<Project Sdk="Godot.NET.Sdk/4.7.1">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <EnableDynamicLoading>true</EnableDynamicLoading>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -12,5 +16,5 @@
     <DefineConstants Condition=" '$(GodotTargetPlatform)' == 'ios' ">IOS;$(DefineConstants)</DefineConstants>
     <DefineConstants Condition=" '$(GodotTargetPlatform)' == 'web' ">WEB;$(DefineConstants)</DefineConstants>
   </PropertyGroup>
-  
+
 </Project>
