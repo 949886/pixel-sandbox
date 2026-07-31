@@ -48,12 +48,13 @@ func _process(_delta: float) -> void:
 		press_released = true
 		next_release_invalid = false
 	elif not next_release_invalid and Input.is_action_pressed("screen_press"):
+		var image_mouse_position: Vector2 = canvas.local_to_image_position(canvas.get_local_mouse_position())
 		if press_released:
-			start_draw = get_viewport().get_mouse_position() / Settings.px_scale
+			start_draw = image_mouse_position
 			press_released = false
 			mouse_pressed.emit(start_draw, start_draw)
 		else:
-			end_draw = get_viewport().get_mouse_position() / Settings.px_scale
+			end_draw = image_mouse_position
 			mouse_pressed.emit(start_draw, end_draw)
 			start_draw = end_draw
 
