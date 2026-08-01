@@ -2,14 +2,12 @@
 
 [ext_resource type="Theme" uid="uid://co20v1mxv2dfm" path="res://main/ui/_theme/theme.tres" id="1_gu8tf"]
 [ext_resource type="Script" path="res://main/ui/submenu/element_editor/element_editor_menu.gd" id="2_ae0hb"]
-[ext_resource type="FontFile" uid="uid://b8lxwo5dkwrs4" path="res://main/ui/_theme/font/Poppins-Regular.ttf" id="3_gc23u"]
 [ext_resource type="Texture2D" uid="uid://skg5bmd8m812" path="res://main/ui/_icons/close.png" id="4_8lnwy"]
 [ext_resource type="Texture2D" uid="uid://c27djxlyp41fw" path="res://main/ui/empty_big.png" id="5_a6efk"]
 [ext_resource type="PackedScene" uid="uid://dw3yr1ktgbep0" path="res://main/ui/element_selector/ElementPickerButton.tscn" id="5_d2qg0"]
 [ext_resource type="PackedScene" uid="uid://danjqv04qm3f6" path="res://main/ui/element_selector/ElementSelector.tscn" id="7_jk2v0"]
 
 [sub_resource type="Theme" id="Theme_n7xkt"]
-default_font = ExtResource("3_gc23u")
 default_font_size = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e160y"]

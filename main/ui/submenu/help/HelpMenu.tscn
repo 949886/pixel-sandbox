@@ -2,11 +2,9 @@
 
 [ext_resource type="Theme" uid="uid://co20v1mxv2dfm" path="res://main/ui/_theme/theme.tres" id="1_rrple"]
 [ext_resource type="Script" path="res://main/ui/submenu/submenu.gd" id="2_1h5h1"]
-[ext_resource type="FontFile" uid="uid://b8lxwo5dkwrs4" path="res://main/ui/_theme/font/Poppins-Regular.ttf" id="3_q8qyd"]
 [ext_resource type="Texture2D" uid="uid://skg5bmd8m812" path="res://main/ui/_icons/close.png" id="5_lqood"]
 
 [sub_resource type="Theme" id="Theme_n7xkt"]
-default_font = ExtResource("3_q8qyd")
 default_font_size = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e160y"]
@@ -24,19 +22,15 @@ corner_radius_bottom_left = 12
 content_margin_right = 12.0
 
 [sub_resource type="FontVariation" id="FontVariation_wkdgf"]
-base_font = ExtResource("3_q8qyd")
 spacing_bottom = 8
 
 [sub_resource type="FontVariation" id="FontVariation_idlcm"]
-base_font = ExtResource("3_q8qyd")
 spacing_bottom = 8
 
 [sub_resource type="FontVariation" id="FontVariation_d5dah"]
-base_font = ExtResource("3_q8qyd")
 spacing_bottom = 8
 
 [sub_resource type="FontVariation" id="FontVariation_2ru6u"]
-base_font = ExtResource("3_q8qyd")
 spacing_bottom = 8
 
 [sub_resource type="Animation" id="Animation_swdin"]

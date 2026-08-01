@@ -2,11 +2,9 @@
 
 [ext_resource type="Theme" uid="uid://co20v1mxv2dfm" path="res://main/ui/_theme/theme.tres" id="1_f12ql"]
 [ext_resource type="Script" path="res://main/ui/submenu/settings/settings_menu.gd" id="2_1g5bn"]
-[ext_resource type="FontFile" uid="uid://b8lxwo5dkwrs4" path="res://main/ui/_theme/font/Poppins-Regular.ttf" id="3_kmhkm"]
 [ext_resource type="Texture2D" uid="uid://skg5bmd8m812" path="res://main/ui/_icons/close.png" id="4_rvddf"]
 
 [sub_resource type="Theme" id="Theme_n7xkt"]
-default_font = ExtResource("3_kmhkm")
 default_font_size = 24
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e160y"]

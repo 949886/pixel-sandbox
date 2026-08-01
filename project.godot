@@ -14,9 +14,9 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="pixel"
-run/main_scene="res://samples/sand-test/sand_test.tscn"
-config/features=PackedStringArray("4.7", "Forward Plus")
+config/name="Pixel Piece World Integrated V2"
+run/main_scene="res://scenes/World.tscn"
+config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
 [autoload]
@@ -31,12 +31,13 @@ reloadable=true
 
 [display]
 
-window/size/viewport_width=1920
-window/size/viewport_height=1080
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
 
 [dotnet]
 
-project/assembly_name="pixel"
+project/assembly_name="Pixel Piece World Integrated V2"
 
 [input]
 
@@ -48,4 +49,5 @@ screen_press={
 
 [rendering]
 
+textures/canvas_textures/default_texture_filter=0
 textures/vram_compression/import_etc2_astc=true

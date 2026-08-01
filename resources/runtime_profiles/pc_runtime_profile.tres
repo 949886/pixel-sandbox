@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="WorldRuntimeProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/WorldRuntimeProfile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"pc"
+display_name = "PC Pixel"
+use_threaded_chunk_generation = true
+use_threaded_special_generation = true
+load_radius = 2
+main_thread_upload_budget_per_frame = 1
+keep_cpu_visual_images = true
+visual_texture_downscale_factor = 1
+chunk_renderer_pool_limit = 64
+special_renderer_pool_limit = 32
+simulation_enabled = true
+simulation_radius = 1
+simulation_iterations = 1
+simulation_repaint_hz = 15.0
+generate_static_collision = true
+maximum_collision_triangles = 6000
+exchange_dynamic_materials_across_borders = true
+border_exchange_hz = 15.0
+debug_overlay_visible_on_start = false
+world_debug_visible_on_start = false
+debug_update_interval = 0.2
+world_debug_redraw_interval = 0.15
+show_world_debug_chunk_bounds = true
+show_world_debug_socket_profiles = true
+show_world_debug_chunk_labels = true
+show_world_debug_piece_bounds = true
