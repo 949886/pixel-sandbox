@@ -8,61 +8,75 @@ static var _base_flat: Dictionary = {}
 static var _base_gradient: Dictionary = {}
 static var _base_fluid: Dictionary = {}
 static var _base_metal: Dictionary = {}
+static var _prepared_palette_id: int = 0
+static var _prepared_flat: Dictionary = {}
+static var _prepared_gradient: Dictionary = {}
+static var _prepared_fluid: Dictionary = {}
+static var _prepared_metal: Dictionary = {}
+static var _prepared_custom: Dictionary = {}
+static var _prepared_collision_ids: PackedInt32Array = PackedInt32Array()
+
+static func prepare(palette: MaterialPalette) -> void:
+	## Build immutable dictionaries once during world startup instead of duplicating and
+	## rebuilding them every time a nearby chunk starts warming.
+	_load_base_graphics()
+	var palette_id: int = palette.get_instance_id() if palette != null else 0
+	if palette_id == _prepared_palette_id and not _prepared_flat.is_empty():
+		return
+	_prepared_palette_id = palette_id
+	_prepared_flat = _base_flat.duplicate(true)
+	_prepared_gradient = _base_gradient.duplicate(true)
+	_prepared_fluid = _base_fluid.duplicate(true)
+	_prepared_metal = _base_metal.duplicate(true)
+	_prepared_custom = {}
+	_prepared_collision_ids = PackedInt32Array()
+	if palette == null:
+		return
+	palette.rebuild_cache()
+	for entry: MaterialEntry in palette.entries:
+		if entry == null:
+			continue
+		var element_id: int = entry.engine_element_id
+		if entry.solid:
+			_prepared_collision_ids.append(element_id)
+		var packed_color: int = entry.color.to_rgba32()
+		if element_id >= 2048:
+			_prepared_custom[element_id] = _custom_element_data(entry)
+			_prepared_fluid[element_id] = [packed_color, packed_color, packed_color]
+		elif _prepared_fluid.has(element_id):
+			_prepared_fluid[element_id] = [packed_color, packed_color, packed_color]
+		elif _prepared_metal.has(element_id):
+			_prepared_metal[element_id] = [packed_color, packed_color]
+		elif _prepared_gradient.has(element_id):
+			_prepared_gradient[element_id] = [
+				packed_color, packed_color, packed_color, packed_color, packed_color,
+				0.25, 0.50, 0.75
+			]
+		else:
+			_prepared_flat[element_id] = packed_color
 
 static func configure(simulation: SandSimulation, palette: MaterialPalette) -> void:
-	_load_base_graphics()
-	var flat: Dictionary = _base_flat.duplicate(true)
-	var gradient: Dictionary = _base_gradient.duplicate(true)
-	var fluid: Dictionary = _base_fluid.duplicate(true)
-	var metal: Dictionary = _base_metal.duplicate(true)
-	var custom_elements: Dictionary = {}
-
-	if palette != null:
-		palette.rebuild_cache()
-		for entry: MaterialEntry in palette.entries:
-			if entry == null:
-				continue
-			var element_id: int = entry.engine_element_id
-			var packed_color: int = entry.color.to_rgba32()
-			if element_id >= 2048:
-				custom_elements[element_id] = _custom_element_data(entry)
-				fluid[element_id] = [packed_color, packed_color, packed_color]
-			elif fluid.has(element_id):
-				fluid[element_id] = [packed_color, packed_color, packed_color]
-			elif metal.has(element_id):
-				metal[element_id] = [packed_color, packed_color]
-			elif gradient.has(element_id):
-				gradient[element_id] = [
-					packed_color, packed_color, packed_color, packed_color, packed_color,
-					0.25, 0.50, 0.75
-				]
-			else:
-				flat[element_id] = packed_color
-
-	simulation.initialize_custom_elements(custom_elements)
-	simulation.initialize_flat_color(flat)
-	simulation.initialize_gradient_color(gradient)
-	simulation.initialize_fluid_color(fluid)
-	simulation.initialize_metal_color(metal)
+	prepare(palette)
+	simulation.initialize_custom_elements(_prepared_custom)
+	simulation.initialize_flat_color(_prepared_flat)
+	simulation.initialize_gradient_color(_prepared_gradient)
+	simulation.initialize_fluid_color(_prepared_fluid)
+	simulation.initialize_metal_color(_prepared_metal)
+	if simulation.has_method("set_collision_elements"):
+		simulation.call("set_collision_elements", _prepared_collision_ids)
 
 static func _custom_element_data(entry: MaterialEntry) -> Array:
 	return [
 		entry.effective_state(),
 		entry.effective_density(),
 		entry.viscosity,
-		0.0, # conductivity
-		0.5, # neutral temperature
+		0.0,
+		0.5,
 		1.0 if entry.flammable else 0.0,
-		0.0, # reactivity
+		0.0,
 		entry.durability,
-		0.0, # power
-		false, # explosive
-		false, # evaporable
-		false, # alive
-		false, # toxic
-		false, # attractive
-		false, # infectious
-		false, # soluble
+		0.0,
+		false, false, false, false, false, false, false,
 		0, 0, 0, 0, 0, 0
 	]
 

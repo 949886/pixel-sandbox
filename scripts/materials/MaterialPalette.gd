@@ -46,37 +46,114 @@ func image_to_element_ids(source_image: Image) -> PackedInt32Array:
 	var result := PackedInt32Array()
 	if source_image == null or source_image.is_empty():
 		return result
-	var image: Image = source_image.duplicate()
-	if image.is_compressed():
-		var error: Error = image.decompress()
-		if error != OK:
-			push_error("MaterialPalette could not decompress a chunk material image.")
-			return result
-	if image.get_format() != Image.FORMAT_RGBA8:
-		image.convert(Image.FORMAT_RGBA8)
+	# Generated chunk images are already uncompressed RGBA8. Avoid duplicate() in the
+	# hot path; duplicate only when conversion/decompression is actually required.
+	var image: Image = source_image
+	if image.is_compressed() or image.get_format() != Image.FORMAT_RGBA8:
+		image = source_image.duplicate()
+		if image.is_compressed():
+			var error: Error = image.decompress()
+			if error != OK:
+				push_error("MaterialPalette could not decompress a chunk material image.")
+				return result
+		if image.get_format() != Image.FORMAT_RGBA8:
+			image.convert(Image.FORMAT_RGBA8)
 	var bytes: PackedByteArray = image.get_data()
 	var pixel_count: int = image.get_width() * image.get_height()
 	result.resize(pixel_count)
 	var alpha_cutoff: int = int(round(transparent_alpha_threshold * 255.0))
+	# Keep dictionary references local to reduce Variant/property traffic in this
+	# 262,144-iteration worker-thread loop.
+	var exact: Dictionary = _exact_element_by_rgba
+	# Each worker uses a local fallback cache. The palette resource is shared by the
+	# normal and special generation threads, so mutating one shared Dictionary here
+	# would introduce needless locking/races for non-exact source colors.
+	var nearest: Dictionary = {}
+	var allow_nearest: bool = use_nearest_color_fallback
 	for pixel_index: int in range(pixel_count):
-		var byte_index: int = pixel_index * 4
-		var red: int = bytes[byte_index]
-		var green: int = bytes[byte_index + 1]
-		var blue: int = bytes[byte_index + 2]
+		var byte_index: int = pixel_index << 2
 		var alpha: int = bytes[byte_index + 3]
 		if alpha <= alpha_cutoff:
 			result[pixel_index] = 0
 			continue
+		var red: int = bytes[byte_index]
+		var green: int = bytes[byte_index + 1]
+		var blue: int = bytes[byte_index + 2]
 		var key: int = _rgba_key(red, green, blue, alpha)
-		if _exact_element_by_rgba.has(key):
-			result[pixel_index] = int(_exact_element_by_rgba[key])
+		if exact.has(key):
+			result[pixel_index] = int(exact[key])
 			continue
-		if _nearest_cache.has(key):
-			result[pixel_index] = int(_nearest_cache[key])
+		if nearest.has(key):
+			result[pixel_index] = int(nearest[key])
 			continue
-		var resolved: int = _nearest_element_id(Color8(red, green, blue, alpha)) if use_nearest_color_fallback else 0
-		_nearest_cache[key] = resolved
+		var resolved: int = _nearest_element_id(Color8(red, green, blue, alpha)) if allow_nearest else 0
+		nearest[key] = resolved
 		result[pixel_index] = resolved
+	return result
+
+func build_collision_rects(element_ids: PackedInt32Array, width: int, height: int, cell_size: int = 8) -> PackedInt32Array:
+	## Converts the solid mask to a coarse grid and greedily merges occupied cells.
+	## The result is dramatically cheaper than creating one CollisionPolygon2D per
+	## triangulated pixel island and is deterministic/thread-safe CPU work.
+	_ensure_cache()
+	var result := PackedInt32Array()
+	if element_ids.size() != width * height or width <= 0 or height <= 0:
+		return result
+	var step: int = maxi(1, cell_size)
+	var grid_width: int = ceili(float(width) / float(step))
+	var grid_height: int = ceili(float(height) / float(step))
+	var occupied := PackedByteArray()
+	occupied.resize(grid_width * grid_height)
+	for gy: int in range(grid_height):
+		var py0: int = gy * step
+		var py1: int = mini(height, py0 + step)
+		for gx: int in range(grid_width):
+			var px0: int = gx * step
+			var px1: int = mini(width, px0 + step)
+			var solid_count: int = 0
+			var sample_count: int = (px1 - px0) * (py1 - py0)
+			var solid_threshold: int = maxi(1, ceili(float(sample_count) * 0.25))
+			for py: int in range(py0, py1):
+				var row: int = py * width
+				for px: int in range(px0, px1):
+					if bool(_solid_element_ids.get(element_ids[row + px], false)):
+						solid_count += 1
+						if solid_count >= solid_threshold:
+							break
+				if solid_count >= solid_threshold:
+					break
+			occupied[gy * grid_width + gx] = 1 if solid_count >= solid_threshold else 0
+	var used := PackedByteArray()
+	used.resize(occupied.size())
+	for gy: int in range(grid_height):
+		for gx: int in range(grid_width):
+			var start: int = gy * grid_width + gx
+			if occupied[start] == 0 or used[start] != 0:
+				continue
+			var run_width: int = 1
+			while gx + run_width < grid_width:
+				var idx: int = gy * grid_width + gx + run_width
+				if occupied[idx] == 0 or used[idx] != 0:
+					break
+				run_width += 1
+			var run_height: int = 1
+			var can_extend: bool = true
+			while gy + run_height < grid_height and can_extend:
+				for xx: int in range(run_width):
+					var idx: int = (gy + run_height) * grid_width + gx + xx
+					if occupied[idx] == 0 or used[idx] != 0:
+						can_extend = false
+						break
+				if can_extend:
+					run_height += 1
+			for yy: int in range(run_height):
+				for xx: int in range(run_width):
+					used[(gy + yy) * grid_width + gx + xx] = 1
+			var rect_x: int = gx * step
+			var rect_y: int = gy * step
+			var rect_w: int = mini(width - rect_x, run_width * step)
+			var rect_h: int = mini(height - rect_y, run_height * step)
+			result.append_array(PackedInt32Array([rect_x, rect_y, rect_w, rect_h]))
 	return result
 
 func is_solid_element_id(element_id: int) -> bool:
@@ -92,7 +169,6 @@ func _nearest_element_id(source_color: Color) -> int:
 	var best_distance: float = INF
 	for entry: MaterialEntry in entries:
 		if entry == null or entry.engine_element_id == 0:
-			# Opaque unknown pixels should never silently turn into empty air.
 			continue
 		for candidate: Color in entry.all_source_colors():
 			if candidate.a <= transparent_alpha_threshold:
@@ -106,7 +182,6 @@ func _nearest_element_id(source_color: Color) -> int:
 	return best_id
 
 func _color_distance(a: Color, b: Color) -> float:
-	# Weighted RGBA distance; green contributes most to perceived luminance.
 	var dr: float = a.r - b.r
 	var dg: float = a.g - b.g
 	var db: float = a.b - b.b

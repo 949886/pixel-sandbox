@@ -13,13 +13,31 @@ var world_structure: WorldStructure
 var biome_map: BiomeMap
 var socket_profile_planner: SocketProfilePlanner
 var seam_registry: WorldSeamRegistry
+var material_palette: MaterialPalette
+var collision_cell_size: int = 8
+var preview_downscale_factor: int = 1
+var bake_collision_data: bool = true
 
-func _init(p_seed: int, p_library: PieceLibrary, p_config: WorldGenConfig = null, p_special_chunk_planner: SpecialChunkPlanner = null, p_world_structure: WorldStructure = null) -> void:
+func _init(
+	p_seed: int,
+	p_library: PieceLibrary,
+	p_config: WorldGenConfig = null,
+	p_special_chunk_planner: SpecialChunkPlanner = null,
+	p_world_structure: WorldStructure = null,
+	p_material_palette: MaterialPalette = null,
+	p_collision_cell_size: int = 8,
+	p_preview_downscale_factor: int = 1,
+	p_bake_collision_data: bool = true
+) -> void:
 	world_seed = p_seed
 	library = p_library
 	config = p_config
 	special_chunk_planner = p_special_chunk_planner
 	world_structure = p_world_structure
+	material_palette = p_material_palette
+	collision_cell_size = maxi(1, p_collision_cell_size)
+	preview_downscale_factor = maxi(1, p_preview_downscale_factor)
+	bake_collision_data = p_bake_collision_data
 	biome_map = BiomeMap.new(world_seed, config)
 	biome_map.world_structure = world_structure
 	biome_map.special_chunk_planner = special_chunk_planner
@@ -77,7 +95,34 @@ func generate_chunk(coord: Vector2i, create_texture: bool = true) -> PieceChunkD
 	data.connected_open_sides = data.open_side_count
 	data.connectivity_adjusted = data.intended_connection_count > 0 or data.open_side_count > 0
 	data.air_tile_count = _estimate_air_units(data)
+	_bake_runtime_data(data)
 	return data
+
+
+func _bake_runtime_data(data: PieceChunkData) -> void:
+	if data == null:
+		return
+	if material_palette != null and data.material_image != null and not data.material_image.is_empty():
+		data.element_ids = material_palette.image_to_element_ids(data.material_image)
+		if bake_collision_data:
+			data.collision_rects = material_palette.build_collision_rects(
+				data.element_ids, CHUNK_SIZE, CHUNK_SIZE, collision_cell_size
+			)
+	if data.visual_image != null and not data.visual_image.is_empty():
+		if preview_downscale_factor > 1:
+			data.preview_image = data.visual_image.duplicate()
+			data.preview_image.resize(
+				maxi(1, CHUNK_SIZE / preview_downscale_factor),
+				maxi(1, CHUNK_SIZE / preview_downscale_factor),
+				Image.INTERPOLATE_NEAREST
+			)
+			data.visual_image = null
+		else:
+			data.preview_image = data.visual_image
+	# The material image is no longer needed after conversion. Releasing it on the
+	# worker prevents a second 1 MiB image from surviving until main-thread attach.
+	if not data.element_ids.is_empty():
+		data.material_image = null
 
 func _profile_from_variant(value: Variant) -> Array[PieceSocket.Socket]:
 	var result: Array[PieceSocket.Socket] = []

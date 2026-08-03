@@ -30,6 +30,13 @@ var seam_repairs: Array[Dictionary] = []
 var visual_image: Image
 var material_image: Image
 var texture: ImageTexture
+# Runtime-baked data produced on a background worker. Keeping this separate from
+# material_image removes the 512x512 color-to-element conversion from the main thread.
+var element_ids: PackedInt32Array = PackedInt32Array()
+# Greedy-meshed solid rectangles stored as x, y, width, height integer groups.
+var collision_rects: PackedInt32Array = PackedInt32Array()
+# Optional low-resolution static preview uploaded while the native simulation is cold.
+var preview_image: Image
 var placements: Array[PiecePlacement] = []
 var used_glue_count: int = 0
 var piece_count: int = 0

@@ -1,9 +1,10 @@
 class_name ChunkGenerationWorker
 extends RefCounted
 
-# Single background worker for normal piece chunks.
-# It performs CPU-heavy generation and Image composition off the main thread.
-# Scene-tree work and ImageTexture upload are intentionally left to WorldManager.
+# Single background worker for normal piece chunks. CPU-heavy piece selection,
+# image composition, material conversion and collision meshing stay off the main
+# thread. The queue is cancellable/prioritized so fast player movement does not
+# waste time generating chunks that have already left the streaming window.
 
 var generator: PieceChunkGenerator
 var thread: Thread
@@ -17,10 +18,18 @@ var results: Array[Dictionary] = []
 var completed_count: int = 0
 var failed_count: int = 0
 var last_error: String = ""
+var max_result_backlog: int = 4
+var inter_job_yield_ms: int = 0
 
-func start(p_generator: PieceChunkGenerator) -> bool:
+func start(
+	p_generator: PieceChunkGenerator,
+	p_max_result_backlog: int = 4,
+	p_inter_job_yield_ms: int = 0
+) -> bool:
 	stop()
 	generator = p_generator
+	max_result_backlog = maxi(1, p_max_result_backlog)
+	inter_job_yield_ms = maxi(0, p_inter_job_yield_ms)
 	stop_requested = false
 	requests.clear()
 	request_lookup.clear()
@@ -69,27 +78,54 @@ func clear_pending() -> void:
 	mutex.lock()
 	requests.clear()
 	request_lookup.clear()
+	results.clear()
 	mutex.unlock()
 
 func prune_requests(allowed_coords: Dictionary) -> void:
+	## Drops queued and completed-but-not-attached chunks outside the current window.
+	## A request already executing cannot be interrupted, but its result will be
+	## discarded by WorldManager if it became obsolete during generation.
 	mutex.lock()
-	var kept: Array[Vector2i] = []
+	var kept_requests: Array[Vector2i] = []
 	request_lookup.clear()
 	for coord: Vector2i in requests:
 		if allowed_coords.has(coord):
-			kept.append(coord)
+			kept_requests.append(coord)
 			request_lookup[coord] = true
-	requests = kept
+	requests = kept_requests
+	var kept_results: Array[Dictionary] = []
+	for result: Dictionary in results:
+		var coord: Vector2i = result.get("coord", Vector2i.ZERO)
+		if allowed_coords.has(coord):
+			kept_results.append(result)
+	results = kept_results
+	mutex.unlock()
+
+func prioritize_requests(center: Vector2i) -> void:
+	mutex.lock()
+	requests.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		var da: int = a.distance_squared_to(center)
+		var db: int = b.distance_squared_to(center)
+		if da == db:
+			return a.y < b.y if a.y != b.y else a.x < b.x
+		return da < db
+	)
 	mutex.unlock()
 
 func collect_results(max_results: int = 2) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
+	var should_wake: bool = false
 	mutex.lock()
 	var count: int = maxi(1, max_results)
 	while count > 0 and not results.is_empty():
 		out.append(results.pop_front())
 		count -= 1
+	should_wake = not requests.is_empty() and results.size() < max_result_backlog
 	mutex.unlock()
+	# Wake a producer blocked by the bounded result queue. This replaces the old
+	# 1ms self-poll loop, eliminating background busy-wait CPU usage on mobile.
+	if should_wake:
+		semaphore.post()
 	return out
 
 func queued_count() -> int:
@@ -119,12 +155,14 @@ func _thread_loop() -> void:
 		if stop_requested:
 			mutex.unlock()
 			break
-		if not requests.is_empty():
+		if results.size() < max_result_backlog and not requests.is_empty():
 			coord = requests.pop_front()
 			request_lookup.erase(coord)
 			has_request = true
 		mutex.unlock()
 		if not has_request:
+			# The bounded result queue is full, or a stale semaphore token was
+			# consumed. collect_results()/enqueue() will wake us again.
 			continue
 		var data: PieceChunkData = null
 		var ok: bool = false
@@ -138,6 +176,7 @@ func _thread_loop() -> void:
 			if not ok:
 				error_text = "generate_chunk returned null"
 		var elapsed_ms: int = Time.get_ticks_msec() - started_ms
+		var should_continue: bool = false
 		mutex.lock()
 		if ok:
 			completed_count += 1
@@ -155,4 +194,9 @@ func _thread_loop() -> void:
 				"elapsed_ms": elapsed_ms,
 				"error": error_text,
 			})
+		should_continue = not requests.is_empty() and results.size() < max_result_backlog
 		mutex.unlock()
+		if inter_job_yield_ms > 0:
+			OS.delay_msec(inter_job_yield_ms)
+		if should_continue:
+			semaphore.post()

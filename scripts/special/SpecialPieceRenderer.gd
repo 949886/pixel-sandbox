@@ -1,8 +1,7 @@
 class_name SpecialPieceRenderer
 extends Node2D
 
-## Pixel-engine renderer for a multi-chunk special structure. The structure image is
-## split into 512x512 regions; every occupied world chunk owns one PixelChunkCanvas.
+## Staged renderer for a multi-chunk special structure.
 const CHUNK_SIZE: int = PieceWorldConstants.CHUNK_SIZE
 
 var placement: SpecialChunkPlacement
@@ -17,84 +16,67 @@ func setup(
 	enable_collision: bool,
 	simulation_iterations: int = 1,
 	repaint_hz: float = 15.0,
-	maximum_collision_triangles: int = 6000
+	maximum_collision_triangles: int = 6000,
+	collision_cell_size: int = 8,
+	preview_downscale_factor: int = 1,
+	keep_cpu_visual_images: bool = false
 ) -> void:
-	setup_with_image(
+	var chunks: Array[PieceChunkData] = SpecialChunkImageWorker.bake_placement(
 		p_placement,
-		SpecialPieceImageBuilder.build(p_placement),
 		palette,
-		enable_simulation,
-		enable_collision,
-		simulation_iterations,
-		repaint_hz,
-		maximum_collision_triangles
+		collision_cell_size,
+		preview_downscale_factor,
+		enable_collision
+	)
+	setup_with_chunk_data(
+		p_placement, chunks, palette, enable_simulation, enable_collision,
+		simulation_iterations, repaint_hz, maximum_collision_triangles,
+		collision_cell_size, keep_cpu_visual_images
 	)
 
-func setup_with_image(
+func setup_with_chunk_data(
 	p_placement: SpecialChunkPlacement,
-	img: Image,
+	chunks: Array[PieceChunkData],
 	palette: MaterialPalette,
 	enable_simulation: bool,
 	enable_collision: bool,
 	simulation_iterations: int = 1,
 	repaint_hz: float = 15.0,
-	maximum_collision_triangles: int = 6000
+	maximum_collision_triangles: int = 6000,
+	collision_cell_size: int = 8,
+	keep_cpu_visual_images: bool = false
 ) -> void:
 	placement = p_placement
 	visible = true
 	chunk_canvases.clear()
 	position = Vector2(placement.origin_chunk * CHUNK_SIZE)
-
-	var expected_size: Vector2i = placement.size_in_chunks * CHUNK_SIZE
-	var source: Image = img
-	if source == null or source.is_empty():
-		source = Image.create_empty(expected_size.x, expected_size.y, false, Image.FORMAT_RGBA8)
-		source.fill(Color.TRANSPARENT)
-	elif source.get_size() != expected_size:
-		source = source.duplicate()
-		source.resize(expected_size.x, expected_size.y, Image.INTERPOLATE_NEAREST)
-	if source.get_format() != Image.FORMAT_RGBA8:
-		source = source.duplicate()
-		source.convert(Image.FORMAT_RGBA8)
-
 	var used_count: int = 0
-	for local_y: int in range(placement.size_in_chunks.y):
-		for local_x: int in range(placement.size_in_chunks.x):
-			var canvas: PixelChunkCanvas = _obtain_canvas(used_count)
-			used_count += 1
-			var world_coord: Vector2i = placement.origin_chunk + Vector2i(local_x, local_y)
-			canvas.name = "PixelChunk_%d_%d" % [world_coord.x, world_coord.y]
-			canvas.position = Vector2(local_x * CHUNK_SIZE, local_y * CHUNK_SIZE)
-			canvas.visible = true
-
-			var crop: Image = Image.create_empty(CHUNK_SIZE, CHUNK_SIZE, false, Image.FORMAT_RGBA8)
-			crop.fill(Color.TRANSPARENT)
-			crop.blit_rect(
-				source,
-				Rect2i(Vector2i(local_x * CHUNK_SIZE, local_y * CHUNK_SIZE), Vector2i(CHUNK_SIZE, CHUNK_SIZE)),
-				Vector2i.ZERO
-			)
-			var data := PieceChunkData.new(world_coord)
-			data.biome_id = placement.biome_id
-			data.special_chunk_id = placement.chunk_def.id if placement.chunk_def != null else placement.id
-			data.special_chunk_origin = placement.origin_chunk
-			data.special_chunk_size = placement.size_in_chunks
-			data.visual_image = crop
-			data.material_image = crop.duplicate()
-			canvas.setup(
-				data,
-				palette,
-				enable_simulation,
-				enable_collision,
-				simulation_iterations,
-				repaint_hz,
-				maximum_collision_triangles
-			)
-			# The native simulation now owns the material state.
+	for data: PieceChunkData in chunks:
+		if data == null:
+			continue
+		var canvas: PixelChunkCanvas = _obtain_canvas(used_count)
+		used_count += 1
+		var local_coord: Vector2i = data.coord - placement.origin_chunk
+		canvas.name = "PixelChunk_%d_%d" % [data.coord.x, data.coord.y]
+		canvas.position = Vector2(local_coord * CHUNK_SIZE)
+		canvas.visible = true
+		canvas.setup(
+			data,
+			palette,
+			enable_simulation,
+			enable_collision,
+			simulation_iterations,
+			repaint_hz,
+			maximum_collision_triangles,
+			collision_cell_size
+		)
+		if not keep_cpu_visual_images:
 			data.visual_image = null
-			data.material_image = null
-			chunk_canvases[world_coord] = canvas
-
+			data.preview_image = null
+		data.material_image = null
+		data.element_ids = PackedInt32Array()
+		data.collision_rects = PackedInt32Array()
+		chunk_canvases[data.coord] = canvas
 	for index: int in range(used_count, _canvas_pool.size()):
 		_canvas_pool[index].recycle_for_pool()
 	_ensure_debug_label()
@@ -129,6 +111,8 @@ func _ensure_debug_label() -> void:
 		debug_label.add_theme_font_size_override("font_size", 12)
 		debug_label.add_theme_color_override("font_color", Color(1.0, 0.9, 1.0, 0.92))
 		add_child(debug_label)
-	debug_label.visible = true
+	# Labels are opt-in through the debug system; keeping one visible on every special
+	# structure adds unnecessary canvas-item work in release gameplay.
+	debug_label.visible = false
 	if placement != null and placement.chunk_def != null:
 		debug_label.text = "%s\nPixel special %s" % [placement.chunk_def.display_name, str(placement.size_in_chunks)]

@@ -14,7 +14,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 [application]
 
-config/name="Pixel Piece World Integrated V2"
+config/name="Pixel Piece World Smooth Streaming V3"
 run/main_scene="res://scenes/World.tscn"
 config/features=PackedStringArray("4.7", "C#", "Forward Plus")
 config/icon="res://icon.svg"

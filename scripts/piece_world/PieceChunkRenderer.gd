@@ -1,8 +1,8 @@
 class_name PieceChunkRenderer
 extends Node2D
 
-## Runtime renderer for one generated chunk. The original Sprite2D upload path has
-## been replaced by exactly one PixelChunkCanvas/SandSimulation per chunk.
+## One streamed chunk. The PixelChunkCanvas starts as a static preview and is
+## upgraded to a native simulation only when WorldManager schedules it.
 var pixel_canvas: PixelChunkCanvas
 var data: PieceChunkData
 var show_debug: bool = false
@@ -19,6 +19,7 @@ func setup(
 	simulation_iterations: int = 1,
 	repaint_hz: float = 15.0,
 	maximum_collision_triangles: int = 6000,
+	collision_cell_size: int = 8,
 	release_visual_image_after_upload: bool = false
 ) -> void:
 	data = p_data
@@ -33,22 +34,66 @@ func setup(
 		enable_collision,
 		simulation_iterations,
 		repaint_hz,
-		maximum_collision_triangles
+		maximum_collision_triangles,
+		collision_cell_size
 	)
-	# The native simulation owns material state after upload. The authored visual
-	# image is optional CPU-side debug data controlled by the runtime profile.
 	data.texture = null
 	data.material_image = null
+	# PixelChunkCanvas keeps copy-on-write references until native warmup/collision
+	# completes, so the metadata object does not need duplicate large arrays.
+	data.element_ids = PackedInt32Array()
+	data.collision_rects = PackedInt32Array()
 	if release_visual_image_after_upload:
 		data.visual_image = null
+		data.preview_image = null
 	queue_redraw()
 
 func set_simulation_active(active: bool) -> void:
 	if pixel_canvas != null:
 		pixel_canvas.set_simulation_active(active)
 
+func set_warmup_requested(active: bool) -> void:
+	if pixel_canvas != null:
+		pixel_canvas.set_warmup_requested(active)
+
+func set_collision_active(active: bool) -> void:
+	if pixel_canvas != null:
+		pixel_canvas.set_collision_active(active)
+
 func is_simulation_active() -> bool:
 	return pixel_canvas != null and pixel_canvas.is_simulation_active()
+
+func needs_initialization() -> bool:
+	return pixel_canvas != null and pixel_canvas.needs_initialization()
+
+func is_initializing() -> bool:
+	return pixel_canvas != null and pixel_canvas.is_initializing()
+
+func begin_initialization() -> void:
+	if pixel_canvas != null:
+		pixel_canvas.begin_initialization()
+
+func advance_initialization(pixel_budget: int, deadline_usec: int) -> bool:
+	return pixel_canvas.advance_initialization(pixel_budget, deadline_usec) if pixel_canvas != null else true
+
+func needs_texture_activation() -> bool:
+	return pixel_canvas != null and pixel_canvas.needs_texture_activation()
+
+func activate_simulation_texture() -> bool:
+	return pixel_canvas.activate_simulation_texture() if pixel_canvas != null else false
+
+func needs_collision_work() -> bool:
+	return pixel_canvas != null and pixel_canvas.needs_collision_work()
+
+func advance_collision(shape_budget: int, deadline_usec: int) -> bool:
+	return pixel_canvas.advance_collision(shape_budget, deadline_usec) if pixel_canvas != null else true
+
+func simulation_due(now_usec: int) -> bool:
+	return pixel_canvas != null and pixel_canvas.simulation_due(now_usec)
+
+func run_simulation_tick(now_usec: int) -> void:
+	if pixel_canvas != null:
+		pixel_canvas.run_simulation_tick(now_usec)
 
 func get_cell(local_x: int, local_y: int) -> int:
 	return pixel_canvas.get_cell(local_x, local_y) if pixel_canvas != null else 0

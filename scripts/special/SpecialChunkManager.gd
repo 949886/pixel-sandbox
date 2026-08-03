@@ -20,6 +20,11 @@ var generate_static_collision: bool = true
 var simulation_iterations: int = 1
 var simulation_repaint_hz: float = 15.0
 var maximum_collision_triangles: int = 6000
+var collision_cell_size: int = 8
+var preview_downscale_factor: int = 1
+var keep_cpu_visual_images: bool = false
+var deferred_recycle_queue: Array[SpecialPieceRenderer] = []
+var worker_yield_ms: int = 0
 
 func _init(
 	p_planner: SpecialChunkPlanner,
@@ -31,7 +36,11 @@ func _init(
 	p_generate_static_collision: bool = true,
 	p_simulation_iterations: int = 1,
 	p_simulation_repaint_hz: float = 15.0,
-	p_maximum_collision_triangles: int = 6000
+	p_maximum_collision_triangles: int = 6000,
+	p_collision_cell_size: int = 8,
+	p_preview_downscale_factor: int = 1,
+	p_keep_cpu_visual_images: bool = false,
+	p_worker_yield_ms: int = 0
 ) -> void:
 	planner = p_planner
 	parent_node = p_parent_node
@@ -43,9 +52,16 @@ func _init(
 	simulation_iterations = maxi(1, p_simulation_iterations)
 	simulation_repaint_hz = maxf(1.0, p_simulation_repaint_hz)
 	maximum_collision_triangles = maxi(0, p_maximum_collision_triangles)
+	collision_cell_size = maxi(1, p_collision_cell_size)
+	preview_downscale_factor = maxi(1, p_preview_downscale_factor)
+	keep_cpu_visual_images = p_keep_cpu_visual_images
+	worker_yield_ms = maxi(0, p_worker_yield_ms)
 	if use_threaded_generation:
 		image_worker = SpecialChunkImageWorker.new()
-		if not image_worker.start():
+		if not image_worker.start(
+			material_palette, collision_cell_size, preview_downscale_factor,
+			generate_static_collision, 2, worker_yield_ms
+		):
 			push_warning("SpecialChunkManager: special image worker failed to start; falling back to synchronous rendering.")
 			image_worker = null
 			use_threaded_generation = false
@@ -61,7 +77,11 @@ func stop() -> void:
 		var renderer: Node = item as Node
 		if renderer != null and is_instance_valid(renderer):
 			renderer.queue_free()
+	for deferred: SpecialPieceRenderer in deferred_recycle_queue:
+		if deferred != null and is_instance_valid(deferred):
+			deferred.queue_free()
 	renderer_pool.clear()
+	deferred_recycle_queue.clear()
 
 func update_loaded_chunks(needed_chunks: Dictionary) -> void:
 	if planner == null or parent_node == null:
@@ -105,10 +125,16 @@ func process_ready(upload_budget: int = 1) -> int:
 			pending_chunks.erase(id)
 			continue
 		var placement: SpecialChunkPlacement = result.get("placement", null) as SpecialChunkPlacement
-		var img: Image = result.get("image", null) as Image
+		var chunks: Array[PieceChunkData] = []
+		var chunk_variant: Variant = result.get("chunks", [])
+		if chunk_variant is Array:
+			for item in chunk_variant:
+				var data: PieceChunkData = item as PieceChunkData
+				if data != null:
+					chunks.append(data)
 		last_result_ms = int(result.get("elapsed_ms", 0))
-		if placement != null and img != null and parent_node != null:
-			_load_chunk_from_image(placement, img)
+		if placement != null and not chunks.is_empty() and parent_node != null:
+			_load_chunk_from_data(placement, chunks)
 			attached += 1
 		pending_chunks.erase(id)
 	return attached
@@ -121,6 +147,19 @@ func set_simulation_activity(center: Vector2i, radius: int, enabled: bool) -> vo
 		var canvas: PixelChunkCanvas = chunk_canvas_by_coord.get(coord, null) as PixelChunkCanvas
 		if canvas != null:
 			canvas.set_simulation_active(enabled and _chunk_distance(coord, center) <= radius)
+
+func set_warmup_activity(center: Vector2i, radius: int, enabled: bool, predictive_coords: Dictionary) -> void:
+	for coord: Vector2i in chunk_canvas_by_coord.keys():
+		var canvas: PixelChunkCanvas = chunk_canvas_by_coord.get(coord, null) as PixelChunkCanvas
+		if canvas != null:
+			var active_nearby: bool = enabled and _chunk_distance(coord, center) <= radius
+			canvas.set_warmup_requested(active_nearby or predictive_coords.has(coord))
+
+func set_collision_activity(center: Vector2i, radius: int, enabled: bool) -> void:
+	for coord: Vector2i in chunk_canvas_by_coord.keys():
+		var canvas: PixelChunkCanvas = chunk_canvas_by_coord.get(coord, null) as PixelChunkCanvas
+		if canvas != null:
+			canvas.set_collision_active(enabled and _chunk_distance(coord, center) <= radius)
 
 func loaded_canvas_count() -> int:
 	return chunk_canvas_by_coord.size()
@@ -135,23 +174,28 @@ func _load_chunk_sync(placement: SpecialChunkPlacement) -> void:
 		generate_static_collision,
 		simulation_iterations,
 		simulation_repaint_hz,
-		maximum_collision_triangles
+		maximum_collision_triangles,
+		collision_cell_size,
+		preview_downscale_factor,
+		keep_cpu_visual_images
 	)
 	loaded_chunks[placement.id] = instance
 	_register_renderer(instance)
 
-func _load_chunk_from_image(placement: SpecialChunkPlacement, img: Image) -> void:
+func _load_chunk_from_data(placement: SpecialChunkPlacement, chunks: Array[PieceChunkData]) -> void:
 	var instance: SpecialPieceRenderer = _obtain_renderer()
 	instance.name = str(placement.id)
-	instance.setup_with_image(
+	instance.setup_with_chunk_data(
 		placement,
-		img,
+		chunks,
 		material_palette,
 		simulation_enabled,
 		generate_static_collision,
 		simulation_iterations,
 		simulation_repaint_hz,
-		maximum_collision_triangles
+		maximum_collision_triangles,
+		collision_cell_size,
+		keep_cpu_visual_images
 	)
 	loaded_chunks[placement.id] = instance
 	_register_renderer(instance)
@@ -185,12 +229,23 @@ func _unload_chunk(chunk_id: StringName) -> void:
 	var instance: SpecialPieceRenderer = loaded_chunks.get(chunk_id, null) as SpecialPieceRenderer
 	if instance != null:
 		_unregister_renderer(instance)
+		instance.visible = false
+		deferred_recycle_queue.append(instance)
+	loaded_chunks.erase(chunk_id)
+
+func process_recycle(max_count: int = 1) -> int:
+	var recycled: int = 0
+	while recycled < maxi(1, max_count) and not deferred_recycle_queue.is_empty():
+		var instance: SpecialPieceRenderer = deferred_recycle_queue.pop_front()
+		if instance == null or not is_instance_valid(instance):
+			continue
 		if renderer_pool.size() < renderer_pool_limit:
 			instance.recycle_for_pool()
 			renderer_pool.append(instance)
 		else:
 			instance.queue_free()
-	loaded_chunks.erase(chunk_id)
+		recycled += 1
+	return recycled
 
 func queued_count() -> int:
 	return pending_chunks.size()

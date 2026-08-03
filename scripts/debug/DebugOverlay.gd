@@ -80,7 +80,7 @@ func _make_label(text_value: String, font_size: int, color: Color) -> Label:
 func set_debug_snapshot(snapshot: Dictionary) -> void:
 	if panel == null:
 		_build_ui()
-	world_label.text = "Seed %d  ·  Profile %s  ·  Loaded %d  ·  Pending %d  ·  Radius %d\nPlayer chunk %s  ·  Renderer %s  ·  Unit %dpx x %d  ·  Downscale %dx  ·  Pool %d\nAsync chunks %s q/r %d/%d  ·  special q %d  ·  last gen/upload %dms/%d" % [
+	world_label.text = "Seed %d  ·  Profile %s  ·  Loaded %d  ·  Pending %d  ·  Radius %d\nPlayer chunk %s  ·  Renderer %s  ·  Unit %dpx x %d  ·  Downscale %dx  ·  Pool %d\nAsync chunks %s q/r %d/%d  ·  ready %d  ·  special q %d  ·  last gen/upload %dms/%d\nPipeline %.2f/%.2fms  ·  Current %s" % [
 		int(snapshot.get("seed", 0)),
 		str(snapshot.get("runtime_profile", "None")),
 		int(snapshot.get("loaded_count", 0)),
@@ -95,9 +95,13 @@ func set_debug_snapshot(snapshot: Dictionary) -> void:
 		"on" if bool(snapshot.get("threaded_chunks", false)) else "off",
 		int(snapshot.get("worker_queue", 0)),
 		int(snapshot.get("worker_results", 0)),
+		int(snapshot.get("ready_attach_queue", 0)),
 		int(snapshot.get("special_pending", 0)),
 		int(snapshot.get("last_chunk_ms", 0)),
 		int(snapshot.get("last_upload_count", 0)),
+		float(snapshot.get("pipeline_ms", 0.0)),
+		float(snapshot.get("pipeline_budget_ms", 0.0)),
+		str(snapshot.get("current_canvas_mode", "not attached")),
 	]
 	chunk_label.text = "Biome %s  ·  Type %s  ·  Open sides %d  ·  Conn %d\nExpected: T %s  R %s  B %s  L %s\nActual:   T %s  R %s  B %s  L %s\nTags %s" % [
 		str(snapshot.get("biome", "unknown")),
@@ -114,10 +118,14 @@ func set_debug_snapshot(snapshot: Dictionary) -> void:
 		str(snapshot.get("actual_left_profile", "SSSS")),
 		str(snapshot.get("structure_tags", "fallback")),
 	]
-	stats_label.text = "Pixel sim %s  ·  Radius %d  ·  Special canvases %d\nRegular pieces %d  ·  Open sockets %d  ·  Glue %d\nAir units %d  ·  Placements %d  ·  Chambers %d\nSeam repairs %d  ·  Seam broken E/N %d/%d" % [
+	stats_label.text = "Pixel sim %s  ·  Radius %d  ·  Special canvases %d\nFrame pipeline: warm %d  ·  texture %d  ·  collision slices %d  ·  sim ticks %d\nRegular pieces %d  ·  Open sockets %d  ·  Glue %d\nAir units %d  ·  Placements %d  ·  Chambers %d\nSeam repairs %d  ·  Seam broken E/N %d/%d" % [
 		"on" if bool(snapshot.get("simulation_enabled", false)) else "off",
 		int(snapshot.get("simulation_radius", 0)),
 		int(snapshot.get("special_pixel_canvases", 0)),
+		int(snapshot.get("warmup_completed", 0)),
+		int(snapshot.get("texture_activations", 0)),
+		int(snapshot.get("collision_shapes_built", 0)),
+		int(snapshot.get("simulation_ticks", 0)),
 		int(snapshot.get("exact_matches", 0)),
 		int(snapshot.get("compatible_matches", 0)),
 		int(snapshot.get("fallback_count", 0)),
