@@ -39,7 +39,7 @@ extends Resource
 @export_range(1.0, 120.0, 1.0) var simulation_repaint_hz: float = 60.0
 @export var generate_static_collision: bool = true
 @export_range(0, 4, 1) var collision_radius: int = 1
-@export_range(2, 32, 1) var collision_cell_size: int = 8
+@export_range(1, 32, 1) var collision_cell_size: int = 1
 # Retained for compatibility with V2 profiles; greedy rectangles replace triangles.
 @export_range(0, 20000, 100) var maximum_collision_triangles: int = 6000
 @export var exchange_dynamic_materials_across_borders: bool = true

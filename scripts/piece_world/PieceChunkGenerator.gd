@@ -14,7 +14,7 @@ var biome_map: BiomeMap
 var socket_profile_planner: SocketProfilePlanner
 var seam_registry: WorldSeamRegistry
 var material_palette: MaterialPalette
-var collision_cell_size: int = 8
+var collision_cell_size: int = 1
 var preview_downscale_factor: int = 1
 var bake_collision_data: bool = true
 
@@ -25,7 +25,7 @@ func _init(
 	p_special_chunk_planner: SpecialChunkPlanner = null,
 	p_world_structure: WorldStructure = null,
 	p_material_palette: MaterialPalette = null,
-	p_collision_cell_size: int = 8,
+	p_collision_cell_size: int = 1,
 	p_preview_downscale_factor: int = 1,
 	p_bake_collision_data: bool = true
 ) -> void:

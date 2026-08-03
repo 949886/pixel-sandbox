@@ -91,10 +91,10 @@ func image_to_element_ids(source_image: Image) -> PackedInt32Array:
 		result[pixel_index] = resolved
 	return result
 
-func build_collision_rects(element_ids: PackedInt32Array, width: int, height: int, cell_size: int = 8) -> PackedInt32Array:
-	## Converts the solid mask to a coarse grid and greedily merges occupied cells.
-	## The result is dramatically cheaper than creating one CollisionPolygon2D per
-	## triangulated pixel island and is deterministic/thread-safe CPU work.
+func build_collision_rects(element_ids: PackedInt32Array, width: int, height: int, cell_size: int = 1) -> PackedInt32Array:
+	## Converts the solid mask to an occupancy grid and greedily merges occupied cells.
+	## Runtime profiles use a one-pixel step so the merged rectangles exactly cover
+	## the rendered solid pixels without expanding into neighboring air.
 	_ensure_cache()
 	var result := PackedInt32Array()
 	if element_ids.size() != width * height or width <= 0 or height <= 0:
@@ -111,8 +111,8 @@ func build_collision_rects(element_ids: PackedInt32Array, width: int, height: in
 			var px0: int = gx * step
 			var px1: int = mini(width, px0 + step)
 			var solid_count: int = 0
-			# Collision is conservative: a single solid pixel occupies the coarse cell.
-			# This prevents thin walls from disappearing at 8/16 px collision resolution.
+			# With the runtime one-pixel step this is an exact occupancy test. Larger
+			# optional steps remain conservative for custom low-detail profiles.
 			var solid_threshold: int = 1
 			for py: int in range(py0, py1):
 				var row: int = py * width

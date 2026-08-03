@@ -13,7 +13,7 @@ var request_lookup: Dictionary = {}
 var results: Array[Dictionary] = []
 var completed_count: int = 0
 var material_palette: MaterialPalette
-var collision_cell_size: int = 8
+var collision_cell_size: int = 1
 var preview_downscale_factor: int = 1
 var bake_collision_data: bool = true
 var max_result_backlog: int = 2
@@ -21,7 +21,7 @@ var inter_job_yield_ms: int = 0
 
 func start(
 	palette: MaterialPalette,
-	p_collision_cell_size: int = 8,
+	p_collision_cell_size: int = 1,
 	p_preview_downscale_factor: int = 1,
 	p_bake_collision_data: bool = true,
 	p_max_result_backlog: int = 2,

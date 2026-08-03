@@ -65,7 +65,7 @@ func _build_ui() -> void:
 	box.add_child(stats_label)
 	special_label = _make_label("Special: none", 12, Color(0.84, 0.78, 0.94, 1.0))
 	box.add_child(special_label)
-	help_label = _make_label("F1 HUD  F2 World Debug  F3 Regen  F4 Next Seed  F5 Pixel Sim\nSocket marker: hollow ring=Expected, filled dot=Actual, red strip=mismatch", 11, Color(0.62, 0.68, 0.74, 1.0))
+	help_label = _make_label("F1 HUD  F2 World Debug  F3 Regen  F4 Next Seed  F5 Pixel Sim  F6 Collision Debug\nSocket marker: hollow ring=Expected, filled dot=Actual, red strip=mismatch", 11, Color(0.62, 0.68, 0.74, 1.0))
 	box.add_child(help_label)
 
 func _make_label(text_value: String, font_size: int, color: Color) -> Label:
@@ -145,7 +145,7 @@ func set_debug_snapshot(snapshot: Dictionary) -> void:
 	if chamber_text != "":
 		detail_text += "\nChamber: " + chamber_text
 	special_label.text = detail_text
-	help_label.text = "F1 HUD  F2 World Debug  F3 Regenerate  F4 Next Seed  F5 Pixel Sim\nSocket marker: hollow ring=Expected, filled dot=Actual, red strip=mismatch"
+	help_label.text = "F1 HUD  F2 World Debug  F3 Regenerate  F4 Next Seed  F5 Pixel Sim  F6 Collision Debug\nSocket marker: hollow ring=Expected, filled dot=Actual, red strip=mismatch"
 
 func set_debug_data(seed_value: int, center_chunk: Vector2i, loaded_count: int, fallback_count: int, renderer_name: String = "PieceImage", air_tile_count: int = 0, compatible_match_count: int = 0) -> void:
 	set_debug_snapshot({

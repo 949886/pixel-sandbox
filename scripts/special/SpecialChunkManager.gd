@@ -21,11 +21,12 @@ var simulation_iterations: int = 1
 var simulation_hz: float = 60.0
 var simulation_repaint_hz: float = 60.0
 var maximum_collision_triangles: int = 6000
-var collision_cell_size: int = 8
+var collision_cell_size: int = 1
 var preview_downscale_factor: int = 1
 var keep_cpu_visual_images: bool = false
 var deferred_recycle_queue: Array[SpecialPieceRenderer] = []
 var worker_yield_ms: int = 0
+var collision_debug_visible: bool = false
 
 func _init(
 	p_planner: SpecialChunkPlanner,
@@ -39,7 +40,7 @@ func _init(
 	p_simulation_hz: float = 60.0,
 	p_simulation_repaint_hz: float = 60.0,
 	p_maximum_collision_triangles: int = 6000,
-	p_collision_cell_size: int = 8,
+	p_collision_cell_size: int = 1,
 	p_preview_downscale_factor: int = 1,
 	p_keep_cpu_visual_images: bool = false,
 	p_worker_yield_ms: int = 0
@@ -171,6 +172,14 @@ func set_collision_activity(center: Vector2i, radius: int, enabled: bool) -> voi
 		if canvas != null:
 			canvas.set_collision_active(enabled and _chunk_distance(coord, center) <= radius)
 
+
+func set_collision_debug_visible(enabled: bool) -> void:
+	collision_debug_visible = enabled
+	for renderer_value: Variant in loaded_chunks.values():
+		var renderer := renderer_value as SpecialPieceRenderer
+		if renderer != null:
+			renderer.set_collision_debug_visible(enabled)
+
 func loaded_canvas_count() -> int:
 	return chunk_canvas_by_coord.size()
 
@@ -190,6 +199,7 @@ func _load_chunk_sync(placement: SpecialChunkPlacement) -> void:
 		preview_downscale_factor,
 		keep_cpu_visual_images
 	)
+	instance.set_collision_debug_visible(collision_debug_visible)
 	loaded_chunks[placement.id] = instance
 	_register_renderer(instance)
 
@@ -209,6 +219,7 @@ func _load_chunk_from_data(placement: SpecialChunkPlacement, chunks: Array[Piece
 		collision_cell_size,
 		keep_cpu_visual_images
 	)
+	instance.set_collision_debug_visible(collision_debug_visible)
 	loaded_chunks[placement.id] = instance
 	_register_renderer(instance)
 

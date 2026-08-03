@@ -8,6 +8,7 @@ var placement: SpecialChunkPlacement
 var chunk_canvases: Dictionary = {}
 var _canvas_pool: Array[PixelChunkCanvas] = []
 var debug_label: Label
+var collision_debug_visible: bool = false
 
 func setup(
 	p_placement: SpecialChunkPlacement,
@@ -18,7 +19,7 @@ func setup(
 	simulation_hz: float = 60.0,
 	repaint_hz: float = 60.0,
 	maximum_collision_triangles: int = 6000,
-	collision_cell_size: int = 8,
+	collision_cell_size: int = 1,
 	preview_downscale_factor: int = 1,
 	keep_cpu_visual_images: bool = false
 ) -> void:
@@ -45,7 +46,7 @@ func setup_with_chunk_data(
 	simulation_hz: float = 60.0,
 	repaint_hz: float = 60.0,
 	maximum_collision_triangles: int = 6000,
-	collision_cell_size: int = 8,
+	collision_cell_size: int = 1,
 	keep_cpu_visual_images: bool = false
 ) -> void:
 	placement = p_placement
@@ -73,6 +74,7 @@ func setup_with_chunk_data(
 			maximum_collision_triangles,
 			collision_cell_size
 		)
+		canvas.set_collision_debug_visible(collision_debug_visible)
 		if not keep_cpu_visual_images:
 			data.visual_image = null
 			data.preview_image = null
@@ -83,6 +85,13 @@ func setup_with_chunk_data(
 	for index: int in range(used_count, _canvas_pool.size()):
 		_canvas_pool[index].recycle_for_pool()
 	_ensure_debug_label()
+
+
+func set_collision_debug_visible(enabled: bool) -> void:
+	collision_debug_visible = enabled
+	for canvas: PixelChunkCanvas in _canvas_pool:
+		if canvas != null:
+			canvas.set_collision_debug_visible(enabled)
 
 func get_chunk_canvas(world_coord: Vector2i) -> PixelChunkCanvas:
 	return chunk_canvases.get(world_coord, null) as PixelChunkCanvas

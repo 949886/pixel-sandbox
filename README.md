@@ -80,3 +80,8 @@ The world scene now uses separate runtime profile resources for PC and mobile:
 `WorldManager.runtime_profile_mode = Auto` selects PC in the desktop/editor and Mobile on Android/iOS/mobile exports. Use `PC`, `Mobile`, or `Custom` to force a profile while testing.
 
 See `RUNTIME_PROFILES_GUIDE.md` and `MOBILE_PERFORMANCE_GUIDE.md` for details.
+
+
+## Collision debug
+
+- `F6`: toggle the cyan collision debug layer. The layer shows the exact active PhysicsServer2D snapshot.

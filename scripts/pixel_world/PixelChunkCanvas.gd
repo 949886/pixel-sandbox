@@ -45,11 +45,16 @@ var _collision_active_shape_rids: Array[RID] = []
 var _collision_staging_shape_rids: Array[RID] = []
 var _collision_snapshot_committed: bool = false
 var _collision_rebuild_in_progress: bool = false
+# The active rectangle list is kept separately from the staging list so F6 always
+# visualizes the exact snapshot currently installed in PhysicsServer2D.
+var _collision_active_rects: PackedInt32Array = PackedInt32Array()
+var _collision_debug_visible: bool = false
+var _collision_debug_drawer: PixelCollisionDebugDrawer
 var _element_ids: PackedInt32Array = PackedInt32Array()
 var _collision_rects: PackedInt32Array = PackedInt32Array()
 var _load_cursor: int = 0
 var _collision_cursor: int = 0
-var _collision_cell_size: int = 8
+var _collision_cell_size: int = 1
 var _repaint_requested: bool = false
 var _visual_dirty_pending: bool = false
 var _native_dirty_supported: bool = false
@@ -69,7 +74,7 @@ func setup(
 	simulation_hz: float = 60.0,
 	repaint_hz: float = 60.0,
 	_max_collision_triangles: int = 6000,
-	collision_cell_size: int = 8
+	collision_cell_size: int = 1
 ) -> void:
 	recycle_for_pool()
 	chunk_data = data
@@ -125,11 +130,27 @@ func is_warmup_requested() -> bool:
 	return warmup_requested
 
 func set_collision_active(active: bool) -> void:
+	if collision_requested == active:
+		return
 	collision_requested = active
 	_ensure_nodes()
 	# Keep the committed snapshot cached, but remove distant chunks from broad-phase
 	# queries. A staging body is never active before an atomic snapshot swap.
 	_apply_collision_activation()
+	_refresh_collision_debug()
+
+func set_collision_debug_visible(enabled: bool) -> void:
+	if _collision_debug_visible == enabled:
+		return
+	_collision_debug_visible = enabled
+	_ensure_nodes()
+	_refresh_collision_debug()
+
+func is_collision_debug_visible() -> bool:
+	return _collision_debug_visible
+
+func get_committed_collision_rect_count() -> int:
+	return int(_collision_active_rects.size() / 4)
 
 func has_committed_collision_snapshot() -> bool:
 	## Used by player motion safety. A dirty rebuild still returns true because the
@@ -366,9 +387,11 @@ func recycle_for_pool() -> void:
 	warm_state = WarmState.COLD
 	_load_cursor = 0
 	_collision_cursor = 0
-	_collision_cell_size = 8
+	_collision_cell_size = 1
 	_collision_snapshot_committed = false
 	_collision_rebuild_in_progress = false
+	_collision_active_rects = PackedInt32Array()
+	_collision_debug_visible = false
 	_repaint_requested = false
 	_visual_dirty_pending = false
 	next_simulation_due_usec = 0
@@ -468,7 +491,9 @@ func _commit_collision_snapshot() -> void:
 	_collision_snapshot_committed = true
 	_collision_rebuild_in_progress = false
 	_collision_cursor = int(_collision_rects.size() / 4)
+	_collision_active_rects = _collision_rects.duplicate()
 	_apply_collision_activation()
+	_refresh_collision_debug()
 
 	# The former active body is now hidden staging storage and can be cleared safely.
 	_clear_collision_body(_collision_staging_root, _collision_staging_shape_rids)
@@ -498,6 +523,22 @@ func _clear_collision() -> void:
 	_clear_collision_body(_collision_staging_root, _collision_staging_shape_rids)
 	_collision_snapshot_committed = false
 	_collision_rebuild_in_progress = false
+	_collision_active_rects = PackedInt32Array()
+	_refresh_collision_debug()
+
+func _refresh_collision_debug() -> void:
+	if _collision_debug_drawer == null or not is_instance_valid(_collision_debug_drawer):
+		return
+	var should_show: bool = (
+		_collision_debug_visible
+		and collision_requested
+		and _collision_snapshot_committed
+	)
+	_collision_debug_drawer.visible = should_show
+	if should_show:
+		_collision_debug_drawer.set_collision_rects(_collision_active_rects)
+	else:
+		_collision_debug_drawer.clear_collision_rects()
 
 func _ensure_nodes() -> void:
 	if _sprite == null:
@@ -516,4 +557,8 @@ func _ensure_nodes() -> void:
 		_collision_staging_root.collision_layer = 0
 		_collision_staging_root.collision_mask = 0
 		add_child(_collision_staging_root)
+	if _collision_debug_drawer == null:
+		_collision_debug_drawer = PixelCollisionDebugDrawer.new()
+		_collision_debug_drawer.name = "CollisionDebugLayer"
+		add_child(_collision_debug_drawer)
 

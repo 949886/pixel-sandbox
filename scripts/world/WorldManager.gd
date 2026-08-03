@@ -65,7 +65,7 @@ var collision_build_budget_ms: float = 1.0
 var collision_shapes_per_slice: int = 12
 var simulation_update_budget_ms: float = 3.0
 var collision_radius: int = 1
-var collision_cell_size: int = 8
+var collision_cell_size: int = 1
 var recycle_budget_ms: float = 0.5
 
 var library: PieceLibrary
@@ -80,6 +80,7 @@ var player: Node2D
 var debug_overlay: CanvasLayer
 var world_debug_drawer: WorldDebugDrawer
 var debug_world_visible: bool = false
+var collision_debug_visible: bool = false
 var active_config: WorldGenConfig
 var load_radius: int = 2
 var special_chunk_planner: SpecialChunkPlanner
@@ -306,7 +307,7 @@ func _apply_runtime_profile() -> void:
 	collision_shapes_per_slice = runtime_profile.collision_shapes_per_slice if runtime_profile != null else 12
 	simulation_update_budget_ms = runtime_profile.simulation_update_budget_ms if runtime_profile != null else 3.0
 	collision_radius = runtime_profile.collision_radius if runtime_profile != null else simulation_radius
-	collision_cell_size = runtime_profile.collision_cell_size if runtime_profile != null else 8
+	collision_cell_size = runtime_profile.collision_cell_size if runtime_profile != null else 1
 	recycle_budget_ms = runtime_profile.recycle_budget_ms if runtime_profile != null else 0.5
 
 func _apply_runtime_profile_to_debug_nodes() -> void:
@@ -398,6 +399,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F5:
 				simulation_enabled = not simulation_enabled
 				_activity_dirty = true
+			KEY_F6:
+				set_collision_debug_visible(not collision_debug_visible)
+
+func set_collision_debug_visible(enabled: bool) -> void:
+	collision_debug_visible = enabled
+	for renderer_value: Variant in chunk_renderers.values():
+		var renderer := renderer_value as PieceChunkRenderer
+		if renderer != null:
+			renderer.set_collision_debug_visible(enabled)
+	if special_chunk_manager != null:
+		special_chunk_manager.set_collision_debug_visible(enabled)
+	debug_update_accum = debug_update_interval
 
 func _update_debug_ui() -> void:
 	if debug_overlay == null or not debug_overlay.visible or not debug_overlay.has_method("set_debug_snapshot"):
@@ -457,6 +470,7 @@ func _build_debug_snapshot(center: Vector2i) -> Dictionary:
 		"renderer_pool": chunk_renderer_pool.size(),
 		"renderer": "PixelCanvas threaded" if use_threaded_chunk_generation and chunk_worker != null else "PixelCanvas sync",
 		"simulation_enabled": simulation_enabled,
+		"collision_debug_visible": collision_debug_visible,
 		"simulation_radius": simulation_radius,
 		"special_pixel_canvases": special_chunk_manager.loaded_canvas_count() if special_chunk_manager != null else 0,
 		"current_canvas_mode": _canvas_for_chunk(center).upload_mode_name() if _canvas_for_chunk(center) != null else "not attached",
@@ -690,6 +704,7 @@ func _attach_chunk_renderer(data: PieceChunkData) -> void:
 		collision_cell_size,
 		not keep_cpu_visual_images
 	)
+	renderer.set_collision_debug_visible(collision_debug_visible)
 	chunk_renderers[data.coord] = renderer
 	loaded_chunks[data.coord] = data
 	_activity_dirty = true

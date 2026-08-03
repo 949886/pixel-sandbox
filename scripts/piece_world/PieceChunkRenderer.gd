@@ -20,7 +20,7 @@ func setup(
 	simulation_hz: float = 60.0,
 	repaint_hz: float = 60.0,
 	maximum_collision_triangles: int = 6000,
-	collision_cell_size: int = 8,
+	collision_cell_size: int = 1,
 	release_visual_image_after_upload: bool = false
 ) -> void:
 	data = p_data
@@ -65,6 +65,11 @@ func set_warmup_requested(active: bool) -> void:
 func set_collision_active(active: bool) -> void:
 	if pixel_canvas != null:
 		pixel_canvas.set_collision_active(active)
+
+
+func set_collision_debug_visible(enabled: bool) -> void:
+	if pixel_canvas != null:
+		pixel_canvas.set_collision_debug_visible(enabled)
 
 func is_simulation_active() -> bool:
 	return pixel_canvas != null and pixel_canvas.is_simulation_active()
