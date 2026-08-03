@@ -1,18 +1,52 @@
-[gd_resource type="Resource" script_class="WorldRuntimeProfile" format=3 uid="uid://dtnig6530qae7"]
+[gd_resource type="Resource" script_class="WorldRuntimeProfile" load_steps=2 format=3]
 
-[ext_resource type="Script" uid="uid://dtmtee2lyablj" path="res://scripts/resources/WorldRuntimeProfile.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/resources/WorldRuntimeProfile.gd" id="1"]
 
 [resource]
 script = ExtResource("1")
+id = &"pc"
 display_name = "PC Smooth Streaming"
+use_threaded_chunk_generation = true
+use_threaded_special_generation = true
 generation_worker_yield_ms = 1
 special_worker_yield_ms = 1
+load_radius = 2
+main_thread_upload_budget_per_frame = 1
+ready_attach_queue_limit = 6
+generation_result_backlog = 3
+streaming_pipeline_budget_ms = 6.0
 chunk_attach_budget_ms = 1.0
 simulation_warmup_budget_ms = 1.5
+simulation_warmup_pixels_per_slice = 8192
+simulation_texture_activation_budget_ms = 1.0
+simulation_texture_activations_per_frame = 1
 predictive_prewarm_chunks = 2
 collision_build_budget_ms = 0.75
 collision_shapes_per_slice = 16
+simulation_update_budget_ms = 4.00
 recycle_budget_ms = 0.25
+keep_cpu_visual_images = false
 visual_texture_downscale_factor = 2
-simulation_repaint_hz = 30.0
+chunk_renderer_pool_limit = 64
+special_renderer_pool_limit = 32
+simulation_enabled = true
+simulation_radius = 1
+simulation_iterations = 1
+simulation_hz = 60.0
+background_simulation_hz = 12.0
+simulation_repaint_hz = 60.0
+generate_static_collision = true
+collision_radius = 1
+collision_cell_size = 8
+maximum_collision_triangles = 6000
+exchange_dynamic_materials_across_borders = true
 border_exchange_hz = 6.0
+border_seams_per_tick = 2
+debug_overlay_visible_on_start = false
+world_debug_visible_on_start = false
+debug_update_interval = 0.25
+world_debug_redraw_interval = 0.2
+show_world_debug_chunk_bounds = true
+show_world_debug_socket_profiles = true
+show_world_debug_chunk_labels = true
+show_world_debug_piece_bounds = true

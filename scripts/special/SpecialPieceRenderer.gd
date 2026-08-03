@@ -15,7 +15,8 @@ func setup(
 	enable_simulation: bool,
 	enable_collision: bool,
 	simulation_iterations: int = 1,
-	repaint_hz: float = 15.0,
+	simulation_hz: float = 60.0,
+	repaint_hz: float = 60.0,
 	maximum_collision_triangles: int = 6000,
 	collision_cell_size: int = 8,
 	preview_downscale_factor: int = 1,
@@ -30,7 +31,7 @@ func setup(
 	)
 	setup_with_chunk_data(
 		p_placement, chunks, palette, enable_simulation, enable_collision,
-		simulation_iterations, repaint_hz, maximum_collision_triangles,
+		simulation_iterations, simulation_hz, repaint_hz, maximum_collision_triangles,
 		collision_cell_size, keep_cpu_visual_images
 	)
 
@@ -41,7 +42,8 @@ func setup_with_chunk_data(
 	enable_simulation: bool,
 	enable_collision: bool,
 	simulation_iterations: int = 1,
-	repaint_hz: float = 15.0,
+	simulation_hz: float = 60.0,
+	repaint_hz: float = 60.0,
 	maximum_collision_triangles: int = 6000,
 	collision_cell_size: int = 8,
 	keep_cpu_visual_images: bool = false
@@ -66,6 +68,7 @@ func setup_with_chunk_data(
 			enable_simulation,
 			enable_collision,
 			simulation_iterations,
+			simulation_hz,
 			repaint_hz,
 			maximum_collision_triangles,
 			collision_cell_size

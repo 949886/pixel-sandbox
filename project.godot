@@ -37,7 +37,7 @@ window/stretch/mode="canvas_items"
 
 [dotnet]
 
-project/assembly_name="Pixel Piece World Integrated V2"
+project/assembly_name="pixel"
 
 [input]
 

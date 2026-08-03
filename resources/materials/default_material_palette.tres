@@ -1,104 +1,151 @@
-[gd_resource type="Resource" script_class="MaterialPalette" format=3 uid="uid://dj0smdlm47vvn"]
+[gd_resource type="Resource" script_class="MaterialPalette" load_steps=21 format=3]
 
-[ext_resource type="Script" uid="uid://bamdqv8qulllw" path="res://scripts/materials/MaterialPalette.gd" id="1_palette"]
-[ext_resource type="Script" uid="uid://dekcfingwixw" path="res://scripts/materials/MaterialEntry.gd" id="2_entry"]
+[ext_resource type="Script" path="res://scripts/materials/MaterialPalette.gd" id="1_palette"]
+[ext_resource type="Script" path="res://scripts/materials/MaterialEntry.gd" id="2_entry"]
 
 [sub_resource type="Resource" id="MaterialEntry_air"]
 script = ExtResource("2_entry")
+id = &"air"
 color = Color(0, 0, 0, 0)
 source_colors = Array[Color]([Color(0, 0, 0, 1)])
+engine_element_id = 0
 simulation_state = 3
+solid = false
+liquid = false
+flammable = false
 density = 0.0
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_rock"]
 script = ExtResource("2_entry")
 id = &"rock"
-color = Color(0.21176471, 0.19607843, 0.1764706, 1)
+color = Color(0.21176471, 0.19607843, 0.17647059, 1)
 source_colors = Array[Color]([Color(1, 1, 1, 1)])
 engine_element_id = 2048
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 3.0
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_mine_dark"]
 script = ExtResource("2_entry")
 id = &"mine_dark_rock"
-color = Color(0.1254902, 0.10980392, 0.09803922, 1)
-source_colors = Array[Color]([Color(0.11372549, 0.062745094, 0.062745094, 1)])
+color = Color(0.1254902, 0.10980392, 0.098039216, 1)
+source_colors = Array[Color]([Color(0.11372549, 0.062745098, 0.062745098, 1)])
 engine_element_id = 2049
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 3.4
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_snow"]
 script = ExtResource("2_entry")
 id = &"snow_rock"
-color = Color(0.6666667, 0.74509805, 0.8392157, 1)
+color = Color(0.66666667, 0.74509804, 0.83921569, 1)
 engine_element_id = 2050
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 2.0
+viscosity = 0.5
 durability = 0.95
 
 [sub_resource type="Resource" id="MaterialEntry_deep"]
 script = ExtResource("2_entry")
 id = &"deep_rock"
-color = Color(0.18823528, 0.14901961, 0.22745098, 1)
+color = Color(0.18823529, 0.14901961, 0.22745098, 1)
 engine_element_id = 2051
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 3.2
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_snow_dark"]
 script = ExtResource("2_entry")
 id = &"snow_dark_rock"
-color = Color(0.2745098, 0.32156864, 0.4392157, 1)
+color = Color(0.2745098, 0.32156863, 0.43921569, 1)
 engine_element_id = 2053
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 2.4
+viscosity = 0.5
 durability = 0.98
 
 [sub_resource type="Resource" id="MaterialEntry_deep_dark"]
 script = ExtResource("2_entry")
 id = &"deep_dark_rock"
-color = Color(0.09411765, 0.062745094, 0.1254902, 1)
+color = Color(0.094117647, 0.062745098, 0.1254902, 1)
 engine_element_id = 2054
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 3.5
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_metal"]
 script = ExtResource("2_entry")
 id = &"metal"
-color = Color(0.28235295, 0.29803923, 0.3764706, 1)
-source_colors = Array[Color]([Color(0.08627451, 0.09411765, 0.11764706, 1), Color(0.29411766, 0.25490195, 0.34509805, 1), Color(0.25490195, 0.24705882, 0.25490195, 1), Color(0.25490195, 0.24705882, 0.22745098, 1)])
+color = Color(0.28235294, 0.29803922, 0.37647059, 1)
+source_colors = Array[Color]([Color(0.08627451, 0.094117647, 0.11764706, 1), Color(0.29411765, 0.25490196, 0.34509804, 1), Color(0.25490196, 0.24705882, 0.25490196, 1), Color(0.25490196, 0.24705882, 0.22745098, 1)])
 engine_element_id = 17
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 7.0
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_wood"]
 script = ExtResource("2_entry")
 id = &"wood"
-color = Color(0.36078432, 0.22352941, 0.09803922, 1)
-source_colors = Array[Color]([Color(0.38039216, 0.24313726, 0.007843138, 1)])
+color = Color(0.36078431, 0.22352941, 0.098039216, 1)
+source_colors = Array[Color]([Color(0.38039216, 0.24313725, 0.0078431373, 1)])
 engine_element_id = 18
+simulation_state = 1
 solid = true
+liquid = false
 flammable = true
 density = 0.7
+viscosity = 0.5
 durability = 0.6
 
 [sub_resource type="Resource" id="MaterialEntry_water"]
 script = ExtResource("2_entry")
 id = &"water"
-color = Color(0.062745094, 0.2, 0.26666668, 1)
+color = Color(0.062745098, 0.2, 0.26666667, 1)
 engine_element_id = 3
 simulation_state = 2
+solid = false
 liquid = true
+flammable = false
+density = 1.0
 viscosity = 0.15
 durability = 0.0
 
 [sub_resource type="Resource" id="MaterialEntry_oil"]
 script = ExtResource("2_entry")
 id = &"oil"
-color = Color(0.8784314, 0.5882353, 0.89411765, 1)
-source_colors = Array[Color]([Color(0.9411765, 0.73333335, 0.93333334, 1)])
+color = Color(0.87843137, 0.58823529, 0.89411765, 1)
+source_colors = Array[Color]([Color(0.94117647, 0.73333333, 0.93333333, 1)])
 engine_element_id = 30
 simulation_state = 2
+solid = false
 liquid = true
 flammable = true
 density = 0.8
@@ -108,11 +155,13 @@ durability = 0.0
 [sub_resource type="Resource" id="MaterialEntry_lava"]
 script = ExtResource("2_entry")
 id = &"lava"
-color = Color(1, 0.3764706, 0, 1)
-source_colors = Array[Color]([Color(1, 0.47058824, 0.3137255, 1)])
+color = Color(1, 0.37647059, 0, 1)
+source_colors = Array[Color]([Color(1, 0.47058824, 0.31372549, 1)])
 engine_element_id = 20
 simulation_state = 2
+solid = false
 liquid = true
+flammable = false
 density = 2.8
 viscosity = 0.65
 durability = 0.0
@@ -120,31 +169,40 @@ durability = 0.0
 [sub_resource type="Resource" id="MaterialEntry_crystal"]
 script = ExtResource("2_entry")
 id = &"crystal"
-color = Color(0.45490196, 0.9607843, 1, 1)
+color = Color(0.45490196, 0.96078431, 1, 1)
 engine_element_id = 27
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 2.4
+viscosity = 0.5
 durability = 0.99
 
 [sub_resource type="Resource" id="MaterialEntry_organic"]
 script = ExtResource("2_entry")
 id = &"organic"
 color = Color(0.20784314, 0.22352941, 0.1372549, 1)
-source_colors = Array[Color]([Color(0.2, 0.72156864, 0.15686275, 1), Color(0.3764706, 0.627451, 0.39215687, 1), Color(0.5882353, 0.78431374, 0.3137255, 1), Color(0, 1, 0, 1)])
+source_colors = Array[Color]([Color(0.2, 0.72156863, 0.15686275, 1), Color(0.37647059, 0.62745098, 0.39215686, 1), Color(0.58823529, 0.78431373, 0.31372549, 1), Color(0, 1, 0, 1)])
 engine_element_id = 14
+simulation_state = 1
 solid = true
+liquid = false
 flammable = true
 density = 0.8
+viscosity = 0.5
 durability = 0.4
 
 [sub_resource type="Resource" id="MaterialEntry_blood"]
 script = ExtResource("2_entry")
 id = &"blood"
-color = Color(0.78431374, 0, 0.25098038, 1)
-source_colors = Array[Color]([Color(1, 0.3764706, 0.3764706, 1), Color(1, 0, 0, 1), Color(0.50196075, 0.25098038, 0.25098038, 1)])
+color = Color(0.78431373, 0, 0.25098039, 1)
+source_colors = Array[Color]([Color(1, 0.37647059, 0.37647059, 1), Color(1, 0, 0, 1), Color(0.50196078, 0.25098039, 0.25098039, 1)])
 engine_element_id = 118
 simulation_state = 2
+solid = false
 liquid = true
+flammable = false
 density = 1.05
 viscosity = 0.4
 durability = 0.0
@@ -152,31 +210,48 @@ durability = 0.0
 [sub_resource type="Resource" id="MaterialEntry_ruins"]
 script = ExtResource("2_entry")
 id = &"ruins_rock"
-color = Color(0.32156864, 0.2745098, 0.22745098, 1)
-source_colors = Array[Color]([Color(0.1764706, 0.1372549, 0.11764706, 1), Color(0.52941173, 0.4392157, 0.32156864, 1), Color(0.4627451, 0.38431373, 0.2901961, 1)])
+color = Color(0.32156863, 0.2745098, 0.22745098, 1)
+source_colors = Array[Color]([Color(0.17647059, 0.1372549, 0.11764706, 1), Color(0.52941176, 0.43921569, 0.32156863, 1), Color(0.4627451, 0.38431373, 0.29019608, 1)])
 engine_element_id = 2055
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 3.0
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_gold"]
 script = ExtResource("2_entry")
 id = &"gold_decor"
-color = Color(0.8156863, 0.6039216, 0.24313726, 1)
-source_colors = Array[Color]([Color(0.8392157, 0.6039216, 0.22745098, 1), Color(1, 1, 0, 1)])
+color = Color(0.81568627, 0.60392157, 0.24313725, 1)
+source_colors = Array[Color]([Color(0.83921569, 0.60392157, 0.22745098, 1), Color(1, 1, 0, 1)])
 engine_element_id = 2056
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 7.5
+viscosity = 0.5
+durability = 1.0
 
 [sub_resource type="Resource" id="MaterialEntry_shrine"]
 script = ExtResource("2_entry")
 id = &"shrine_stone"
-color = Color(0.5803922, 0.74509805, 0.9019608, 1)
-source_colors = Array[Color]([Color(0.7254902, 0.8235294, 0.92156863, 1), Color(0.5176471, 0.7058824, 0.8235294, 1)])
+color = Color(0.58039216, 0.74509804, 0.90196078, 1)
+source_colors = Array[Color]([Color(0.7254902, 0.82352941, 0.92156863, 1), Color(0.51764706, 0.70588235, 0.82352941, 1)])
 engine_element_id = 2057
+simulation_state = 1
 solid = true
+liquid = false
+flammable = false
 density = 2.6
+viscosity = 0.5
 durability = 0.98
 
 [resource]
 script = ExtResource("1_palette")
-entries = Array[ExtResource("2_entry")]([SubResource("MaterialEntry_air"), SubResource("MaterialEntry_rock"), SubResource("MaterialEntry_mine_dark"), SubResource("MaterialEntry_snow"), SubResource("MaterialEntry_deep"), SubResource("MaterialEntry_snow_dark"), SubResource("MaterialEntry_deep_dark"), SubResource("MaterialEntry_metal"), SubResource("MaterialEntry_wood"), SubResource("MaterialEntry_water"), SubResource("MaterialEntry_oil"), SubResource("MaterialEntry_lava"), SubResource("MaterialEntry_crystal"), SubResource("MaterialEntry_organic"), SubResource("MaterialEntry_blood"), SubResource("MaterialEntry_ruins"), SubResource("MaterialEntry_gold"), SubResource("MaterialEntry_shrine")])
+entries = Array[Resource]([SubResource("MaterialEntry_air"), SubResource("MaterialEntry_rock"), SubResource("MaterialEntry_mine_dark"), SubResource("MaterialEntry_snow"), SubResource("MaterialEntry_deep"), SubResource("MaterialEntry_snow_dark"), SubResource("MaterialEntry_deep_dark"), SubResource("MaterialEntry_metal"), SubResource("MaterialEntry_wood"), SubResource("MaterialEntry_water"), SubResource("MaterialEntry_oil"), SubResource("MaterialEntry_lava"), SubResource("MaterialEntry_crystal"), SubResource("MaterialEntry_organic"), SubResource("MaterialEntry_blood"), SubResource("MaterialEntry_ruins"), SubResource("MaterialEntry_gold"), SubResource("MaterialEntry_shrine")])
+transparent_alpha_threshold = 0.05
+use_nearest_color_fallback = true
+maximum_color_distance = 0.42

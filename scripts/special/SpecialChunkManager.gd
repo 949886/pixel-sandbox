@@ -18,7 +18,8 @@ var renderer_pool_limit: int = 32
 var simulation_enabled: bool = true
 var generate_static_collision: bool = true
 var simulation_iterations: int = 1
-var simulation_repaint_hz: float = 15.0
+var simulation_hz: float = 60.0
+var simulation_repaint_hz: float = 60.0
 var maximum_collision_triangles: int = 6000
 var collision_cell_size: int = 8
 var preview_downscale_factor: int = 1
@@ -35,7 +36,8 @@ func _init(
 	p_simulation_enabled: bool = true,
 	p_generate_static_collision: bool = true,
 	p_simulation_iterations: int = 1,
-	p_simulation_repaint_hz: float = 15.0,
+	p_simulation_hz: float = 60.0,
+	p_simulation_repaint_hz: float = 60.0,
 	p_maximum_collision_triangles: int = 6000,
 	p_collision_cell_size: int = 8,
 	p_preview_downscale_factor: int = 1,
@@ -50,6 +52,7 @@ func _init(
 	simulation_enabled = p_simulation_enabled
 	generate_static_collision = p_generate_static_collision
 	simulation_iterations = maxi(1, p_simulation_iterations)
+	simulation_hz = maxf(1.0, p_simulation_hz)
 	simulation_repaint_hz = maxf(1.0, p_simulation_repaint_hz)
 	maximum_collision_triangles = maxi(0, p_maximum_collision_triangles)
 	collision_cell_size = maxi(1, p_collision_cell_size)
@@ -142,11 +145,18 @@ func process_ready(upload_budget: int = 1) -> int:
 func get_chunk_canvas(coord: Vector2i) -> PixelChunkCanvas:
 	return chunk_canvas_by_coord.get(coord, null) as PixelChunkCanvas
 
-func set_simulation_activity(center: Vector2i, radius: int, enabled: bool) -> void:
+func set_simulation_activity(
+	center: Vector2i, radius: int, enabled: bool,
+	foreground_hz: float, background_hz: float, repaint_hz: float
+) -> void:
 	for coord: Vector2i in chunk_canvas_by_coord.keys():
 		var canvas: PixelChunkCanvas = chunk_canvas_by_coord.get(coord, null) as PixelChunkCanvas
 		if canvas != null:
-			canvas.set_simulation_active(enabled and _chunk_distance(coord, center) <= radius)
+			var distance: int = _chunk_distance(coord, center)
+			var active: bool = enabled and distance <= radius
+			var target_hz: float = foreground_hz if distance == 0 else background_hz
+			canvas.set_simulation_timing(target_hz, minf(repaint_hz, target_hz))
+			canvas.set_simulation_active(active)
 
 func set_warmup_activity(center: Vector2i, radius: int, enabled: bool, predictive_coords: Dictionary) -> void:
 	for coord: Vector2i in chunk_canvas_by_coord.keys():
@@ -173,6 +183,7 @@ func _load_chunk_sync(placement: SpecialChunkPlacement) -> void:
 		simulation_enabled,
 		generate_static_collision,
 		simulation_iterations,
+		simulation_hz,
 		simulation_repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size,
@@ -192,6 +203,7 @@ func _load_chunk_from_data(placement: SpecialChunkPlacement, chunks: Array[Piece
 		simulation_enabled,
 		generate_static_collision,
 		simulation_iterations,
+		simulation_hz,
 		simulation_repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size,

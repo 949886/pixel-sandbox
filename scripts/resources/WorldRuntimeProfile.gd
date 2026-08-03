@@ -34,7 +34,9 @@ extends Resource
 @export var simulation_enabled: bool = true
 @export_range(0, 4, 1) var simulation_radius: int = 1
 @export_range(1, 4, 1) var simulation_iterations: int = 1
-@export_range(1.0, 60.0, 1.0) var simulation_repaint_hz: float = 15.0
+@export_range(1.0, 120.0, 1.0) var simulation_hz: float = 60.0
+@export_range(1.0, 60.0, 1.0) var background_simulation_hz: float = 12.0
+@export_range(1.0, 120.0, 1.0) var simulation_repaint_hz: float = 60.0
 @export var generate_static_collision: bool = true
 @export_range(0, 4, 1) var collision_radius: int = 1
 @export_range(2, 32, 1) var collision_cell_size: int = 8

@@ -23,12 +23,14 @@ var simulation_requested: bool = false
 var warmup_requested: bool = false
 var collision_requested: bool = false
 var simulation_iterations: int = 1
-var repaint_interval_usec: int = 66667
+var simulation_interval_usec: int = 16667
+var repaint_interval_usec: int = 16667
 var used_bulk_upload: bool = false
 var used_ranged_bulk_upload: bool = false
 var fallback_loaded_cells: int = 0
 var warm_state: WarmState = WarmState.COLD
 var next_simulation_due_usec: int = 0
+var next_repaint_due_usec: int = 0
 
 var _sprite: Sprite2D
 var _static_texture: ImageTexture
@@ -41,6 +43,7 @@ var _load_cursor: int = 0
 var _collision_cursor: int = 0
 var _collision_cell_size: int = 8
 var _repaint_requested: bool = false
+var _visual_dirty_pending: bool = false
 var _native_dirty_supported: bool = false
 var _native_collision_dirty_supported: bool = false
 var _native_collision_rects_supported: bool = false
@@ -55,7 +58,8 @@ func setup(
 	enable_simulation: bool,
 	enable_collision: bool,
 	iterations: int = 1,
-	repaint_hz: float = 15.0,
+	simulation_hz: float = 60.0,
+	repaint_hz: float = 60.0,
 	_max_collision_triangles: int = 6000,
 	collision_cell_size: int = 8
 ) -> void:
@@ -66,7 +70,7 @@ func setup(
 	warmup_requested = enable_simulation
 	collision_requested = enable_collision
 	simulation_iterations = maxi(1, iterations)
-	repaint_interval_usec = maxi(1000, int(1000000.0 / maxf(repaint_hz, 1.0)))
+	set_simulation_timing(simulation_hz, repaint_hz)
 	_collision_cell_size = maxi(1, collision_cell_size)
 	visible = true
 	_ensure_nodes()
@@ -78,7 +82,24 @@ func setup(
 		_element_ids = palette.image_to_element_ids(data.material_image)
 	_upload_static_preview()
 	var coord_hash: int = abs((data.coord.x * 73856093) ^ (data.coord.y * 19349663)) if data != null else 0
-	next_simulation_due_usec = Time.get_ticks_usec() + (coord_hash % maxi(1, repaint_interval_usec))
+	var now_usec: int = Time.get_ticks_usec()
+	next_simulation_due_usec = now_usec + (coord_hash % maxi(1, simulation_interval_usec))
+	next_repaint_due_usec = now_usec + (coord_hash % maxi(1, repaint_interval_usec))
+
+func set_simulation_timing(simulation_hz: float, repaint_hz: float) -> void:
+	## Simulation cadence and visual upload cadence are deliberately independent.
+	## The native grid may advance every frame while dirty rendering remains capped.
+	var new_simulation_interval: int = maxi(1000, int(1000000.0 / maxf(simulation_hz, 1.0)))
+	var new_repaint_interval: int = maxi(1000, int(1000000.0 / maxf(repaint_hz, 1.0)))
+	var now_usec: int = Time.get_ticks_usec()
+	var simulation_rate_increased: bool = new_simulation_interval < simulation_interval_usec
+	var repaint_rate_increased: bool = new_repaint_interval < repaint_interval_usec
+	simulation_interval_usec = new_simulation_interval
+	repaint_interval_usec = new_repaint_interval
+	if next_simulation_due_usec <= 0 or simulation_rate_increased:
+		next_simulation_due_usec = mini(next_simulation_due_usec if next_simulation_due_usec > 0 else now_usec, now_usec + simulation_interval_usec)
+	if next_repaint_due_usec <= 0 or repaint_rate_increased:
+		next_repaint_due_usec = mini(next_repaint_due_usec if next_repaint_due_usec > 0 else now_usec, now_usec + repaint_interval_usec)
 
 func set_simulation_active(active: bool) -> void:
 	# A warmed simulation is retained while the chunk remains loaded, so walking back
@@ -193,7 +214,10 @@ func activate_simulation_texture() -> bool:
 	# A full-size static preview is no longer useful after activation. Downscaled
 	# previews that never warm remain the cheap representation of distant chunks.
 	_static_texture = null
-	next_simulation_due_usec = Time.get_ticks_usec() + repaint_interval_usec
+	var now_usec: int = Time.get_ticks_usec()
+	next_simulation_due_usec = now_usec + simulation_interval_usec
+	next_repaint_due_usec = now_usec + repaint_interval_usec
+	_visual_dirty_pending = false
 	return true
 
 func collision_is_ready() -> bool:
@@ -244,12 +268,19 @@ func run_simulation_tick(now_usec: int) -> void:
 		return
 	simulation.step(simulation_iterations)
 	var changed: bool = bool(simulation.call("is_dirty")) if _native_dirty_supported else true
-	if changed or _repaint_requested:
+	_visual_dirty_pending = _visual_dirty_pending or changed or _repaint_requested
+	# Dirty decides whether an upload is needed; repaint_hz only limits how often a
+	# changing chunk may upload. Simulation itself continues at simulation_hz.
+	if _visual_dirty_pending and now_usec >= next_repaint_due_usec:
 		_repaint()
 		if _native_dirty_supported:
 			simulation.call("clear_dirty")
-	_repaint_requested = false
-	next_simulation_due_usec = now_usec + repaint_interval_usec
+		_visual_dirty_pending = false
+		_repaint_requested = false
+		next_repaint_due_usec = now_usec + repaint_interval_usec
+	# Do not accumulate an unbounded catch-up backlog after a slow frame. One native
+	# step per scheduler visit keeps movement stable instead of producing bursts.
+	next_simulation_due_usec = now_usec + simulation_interval_usec
 
 func get_cell(local_x: int, local_y: int) -> int:
 	if simulation == null or warm_state != WarmState.READY or local_x < 0 or local_y < 0:
@@ -266,11 +297,13 @@ func set_cell(local_x: int, local_y: int, element_id: int) -> void:
 	simulation.draw_cell(local_y, local_x, clampi(element_id, 0, 4096))
 	if not _native_dirty_supported:
 		_repaint_requested = true
+	_visual_dirty_pending = true
 	next_simulation_due_usec = mini(next_simulation_due_usec, Time.get_ticks_usec())
 
 func request_repaint() -> void:
 	if not _native_dirty_supported:
 		_repaint_requested = true
+	_visual_dirty_pending = true
 	next_simulation_due_usec = mini(next_simulation_due_usec, Time.get_ticks_usec())
 
 func upload_mode_name() -> String:
@@ -303,6 +336,9 @@ func recycle_for_pool() -> void:
 	_collision_cursor = 0
 	_collision_cell_size = 8
 	_repaint_requested = false
+	_visual_dirty_pending = false
+	next_simulation_due_usec = 0
+	next_repaint_due_usec = 0
 	_native_dirty_supported = false
 	_native_collision_dirty_supported = false
 	_native_collision_rects_supported = false

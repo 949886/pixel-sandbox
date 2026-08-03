@@ -47,7 +47,9 @@ var debug_update_interval: float = 0.20
 var simulation_enabled: bool = true
 var simulation_radius: int = 1
 var simulation_iterations: int = 1
-var simulation_repaint_hz: float = 15.0
+var simulation_hz: float = 60.0
+var background_simulation_hz: float = 12.0
+var simulation_repaint_hz: float = 60.0
 var generate_static_collision: bool = true
 var maximum_collision_triangles: int = 6000
 var exchange_dynamic_materials_across_borders: bool = true
@@ -170,6 +172,7 @@ func _build_world_runtime() -> void:
 		simulation_enabled,
 		generate_static_collision,
 		simulation_iterations,
+		simulation_hz,
 		simulation_repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size,
@@ -285,7 +288,9 @@ func _apply_runtime_profile() -> void:
 	simulation_enabled = runtime_profile.simulation_enabled if runtime_profile != null else true
 	simulation_radius = runtime_profile.simulation_radius if runtime_profile != null else 1
 	simulation_iterations = runtime_profile.simulation_iterations if runtime_profile != null else 1
-	simulation_repaint_hz = runtime_profile.simulation_repaint_hz if runtime_profile != null else 15.0
+	simulation_hz = runtime_profile.simulation_hz if runtime_profile != null else 60.0
+	background_simulation_hz = runtime_profile.background_simulation_hz if runtime_profile != null else 12.0
+	simulation_repaint_hz = runtime_profile.simulation_repaint_hz if runtime_profile != null else 60.0
 	generate_static_collision = runtime_profile.generate_static_collision if runtime_profile != null else true
 	maximum_collision_triangles = runtime_profile.maximum_collision_triangles if runtime_profile != null else 6000
 	exchange_dynamic_materials_across_borders = runtime_profile.exchange_dynamic_materials_across_borders if runtime_profile != null else true
@@ -327,6 +332,14 @@ func _process(delta: float) -> void:
 		_last_prewarm_direction = prewarm_direction
 		_activity_dirty = true
 	_update_loaded_chunks(false)
+	# Existing foreground simulation is the most latency-sensitive work. Refresh its
+	# rate/activity immediately after player movement, before any chunk attachment or
+	# loading work can consume this frame's budget.
+	if _activity_dirty:
+		_update_simulation_activity()
+		_activity_dirty = false
+	_process_simulation_budget()
+
 	var collect_capacity: int = maxi(0, ready_attach_queue_limit - ready_chunk_queue.size())
 	if collect_capacity > 0:
 		_collect_chunk_results(collect_capacity)
@@ -343,13 +356,14 @@ func _process(delta: float) -> void:
 			if special_uploads > 0:
 				_activity_dirty = true
 	last_chunk_upload_count = normal_uploads + special_uploads
+	# Newly attached canvases receive their timing before warmup starts. They join the
+	# simulation scheduler on the following frame, avoiding a same-frame load spike.
 	if _activity_dirty:
 		_update_simulation_activity()
 		_activity_dirty = false
 	_process_warmup_budget()
 	_process_texture_activation_budget()
 	_process_collision_budget()
-	_process_simulation_budget()
 	_process_recycle_budget()
 	if exchange_dynamic_materials_across_borders and simulation_enabled:
 		_border_exchange_accumulator += delta
@@ -433,6 +447,9 @@ func _build_debug_snapshot(center: Vector2i) -> Dictionary:
 		"texture_activations": _last_activation_count,
 		"collision_shapes_built": _last_collision_shape_count,
 		"simulation_ticks": _last_simulation_tick_count,
+		"simulation_hz": simulation_hz,
+		"background_simulation_hz": background_simulation_hz,
+		"simulation_repaint_hz": simulation_repaint_hz,
 		"load_radius": load_radius,
 		"visual_downscale": visual_texture_downscale_factor,
 		"renderer_pool": chunk_renderer_pool.size(),
@@ -665,7 +682,8 @@ func _attach_chunk_renderer(data: PieceChunkData) -> void:
 		active,
 		generate_static_collision,
 		simulation_iterations,
-		simulation_repaint_hz,
+		simulation_hz if data.coord == current_player_chunk else background_simulation_hz,
+		minf(simulation_repaint_hz, simulation_hz if data.coord == current_player_chunk else background_simulation_hz),
 		maximum_collision_triangles,
 		collision_cell_size,
 		not keep_cpu_visual_images
@@ -695,12 +713,18 @@ func _update_simulation_activity() -> void:
 	for coord: Vector2i in chunk_renderers.keys():
 		var renderer: PieceChunkRenderer = chunk_renderers.get(coord, null) as PieceChunkRenderer
 		if renderer != null:
-			var active_nearby: bool = simulation_enabled and _chunk_distance(coord, current_player_chunk) <= simulation_radius
+			var distance: int = _chunk_distance(coord, current_player_chunk)
+			var active_nearby: bool = simulation_enabled and distance <= simulation_radius
+			var target_hz: float = simulation_hz if distance == 0 else background_simulation_hz
+			renderer.set_simulation_timing(target_hz, minf(simulation_repaint_hz, target_hz))
 			renderer.set_simulation_active(active_nearby)
 			renderer.set_warmup_requested(active_nearby or predictive_coords.has(coord))
 			renderer.set_collision_active(generate_static_collision and _chunk_distance(coord, current_player_chunk) <= collision_radius)
 	if special_chunk_manager != null:
-		special_chunk_manager.set_simulation_activity(current_player_chunk, simulation_radius, simulation_enabled)
+		special_chunk_manager.set_simulation_activity(
+			current_player_chunk, simulation_radius, simulation_enabled,
+			simulation_hz, background_simulation_hz, simulation_repaint_hz
+		)
 		special_chunk_manager.set_warmup_activity(
 			current_player_chunk, simulation_radius, simulation_enabled, predictive_coords
 		)
@@ -809,19 +833,35 @@ func _process_simulation_budget() -> void:
 	if coords.is_empty():
 		_simulation_round_robin_cursor = 0
 		return
-	_simulation_round_robin_cursor %= coords.size()
 	var deadline_usec: int = mini(
 		_pipeline_deadline_usec, Time.get_ticks_usec() + int(simulation_update_budget_ms * 1000.0)
 	)
+	# The player's current chunk is latency-sensitive and must not be diluted by the
+	# neighbor round-robin. It gets first chance every rendered frame.
+	var foreground: PixelChunkCanvas = _canvas_for_chunk(current_player_chunk)
+	var now_usec: int = Time.get_ticks_usec()
+	if foreground != null and foreground.simulation_due(now_usec):
+		foreground.run_simulation_tick(now_usec)
+		_last_simulation_tick_count += 1
+	if Time.get_ticks_usec() >= deadline_usec:
+		return
+	var background_coords: Array[Vector2i] = []
+	for coord: Vector2i in coords:
+		if coord != current_player_chunk:
+			background_coords.append(coord)
+	if background_coords.is_empty():
+		_simulation_round_robin_cursor = 0
+		return
+	_simulation_round_robin_cursor %= background_coords.size()
 	var scanned: int = 0
-	while scanned < coords.size():
-		var index: int = (_simulation_round_robin_cursor + scanned) % coords.size()
-		var canvas: PixelChunkCanvas = _canvas_for_chunk(coords[index])
-		var now_usec: int = Time.get_ticks_usec()
+	while scanned < background_coords.size():
+		var index: int = (_simulation_round_robin_cursor + scanned) % background_coords.size()
+		var canvas: PixelChunkCanvas = _canvas_for_chunk(background_coords[index])
+		now_usec = Time.get_ticks_usec()
 		if canvas != null and canvas.simulation_due(now_usec):
 			canvas.run_simulation_tick(now_usec)
 			_last_simulation_tick_count += 1
-			_simulation_round_robin_cursor = (index + 1) % coords.size()
+			_simulation_round_robin_cursor = (index + 1) % background_coords.size()
 			if Time.get_ticks_usec() >= deadline_usec:
 				break
 		scanned += 1

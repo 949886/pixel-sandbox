@@ -17,7 +17,8 @@ func setup(
 	enable_simulation: bool,
 	enable_collision: bool,
 	simulation_iterations: int = 1,
-	repaint_hz: float = 15.0,
+	simulation_hz: float = 60.0,
+	repaint_hz: float = 60.0,
 	maximum_collision_triangles: int = 6000,
 	collision_cell_size: int = 8,
 	release_visual_image_after_upload: bool = false
@@ -33,6 +34,7 @@ func setup(
 		enable_simulation,
 		enable_collision,
 		simulation_iterations,
+		simulation_hz,
 		repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size
@@ -51,6 +53,10 @@ func setup(
 func set_simulation_active(active: bool) -> void:
 	if pixel_canvas != null:
 		pixel_canvas.set_simulation_active(active)
+
+func set_simulation_timing(simulation_hz: float, repaint_hz: float) -> void:
+	if pixel_canvas != null:
+		pixel_canvas.set_simulation_timing(simulation_hz, repaint_hz)
 
 func set_warmup_requested(active: bool) -> void:
 	if pixel_canvas != null:
