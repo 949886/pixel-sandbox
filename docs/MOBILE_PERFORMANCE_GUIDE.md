@@ -1,3 +1,5 @@
+> **V3 提示：** 当前性能实现已升级。请优先阅读 `PERFORMANCE_OPTIMIZATION_V3.md`；本文中的部分 V2 参数和流程仅供历史参考。
+
 # Mobile Performance Guide
 
 Mobile settings now live in a separate runtime profile resource:
