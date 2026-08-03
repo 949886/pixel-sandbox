@@ -111,8 +111,9 @@ func build_collision_rects(element_ids: PackedInt32Array, width: int, height: in
 			var px0: int = gx * step
 			var px1: int = mini(width, px0 + step)
 			var solid_count: int = 0
-			var sample_count: int = (px1 - px0) * (py1 - py0)
-			var solid_threshold: int = maxi(1, ceili(float(sample_count) * 0.25))
+			# Collision is conservative: a single solid pixel occupies the coarse cell.
+			# This prevents thin walls from disappearing at 8/16 px collision resolution.
+			var solid_threshold: int = 1
 			for py: int in range(py0, py1):
 				var row: int = py * width
 				for px: int in range(px0, px1):

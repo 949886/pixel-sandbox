@@ -35,8 +35,16 @@ var next_repaint_due_usec: int = 0
 var _sprite: Sprite2D
 var _static_texture: ImageTexture
 var _simulation_texture: ImageTexture
-var _collision_root: StaticBody2D
-var _collision_shape_rids: Array[RID] = []
+# Collision snapshots are double-buffered. The active body remains fully usable
+# while a new dirty snapshot is assembled on the staging body. Only after every
+# shape has been created do we swap the bodies, so physics never observes a
+# partially cleared wall.
+var _collision_active_root: StaticBody2D
+var _collision_staging_root: StaticBody2D
+var _collision_active_shape_rids: Array[RID] = []
+var _collision_staging_shape_rids: Array[RID] = []
+var _collision_snapshot_committed: bool = false
+var _collision_rebuild_in_progress: bool = false
 var _element_ids: PackedInt32Array = PackedInt32Array()
 var _collision_rects: PackedInt32Array = PackedInt32Array()
 var _load_cursor: int = 0
@@ -119,10 +127,17 @@ func is_warmup_requested() -> bool:
 func set_collision_active(active: bool) -> void:
 	collision_requested = active
 	_ensure_nodes()
-	# Keep already-built shapes cached, but remove distant chunks from broad-phase
-	# collision queries until they re-enter the configured physics radius.
-	_collision_root.collision_layer = 1 if active else 0
-	_collision_root.collision_mask = 1 if active else 0
+	# Keep the committed snapshot cached, but remove distant chunks from broad-phase
+	# queries. A staging body is never active before an atomic snapshot swap.
+	_apply_collision_activation()
+
+func has_committed_collision_snapshot() -> bool:
+	## Used by player motion safety. A dirty rebuild still returns true because the
+	## previous complete snapshot remains active until its replacement is ready.
+	return _collision_snapshot_committed
+
+func is_collision_active() -> bool:
+	return collision_requested and _collision_snapshot_committed
 
 func is_simulation_active() -> bool:
 	return simulation_requested and warm_state == WarmState.READY and simulation != null
@@ -221,24 +236,38 @@ func activate_simulation_texture() -> bool:
 	return true
 
 func collision_is_ready() -> bool:
-	return _collision_rects.is_empty() or _collision_cursor * 4 >= _collision_rects.size()
+	return _collision_snapshot_committed and not _collision_rebuild_in_progress
 
 func needs_collision_work() -> bool:
 	if not collision_requested:
 		return false
-	return not collision_is_ready() or _native_collision_is_dirty()
+	return (
+		not _collision_snapshot_committed
+		or _collision_rebuild_in_progress
+		or _native_collision_is_dirty()
+	)
 
 func advance_collision(shape_budget: int, deadline_usec: int) -> bool:
 	if not collision_requested:
-		return true
+		return _collision_snapshot_committed
 	_ensure_nodes()
-	# Do not interrupt an in-progress snapshot. If the simulation changes again while
-	# shapes are being created, the native flag remains set and another snapshot is
-	# queued immediately after this one completes.
-	if collision_is_ready() and _native_collision_is_dirty():
-		_begin_native_collision_rebuild()
+
+	# Initial worker-baked collision and later native dirty snapshots both build on
+	# the hidden staging body. The currently committed body is never cleared here.
+	if not _collision_rebuild_in_progress:
+		if not _collision_snapshot_committed:
+			_begin_collision_rebuild(_collision_rects)
+		elif _native_collision_is_dirty():
+			_begin_native_collision_rebuild()
+		else:
+			return true
+
+	# Empty snapshots are meaningful: they atomically replace the old collision with
+	# no shapes, rather than leaving stale walls behind.
 	if _collision_rects.is_empty():
+		_commit_collision_snapshot()
 		return not _native_collision_is_dirty()
+
 	var count: int = 0
 	while _collision_cursor * 4 + 3 < _collision_rects.size() and count < maxi(1, shape_budget):
 		var base: int = _collision_cursor * 4
@@ -249,15 +278,18 @@ func advance_collision(shape_budget: int, deadline_usec: int) -> bool:
 		var shape_rid: RID = PhysicsServer2D.rectangle_shape_create()
 		PhysicsServer2D.shape_set_data(shape_rid, Vector2(width * 0.5, height * 0.5))
 		PhysicsServer2D.body_add_shape(
-			_collision_root.get_rid(),
+			_collision_staging_root.get_rid(),
 			shape_rid,
 			Transform2D(0.0, Vector2(x + width * 0.5, y + height * 0.5))
 		)
-		_collision_shape_rids.append(shape_rid)
+		_collision_staging_shape_rids.append(shape_rid)
 		_collision_cursor += 1
 		count += 1
 		if (count & 7) == 0 and Time.get_ticks_usec() >= deadline_usec:
 			break
+
+	if _collision_cursor * 4 >= _collision_rects.size():
+		_commit_collision_snapshot()
 	return collision_is_ready() and not _native_collision_is_dirty()
 
 func simulation_due(now_usec: int) -> bool:
@@ -335,6 +367,8 @@ func recycle_for_pool() -> void:
 	_load_cursor = 0
 	_collision_cursor = 0
 	_collision_cell_size = 8
+	_collision_snapshot_committed = false
+	_collision_rebuild_in_progress = false
 	_repaint_requested = false
 	_visual_dirty_pending = false
 	next_simulation_due_usec = 0
@@ -345,9 +379,7 @@ func recycle_for_pool() -> void:
 	_element_ids = PackedInt32Array()
 	_collision_rects = PackedInt32Array()
 	_clear_collision()
-	if _collision_root != null:
-		_collision_root.collision_layer = 0
-		_collision_root.collision_mask = 0
+	_apply_collision_activation()
 	# Keep a same-sized static ImageTexture as a tiny renderer-pool cache. Live
 	# 512x512 simulation textures are released to avoid pool memory ballooning.
 	_simulation_texture = null
@@ -405,19 +437,67 @@ func _native_collision_is_dirty() -> bool:
 func _begin_native_collision_rebuild() -> void:
 	if simulation == null or not _native_collision_rects_supported:
 		return
-	_collision_rects = simulation.call("get_collision_rects", _collision_cell_size)
-	_collision_cursor = 0
-	_clear_collision()
+	var rects: PackedInt32Array = simulation.call("get_collision_rects", _collision_cell_size)
+	_begin_collision_rebuild(rects)
+	# Clear only after capturing the snapshot. If simulation changes while staging is
+	# being built, native code sets the flag again and another rebuild follows.
 	if _native_collision_dirty_supported:
 		simulation.call("clear_collision_dirty")
 
-func _clear_collision() -> void:
-	if _collision_root != null and is_instance_valid(_collision_root):
-		PhysicsServer2D.body_clear_shapes(_collision_root.get_rid())
-	for shape_rid: RID in _collision_shape_rids:
+func _begin_collision_rebuild(rects: PackedInt32Array) -> void:
+	_ensure_nodes()
+	_clear_staging_collision()
+	_collision_rects = rects
+	_collision_cursor = 0
+	_collision_rebuild_in_progress = true
+
+func _commit_collision_snapshot() -> void:
+	if not _collision_rebuild_in_progress:
+		return
+
+	# Swap complete bodies instead of mutating the live one. Enable the replacement
+	# before disabling the old body so there is never a physics frame with no wall.
+	var old_active_root: StaticBody2D = _collision_active_root
+	_collision_active_root = _collision_staging_root
+	_collision_staging_root = old_active_root
+
+	var old_active_shapes: Array[RID] = _collision_active_shape_rids
+	_collision_active_shape_rids = _collision_staging_shape_rids
+	_collision_staging_shape_rids = old_active_shapes
+
+	_collision_snapshot_committed = true
+	_collision_rebuild_in_progress = false
+	_collision_cursor = int(_collision_rects.size() / 4)
+	_apply_collision_activation()
+
+	# The former active body is now hidden staging storage and can be cleared safely.
+	_clear_collision_body(_collision_staging_root, _collision_staging_shape_rids)
+
+func _apply_collision_activation() -> void:
+	if _collision_active_root != null and is_instance_valid(_collision_active_root):
+		var layer: int = 1 if collision_requested and _collision_snapshot_committed else 0
+		_collision_active_root.collision_layer = layer
+		_collision_active_root.collision_mask = layer
+	if _collision_staging_root != null and is_instance_valid(_collision_staging_root):
+		_collision_staging_root.collision_layer = 0
+		_collision_staging_root.collision_mask = 0
+
+func _clear_staging_collision() -> void:
+	_clear_collision_body(_collision_staging_root, _collision_staging_shape_rids)
+
+func _clear_collision_body(body: StaticBody2D, shape_rids: Array[RID]) -> void:
+	if body != null and is_instance_valid(body):
+		PhysicsServer2D.body_clear_shapes(body.get_rid())
+	for shape_rid: RID in shape_rids:
 		if shape_rid.is_valid():
 			PhysicsServer2D.free_rid(shape_rid)
-	_collision_shape_rids.clear()
+	shape_rids.clear()
+
+func _clear_collision() -> void:
+	_clear_collision_body(_collision_active_root, _collision_active_shape_rids)
+	_clear_collision_body(_collision_staging_root, _collision_staging_shape_rids)
+	_collision_snapshot_committed = false
+	_collision_rebuild_in_progress = false
 
 func _ensure_nodes() -> void:
 	if _sprite == null:
@@ -426,7 +506,14 @@ func _ensure_nodes() -> void:
 		_sprite.centered = false
 		_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		add_child(_sprite)
-	if _collision_root == null:
-		_collision_root = StaticBody2D.new()
-		_collision_root.name = "GeneratedCollision"
-		add_child(_collision_root)
+	if _collision_active_root == null:
+		_collision_active_root = StaticBody2D.new()
+		_collision_active_root.name = "GeneratedCollisionActive"
+		add_child(_collision_active_root)
+	if _collision_staging_root == null:
+		_collision_staging_root = StaticBody2D.new()
+		_collision_staging_root.name = "GeneratedCollisionStaging"
+		_collision_staging_root.collision_layer = 0
+		_collision_staging_root.collision_mask = 0
+		add_child(_collision_staging_root)
+

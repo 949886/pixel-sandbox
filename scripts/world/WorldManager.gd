@@ -361,9 +361,11 @@ func _process(delta: float) -> void:
 	if _activity_dirty:
 		_update_simulation_activity()
 		_activity_dirty = false
+	# Collision safety comes before visual warmup. Initial/current-direction collision
+	# snapshots must become complete before optional texture work consumes the budget.
+	_process_collision_budget()
 	_process_warmup_budget()
 	_process_texture_activation_budget()
-	_process_collision_budget()
 	_process_recycle_budget()
 	if exchange_dynamic_materials_across_borders and simulation_enabled:
 		_border_exchange_accumulator += delta
@@ -912,6 +914,43 @@ func _canvas_for_chunk(coord: Vector2i) -> PixelChunkCanvas:
 	if special_chunk_manager != null:
 		return special_chunk_manager.get_chunk_canvas(coord)
 	return null
+
+func is_motion_collision_ready(
+	world_position: Vector2,
+	motion: Vector2,
+	half_extents: Vector2
+) -> bool:
+	## CharacterBody2D can only collide with shapes that already exist in the physics
+	## server. Streaming chunks are therefore treated as temporarily blocked until a
+	## complete collision snapshot has been atomically committed.
+	if not generate_static_collision or motion.is_zero_approx():
+		return true
+
+	var end_position: Vector2 = world_position + motion
+	var margin: Vector2 = Vector2.ONE * 2.0
+	var min_position := Vector2(
+		minf(world_position.x, end_position.x),
+		minf(world_position.y, end_position.y)
+	) - half_extents - margin
+	var max_position := Vector2(
+		maxf(world_position.x, end_position.x),
+		maxf(world_position.y, end_position.y)
+	) + half_extents + margin
+	var min_chunk: Vector2i = world_pos_to_chunk(min_position)
+	var max_chunk: Vector2i = world_pos_to_chunk(max_position)
+
+	for chunk_y: int in range(min_chunk.y, max_chunk.y + 1):
+		for chunk_x: int in range(min_chunk.x, max_chunk.x + 1):
+			var coord := Vector2i(chunk_x, chunk_y)
+			var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+			if canvas == null:
+				return false
+			# The swept player bounds may touch a neighboring chunk before the player's
+			# center changes chunk. Activate that complete snapshot preemptively.
+			canvas.set_collision_active(true)
+			if not canvas.has_committed_collision_snapshot():
+				return false
+	return true
 
 func _exchange_chunk_borders() -> void:
 	var seams: Array[Dictionary] = []
