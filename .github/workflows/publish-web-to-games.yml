@@ -1,0 +1,156 @@
+# This repository now includes a GitHub Actions workflow that can publish the exported Web build into a configurable folder inside another GitHub repository, such as `Games`.
+
+# Configure these GitHub Actions variables in this repository:
+
+# - `WEB_DEPLOY_TARGET_REPOSITORY`: optional target repository in `owner/name` format; if omitted, the publish workflow defaults to the current owner's `Games` repository
+# - `WEB_DEPLOY_TARGET_DIRECTORY`: optional target folder inside that repository; if omitted, the publish workflow defaults to the current repository name
+# - `WEB_DEPLOY_TARGET_BRANCH`: optional target branch, defaults to `main` if left empty
+# - `WEB_DEPLOY_COMMIT_MESSAGE`: optional custom commit message
+
+# Configure this GitHub Actions secret in this repository:
+
+# - `WEB_DEPLOY_TOKEN`: a Personal Access Token with write access to the target repository
+
+# How it works:
+
+# 1. The existing `Main` workflow builds the project.
+# 2. After the Web artifact is produced, `Publish Web Build` downloads `Build-Web`.
+# 3. The workflow extracts the Web export and syncs it into the configured target folder.
+# 4. If files changed, it commits and pushes them to the configured repository and branch.
+
+# If `WEB_DEPLOY_TARGET_REPOSITORY` is not set, the workflow publishes to the `Games` repository under the current owner. If `WEB_DEPLOY_TARGET_DIRECTORY` is not set, it publishes into a folder that matches the current repository name.
+
+
+name: Publish Web Build To Games Repo
+
+on:
+  workflow_call:
+    inputs:
+      artifact_name:
+        description: Web build artifact name produced by the build workflow.
+        required: false
+        default: Build-Web
+        type: string
+      target_repository:
+        description: Target repository in owner/name format.
+        required: false
+        default: ""
+        type: string
+      target_directory:
+        description: Directory inside the target repository to publish into.
+        required: false
+        default: ""
+        type: string
+      target_branch:
+        description: Branch to push the published files to.
+        required: false
+        default: main
+        type: string
+      commit_message:
+        description: Commit message used when publishing files.
+        required: false
+        default: ""
+        type: string
+    secrets:
+      deploy_token:
+        description: Personal access token with write access to the target repository.
+        required: true
+
+jobs:
+  publish-web:
+    name: Publish Web Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      ARTIFACT_NAME: ${{ inputs.artifact_name }}
+      TARGET_REPOSITORY: ${{ inputs.target_repository }}
+      TARGET_DIRECTORY: ${{ inputs.target_directory }}
+      TARGET_BRANCH: ${{ inputs.target_branch }}
+      COMMIT_MESSAGE: ${{ inputs.commit_message }}
+      DEPLOY_TOKEN: ${{ secrets.deploy_token }}
+    steps:
+      - name: Resolve publish target
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TARGET_REPOSITORY="${TARGET_REPOSITORY:-}"
+          TARGET_DIRECTORY="${TARGET_DIRECTORY:-}"
+
+          if [[ -z "${TARGET_REPOSITORY}" ]]; then
+            TARGET_REPOSITORY="${GITHUB_REPOSITORY_OWNER}/Games"
+          fi
+
+          if [[ -z "${TARGET_DIRECTORY}" ]]; then
+            TARGET_DIRECTORY="${GITHUB_REPOSITORY#*/}"
+          fi
+
+          echo "TARGET_REPOSITORY=${TARGET_REPOSITORY}" >> "$GITHUB_ENV"
+          echo "TARGET_DIRECTORY=${TARGET_DIRECTORY}" >> "$GITHUB_ENV"
+          echo "Resolved target repository: ${TARGET_REPOSITORY}"
+          echo "Resolved target directory: ${TARGET_DIRECTORY}"
+
+      - name: Download web artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ./artifact
+
+      - name: Extract web build
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p extracted
+          ZIP_FILE=$(find ./artifact -maxdepth 1 -type f -name "*.zip" | head -n 1)
+
+          if [[ -z "${ZIP_FILE}" ]]; then
+            echo "Web build zip not found in artifact ${ARTIFACT_NAME}."
+            exit 1
+          fi
+
+          unzip -q "${ZIP_FILE}" -d extracted
+          echo "Extracted files:"
+          find extracted -maxdepth 2 -type f | sort
+
+      - name: Publish files to target repository
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Use the workflow actor as the git username so Personal Access Tokens work reliably over HTTPS.
+          REMOTE_URL="https://${GITHUB_ACTOR}:${DEPLOY_TOKEN}@github.com/${TARGET_REPOSITORY}.git"
+
+          git init target-repo
+          cd target-repo
+          git remote add origin "${REMOTE_URL}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Empty target repositories do not have the branch yet, so create an orphan branch on first publish.
+          if git ls-remote --exit-code --heads origin "${TARGET_BRANCH}" >/dev/null 2>&1; then
+            git fetch --depth=1 origin "${TARGET_BRANCH}"
+            git checkout -B "${TARGET_BRANCH}" "origin/${TARGET_BRANCH}"
+          else
+            echo "Remote branch ${TARGET_BRANCH} does not exist yet. Creating it."
+            git checkout --orphan "${TARGET_BRANCH}"
+            find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          fi
+
+          DESTINATION="${TARGET_DIRECTORY}"
+          mkdir -p "${DESTINATION}"
+
+          rsync -a --delete ../extracted/ "${DESTINATION}/"
+
+          if git status --short -- "${TARGET_DIRECTORY}" | grep -q .; then
+            MESSAGE="${COMMIT_MESSAGE}"
+            if [[ -z "${MESSAGE}" ]]; then
+              MESSAGE="Deploy web build from ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
+            fi
+
+            git add "${TARGET_DIRECTORY}"
+            git commit -m "${MESSAGE}"
+            git push -u origin "${TARGET_BRANCH}"
+          else
+            echo "No web build changes detected. Skipping commit."
+          fi

@@ -45,14 +45,14 @@ jobs:
             system: "ubuntu-latest"
             extension: ".exe"
             csharp: ${{ needs.check.outputs.using_dotnet }}
-          - name: macOS
-            system: "macos-latest"
-            extension: ".app"
-            csharp: ${{ needs.check.outputs.using_dotnet }}
-          - name: Linux
-            system: "ubuntu-latest"
-            extension: ".x86_64"
-            csharp: ${{ needs.check.outputs.using_dotnet }}
+          # - name: macOS
+          #   system: "macos-latest"
+          #   extension: ".app"
+          #   csharp: ${{ needs.check.outputs.using_dotnet }}
+          # - name: Linux
+          #   system: "macos-latest"
+          #   extension: ".x86_64"
+          #   csharp: ${{ needs.check.outputs.using_dotnet }}
           - name: Web
             system: "ubuntu-latest"
             extension: ".html"
@@ -74,6 +74,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install Blender
+        run: |
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt update
+            sudo apt install -y blender
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            brew install --cask blender
+          fi
+          blender --version
+
+      - name: Set Blender path
+        run: |
+          which blender
+          echo "BLENDER_PATH=$(which blender)" >> $GITHUB_ENV
+
+#      - name: Install xorg & xz-utils
+#        if: matrix.platform.name != 'macOS'
+#        run: |
+#          sudo apt update
+#          sudo apt install -y xorg
+#          sudo apt install -y xz-utils
+      
       # Setup .NET
       - name: Setup .NET SDK
         if: needs.check.outputs.using_dotnet == 'true'
@@ -89,11 +111,11 @@ jobs:
 
       # Setup Godot
       - name: Setup Godot
-        uses: chickensoft-games/setup-godot@v1
+        uses: chickensoft-games/setup-godot@v2
         with:
           # Version must include major, minor, and patch, and be >= 4.0.0
           # Pre-release label is optional.
-          version: 4.3.0 # also valid: 4.0.0.rc1 or 4.0.0, etc
+          version: 4.6.1 # also valid: 4.0.0.rc1 or 4.0.0, etc
           use-dotnet: ${{ needs.check.outputs.using_dotnet }}
           include-templates: true
 
@@ -123,13 +145,42 @@ jobs:
           env
 
       # Build the project for each platform
-      - name: Build Godot Solutions
-        run: godot --headless --build-solutions --quit || exit 0
+      # - name: Build Godot Solutions
+      #   run: godot --headless --build-solutions --quit || exit 0
         
       - name: Export Project
         run: |
           mkdir -v -p build
           godot --headless --verbose --export-release "${{ matrix.platform.name }}" ./build/${{ github.event.repository.name }}${{ matrix.platform.extension }}
+
+      # Godot exports the web entry html using the project name; rename it so static hosts can serve it as the default page (index.html).
+      - name: Normalize web entry file
+        if: matrix.platform.name == 'Web'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          shopt -s nullglob
+          HTML_FILES=(build/*.html)
+
+          if [[ ${#HTML_FILES[@]} -eq 0 ]]; then
+            echo "No html entry file found in build output."
+            exit 1
+          fi
+
+          if [[ ${#HTML_FILES[@]} -gt 1 ]]; then
+            echo "Expected exactly one html entry file, found ${#HTML_FILES[@]}."
+            printf '%s\n' "${HTML_FILES[@]}"
+            exit 1
+          fi
+
+          HTML_FILE="${HTML_FILES[0]}"
+          if [[ "$(basename "${HTML_FILE}")" != "index.html" ]]; then
+            mv "${HTML_FILE}" build/index.html
+            echo "Renamed $(basename "${HTML_FILE}") to index.html"
+          else
+            echo "Entry file is already index.html"
+          fi
 
       # Compress the build files and upload them as an artifact
       - name: Compress build files
@@ -140,8 +191,22 @@ jobs:
       - name: Display structure of build files
         run: ls -R ./build
 
+      - name: Display structure of workspace
+        run: |
+          ls -aR | perl -ne 'if(/^(.+):$/){$d=$1;next}next if /^\s*$/||$_ eq ".\n"||$_ eq "..\n";chomp;$p=$d?"$d/$_":$_;$p=~s/[^-][^\/]*\//    /g;$p=~s/^    (\S)/└── \1/;$p=~s/(^    |    (?= ))/│   /g;$p=~s/    (\S)/└── \1/;print "$p\n"'
+          echo "└── [END]"
+
+      # Upload artifact
+      - name : Upload Artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.platform.name != 'Android'
+        with:
+          name: Build-${{ matrix.platform.name }}
+          path: ./build/${{ matrix.platform.name }}.zip
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
+        if: matrix.platform.name == 'Android'
         with:
-          name: ${{ matrix.platform.name }}
-          path: ./build/${{ matrix.platform.name }}.zip
+          name: Build-${{ matrix.platform.name }}
+          path: ./build/${{ github.event.repository.name }}.apk

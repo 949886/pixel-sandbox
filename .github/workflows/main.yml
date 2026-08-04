@@ -14,10 +14,25 @@ jobs:
     name: Build
     uses: ./.github/workflows/build.yml
     secrets: inherit
+
+  publish_web:
+    name: Publish Web Build
+    needs: build
+    if: github.event_name != 'pull_request'
+    uses: ./.github/workflows/publish-web-to-games.yml
+    with:
+      artifact_name: Build-Web
+      target_repository: ${{ vars.WEB_DEPLOY_TARGET_REPOSITORY }}
+      target_directory: ${{ vars.WEB_DEPLOY_TARGET_DIRECTORY }}
+      target_branch: ${{ vars.WEB_DEPLOY_TARGET_BRANCH != '' && vars.WEB_DEPLOY_TARGET_BRANCH || 'main' }}
+      commit_message: ${{ vars.WEB_DEPLOY_COMMIT_MESSAGE }}
+    secrets:
+      deploy_token: ${{ secrets.WEB_DEPLOY_TOKEN }}
         
   # Create Release
   release:
     name: Release
     needs: build
     uses: ./.github/workflows/release.yml
+    if: github.event_name != 'pull_request'
     secrets: inherit
