@@ -1,7 +1,7 @@
 class_name SandSimulationConfigurator
 extends RefCounted
 
-const ELEMENT_RESOURCE_DIR := "res://main/element_manager/element_material"
+const ELEMENT_RESOURCE_DIR := "res://painting/element_manager/element_material"
 
 static var _base_ready: bool = false
 static var _base_flat: Dictionary = {}
