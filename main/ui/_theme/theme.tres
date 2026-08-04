@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://cm0u56vk6gqu3" path="res://main/ui/_icons/toggle1.png" id="1_coee0"]
 [ext_resource type="Texture2D" uid="uid://l1h1lwsmjxdv" path="res://main/ui/_icons/icon_circle.png" id="1_mvg4m"]
+[ext_resource type="FontFile" uid="uid://b8lxwo5dkwrs4" path="res://main/ui/_theme/font/Poppins-Regular.ttf" id="1_p73bs"]
 [ext_resource type="Texture2D" uid="uid://cwrw6b4hfr57h" path="res://main/ui/_icons/icon_circle2.png" id="1_q36yb"]
 [ext_resource type="Texture2D" uid="uid://dbcnelrjqy5sr" path="res://main/ui/_icons/toggle2.png" id="2_1j6w3"]
 [ext_resource type="Texture2D" uid="uid://du0y3fdwj5xc1" path="res://main/ui/empty.png" id="5_vmfmg"]
@@ -143,6 +144,7 @@ corner_radius_bottom_left = 4
 anti_aliasing = false
 
 [resource]
+default_font = ExtResource("1_p73bs")
 Button/colors/font_color = Color(1, 1, 1, 1)
 Button/styles/disabled = SubResource("StyleBoxFlat_dsk6v")
 Button/styles/hover = SubResource("StyleBoxFlat_nnfuc")
@@ -172,6 +174,7 @@ MenuButton/styles/hover = SubResource("StyleBoxFlat_11w6c")
 OptionButton/font_sizes/font_size = 21
 PopupMenu/colors/font_color = Color(1, 1, 1, 1)
 PopupMenu/font_sizes/font_size = 21
+PopupMenu/fonts/font = ExtResource("1_p73bs")
 PopupMenu/icons/radio_checked = ExtResource("1_q36yb")
 PopupMenu/icons/radio_unchecked = ExtResource("1_mvg4m")
 PopupMenu/styles/hover = SubResource("StyleBoxFlat_11w6c")
