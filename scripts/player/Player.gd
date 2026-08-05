@@ -29,6 +29,8 @@ const BASE_CEILING_LEFT_POSITION := Vector2(-5.0, -13.0)
 const BASE_CEILING_RIGHT_POSITION := Vector2(5.0, -13.0)
 const BASE_CEILING_TARGET := Vector2(0.0, -10.0)
 const BASE_CAMERA_POSITION := Vector2(0.0, -28.0)
+const DESKTOP_CONTROLS_TEXT := "A/D 移动  Shift 冲刺  W/空格 跳跃与飞行  S 蹲伏/下潜\n鼠标瞄准  左键施法  F/右键踢击  +/- 缩放"
+const TOUCH_CONTROLS_TEXT := "左侧摇杆：移动  蓝色按钮：跳跃/浮空  右侧射击盘：按住连射并拖动瞄准"
 
 @export_category("Character size")
 @export_range(0.25, 1.0, 0.05) var character_scale: float = 0.5
@@ -75,6 +77,9 @@ const BASE_CAMERA_POSITION := Vector2(0.0, -28.0)
 @export var min_zoom: float = 0.55
 @export var max_zoom: float = 4.0
 
+@export_category("Touch input")
+@export_range(0.05, 0.9, 0.05) var virtual_aim_threshold: float = 0.18
+
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var body_sprite: AnimatedSprite2D = $BodySprite
 @onready var arm_pivot: Node2D = $ArmPivot
@@ -86,6 +91,7 @@ const BASE_CAMERA_POSITION := Vector2(0.0, -28.0)
 @onready var ceiling_right: RayCast2D = $CeilingRight
 @onready var fuel_bar: ProgressBar = $HUD/Margin/Panel/FuelBar
 @onready var state_label: Label = $HUD/Margin/Panel/StateLabel
+@onready var controls_label: Label = $HUD/Margin/Panel/ControlsLabel
 
 var world_manager: Node
 var flight_fuel: float
@@ -105,6 +111,12 @@ var _alternate_kick: bool = false
 var _horizontal_input: float = 0.0
 var _was_on_floor: bool = false
 var _flight_input_active: bool = false
+var _jump_fly_was_pressed: bool = false
+var _virtual_move_input := Vector2.ZERO
+var _virtual_jump_fly_pressed: bool = false
+var _virtual_fire_pressed: bool = false
+var _virtual_aim_direction := Vector2.RIGHT
+var _virtual_controls_active: bool = false
 var _rng := RandomNumberGenerator.new()
 
 func _ready() -> void:
@@ -126,6 +138,36 @@ func _ready() -> void:
 	arm_sprite.play(&"default")
 	_update_aim()
 	_update_hud()
+
+
+func set_virtual_move_input(input_vector: Vector2) -> void:
+	_virtual_move_input = input_vector.limit_length(1.0)
+
+
+func set_virtual_jump_fly_pressed(pressed: bool) -> void:
+	_virtual_jump_fly_pressed = pressed
+
+
+func set_virtual_fire_pressed(pressed: bool) -> void:
+	_virtual_fire_pressed = pressed
+
+
+func set_virtual_aim_direction(direction: Vector2) -> void:
+	if direction.length_squared() >= virtual_aim_threshold * virtual_aim_threshold:
+		_virtual_aim_direction = direction.normalized()
+
+
+func set_virtual_controls_active(active: bool) -> void:
+	if active and not _virtual_controls_active:
+		_virtual_aim_direction = aim_direction.normalized() if aim_direction.length_squared() > 0.0001 else Vector2.RIGHT
+	_virtual_controls_active = active
+	if not active:
+		_virtual_move_input = Vector2.ZERO
+		_virtual_jump_fly_pressed = false
+		_virtual_fire_pressed = false
+	if is_instance_valid(controls_label):
+		controls_label.text = TOUCH_CONTROLS_TEXT if active else DESKTOP_CONTROLS_TEXT
+
 
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
@@ -172,27 +214,35 @@ func _tick_timers(delta: float) -> void:
 		_coyote_timer = coyote_time
 
 func _handle_action_input() -> void:
-	if Input.is_action_just_pressed(&"jump_fly"):
+	# Build one edge-aware jump/fly state from keyboard/gamepad and the dedicated
+	# touch button. The movement joystick no longer owns jump or levitation.
+	var jump_fly_pressed := Input.is_action_pressed(&"jump_fly") or _virtual_jump_fly_pressed
+	var jump_fly_just_pressed := jump_fly_pressed and not _jump_fly_was_pressed
+	var jump_fly_just_released := not jump_fly_pressed and _jump_fly_was_pressed
+
+	if jump_fly_just_pressed:
 		_jump_buffer_timer = jump_buffer_time
 		_flight_input_active = true
-	elif Input.is_action_just_released(&"jump_fly"):
+	elif jump_fly_just_released:
 		# Releasing while levitating must not consume or lock the remaining fuel.
 		# The next press can immediately resume lift. Only shorten a normal jump.
 		if not flying and velocity.y < -jump_speed * 0.35:
 			velocity.y *= 0.55
 		_flight_input_active = false
 	else:
-		_flight_input_active = Input.is_action_pressed(&"jump_fly")
+		_flight_input_active = jump_fly_pressed
+	_jump_fly_was_pressed = jump_fly_pressed
 
-	if Input.is_action_pressed(&"wand_fire") and _fire_cooldown <= 0.0 and not _kick_active:
+	if (Input.is_action_pressed(&"wand_fire") or _virtual_fire_pressed) and _fire_cooldown <= 0.0 and not _kick_active:
 		_fire_wand()
 	if Input.is_action_just_pressed(&"kick") and not _kick_active:
 		_start_kick()
 
 func _handle_movement(delta: float) -> void:
-	_horizontal_input = Input.get_axis(&"move_left", &"move_right")
+	var physical_horizontal := Input.get_axis(&"move_left", &"move_right")
+	_horizontal_input = _stronger_axis(physical_horizontal, _virtual_move_input.x)
 	var grounded := is_on_floor()
-	var wants_crouch := Input.is_action_pressed(&"crouch") and grounded and not swimming
+	var wants_crouch := _is_crouch_pressed() and grounded and not swimming
 	if crouching and not wants_crouch and not _can_stand():
 		wants_crouch = true
 	_set_crouching(wants_crouch)
@@ -237,7 +287,7 @@ func _handle_ground_and_air(delta: float, grounded: bool) -> void:
 			_set_flight_fuel(flight_fuel - flight_fuel_burn_rate * delta)
 		else:
 			velocity.y = minf(max_fall_speed, velocity.y + gravity * delta)
-		if Input.is_action_pressed(&"crouch"):
+		if _is_crouch_pressed():
 			velocity.y = minf(max_fall_speed, velocity.y + fast_fall_acceleration * delta)
 	else:
 		_set_flight_fuel(flight_fuel + grounded_fuel_recharge_rate * delta)
@@ -245,7 +295,11 @@ func _handle_ground_and_air(delta: float, grounded: bool) -> void:
 func _handle_swimming(delta: float) -> void:
 	flying = false
 	_set_crouching(false)
-	var vertical_input := Input.get_axis(&"jump_fly", &"crouch")
+	var physical_vertical := Input.get_axis(&"jump_fly", &"crouch")
+	var touch_vertical := _virtual_move_input.y
+	if _virtual_jump_fly_pressed:
+		touch_vertical = minf(touch_vertical, -1.0)
+	var vertical_input := _stronger_axis(physical_vertical, touch_vertical)
 	var target := Vector2(_horizontal_input, vertical_input)
 	if target.length_squared() > 1.0:
 		target = target.normalized()
@@ -254,6 +308,14 @@ func _handle_swimming(delta: float) -> void:
 	velocity.y = move_toward(velocity.y, target.y, swim_acceleration * delta)
 	velocity.y = minf(swim_speed, velocity.y + gravity * swim_gravity_scale * delta)
 	_set_flight_fuel(flight_fuel + swimming_fuel_recharge_rate * delta)
+
+
+func _is_crouch_pressed() -> bool:
+	return Input.is_action_pressed(&"crouch")
+
+
+func _stronger_axis(physical_value: float, virtual_value: float) -> float:
+	return virtual_value if absf(virtual_value) > absf(physical_value) else physical_value
 
 func _update_environment_state() -> void:
 	if world_manager == null or not world_manager.has_method("is_liquid_at_world_position"):
@@ -272,9 +334,15 @@ func _update_environment_state() -> void:
 	swimming = liquid_count >= 2
 
 func _update_aim() -> void:
-	var mouse_delta := get_global_mouse_position() - global_position
-	if mouse_delta.length_squared() > 0.0001:
-		aim_direction = mouse_delta.normalized()
+	if _virtual_controls_active:
+		# The right directional fire control owns touch aiming. Preserve its last
+		# direction when released, while ignoring browser-emulated mouse motion.
+		if _virtual_aim_direction.length_squared() >= virtual_aim_threshold * virtual_aim_threshold:
+			aim_direction = _virtual_aim_direction.normalized()
+	else:
+		var mouse_delta := get_global_mouse_position() - global_position
+		if mouse_delta.length_squared() > 0.0001:
+			aim_direction = mouse_delta.normalized()
 	facing_left = aim_direction.x < 0.0
 	body_sprite.flip_h = facing_left
 	var base_arm_position: Vector2

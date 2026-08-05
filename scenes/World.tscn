@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://resources/runtime_profiles/pc_runtime_profile.tres" id="7"]
 [ext_resource type="Resource" uid="uid://d3iitjp1fxcuw" path="res://resources/runtime_profiles/mobile_runtime_profile.tres" id="8"]
 [ext_resource type="Resource" path="res://resources/materials/default_material_palette.tres" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="10_touch_controls"]
 
 [node name="World" type="Node2D" unique_id=1354663026]
 script = ExtResource("1")
@@ -24,6 +25,8 @@ mobile_runtime_profile = ExtResource("8")
 
 [node name="Player" parent="." unique_id=1306727430 instance=ExtResource("2")]
 position = Vector2(256, 256)
+
+[node name="TouchControls" parent="." instance=ExtResource("10_touch_controls")]
 
 [node name="WorldDebugDrawer" type="Node2D" parent="." unique_id=1508704323]
 visible = false

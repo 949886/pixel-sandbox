@@ -1,0 +1,88 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/TouchControls.gd" id="1_touch_controls"]
+[ext_resource type="Script" path="res://scripts/ui/CherryVirtualJoystick.gd" id="2_joystick"]
+[ext_resource type="Script" path="res://scripts/ui/VirtualActionButton.gd" id="3_action_button"]
+[ext_resource type="Script" path="res://scripts/ui/VirtualDirectionButton.gd" id="4_direction_button"]
+
+[node name="TouchControls" type="CanvasLayer"]
+layer = 30
+script = ExtResource("1_touch_controls")
+player_path = NodePath("../Player")
+
+[node name="TouchRoot" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Joystick" type="Control" parent="TouchRoot"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 0
+offset_left = 24.0
+offset_top = 540.0
+offset_right = 174.0
+offset_bottom = 690.0
+mouse_filter = 2
+script = ExtResource("2_joystick")
+mode = 0
+visibility_mode = 2
+dead_zone = 0.16
+clamp_zone = 1.0
+touch_area_margin = 64.0
+base_radius = 75.0
+handle_radius = 34.0
+base_color = Color(0.055, 0.075, 0.12, 0.62)
+handle_color = Color(0.58, 0.76, 0.96, 0.84)
+handle_pressed_color = Color(0.88, 0.96, 1, 1)
+inactive_opacity = 0.58
+active_opacity = 1.0
+emit_input_actions = false
+
+[node name="JumpButton" type="Control" parent="TouchRoot"]
+custom_minimum_size = Vector2(92, 92)
+layout_mode = 0
+offset_left = 1000.0
+offset_top = 480.0
+offset_right = 1092.0
+offset_bottom = 572.0
+mouse_filter = 2
+script = ExtResource("3_action_button")
+icon_type = 0
+button_radius = 46.0
+touch_margin = 14.0
+normal_color = Color(0.08, 0.28, 0.48, 0.74)
+pressed_color = Color(0.18, 0.66, 0.94, 0.98)
+ring_color = Color(0.5, 0.84, 1, 0.92)
+icon_color = Color(0.96, 0.99, 1, 1)
+glow_color = Color(0.25, 0.72, 1, 0.28)
+caption = "JUMP"
+caption_font_size = 11
+pressed_scale = 0.9
+
+[node name="FireButton" type="Control" parent="TouchRoot"]
+custom_minimum_size = Vector2(108, 108)
+layout_mode = 0
+offset_left = 1110.0
+offset_top = 565.0
+offset_right = 1218.0
+offset_bottom = 673.0
+mouse_filter = 2
+script = ExtResource("4_direction_button")
+button_radius = 54.0
+touch_margin = 17.0
+dead_zone = 0.1
+pressed_scale = 0.88
+normal_color = Color(0.48, 0.12, 0.09, 0.76)
+pressed_color = Color(0.96, 0.34, 0.16, 0.98)
+ring_color = Color(1, 0.66, 0.38, 0.94)
+icon_color = Color(1, 0.97, 0.9, 1)
+glow_color = Color(1, 0.28, 0.08, 0.3)
+direction_arc_color = Color(1, 0.84, 0.52, 1)
+direction_arc_width = 4.0
+direction_arc_spread = 0.48
+caption = "AIM / FIRE"
+caption_font_size = 10

@@ -8,6 +8,7 @@ extends Node2D
 # - Background worker: PieceChunkData + visual/material Image composition.
 # - Main thread: scene-tree changes, ImageTexture upload, debug UI updates.
 
+const PlatformUtilsScript = preload("res://scripts/platform/PlatformUtils.gd")
 const DEFAULT_CONFIG_PATH: String = "res://resources/world_gen/default_world_gen_config.tres"
 const DEFAULT_MATERIAL_PALETTE_PATH: String = "res://resources/materials/default_material_palette.tres"
 const PC_RUNTIME_PROFILE_PATH: String = "res://resources/runtime_profiles/pc_runtime_profile.tres"
@@ -267,7 +268,9 @@ func _load_runtime_profile(assigned_profile: WorldRuntimeProfile, fallback_path:
 	return fallback
 
 func _is_mobile_platform() -> bool:
-	return OS.has_feature("mobile") or OS.has_feature("android") or OS.has_feature("ios") or OS.get_name() == "Android" or OS.get_name() == "iOS"
+	# Share the same native/Web device classification as the touch UI so a
+	# mobile browser also receives the lower-cost mobile runtime profile.
+	return PlatformUtilsScript.is_mobile_platform()
 
 func _apply_runtime_profile() -> void:
 	if runtime_profile == null:
