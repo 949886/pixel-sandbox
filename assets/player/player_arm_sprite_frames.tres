@@ -1,0 +1,42 @@
+[gd_resource type="SpriteFrames" load_steps=5 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/player/player_arm.png" id="1_texture"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_001_default"]
+atlas = ExtResource("1_texture")
+region = Rect2(0, 0, 5, 5)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_002_down"]
+atlas = ExtResource("1_texture")
+region = Rect2(0, 0, 5, 5)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_003_without_item"]
+atlas = ExtResource("1_texture")
+region = Rect2(0, 10, 5, 5)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_001_default")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_002_down")
+}],
+"loop": true,
+"name": &"down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_003_without_item")
+}],
+"loop": true,
+"name": &"without_item",
+"speed": 5.0
+}]

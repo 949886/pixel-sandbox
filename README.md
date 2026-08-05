@@ -85,3 +85,21 @@ See `RUNTIME_PROFILES_GUIDE.md` and `MOBILE_PERFORMANCE_GUIDE.md` for details.
 ## Collision debug
 
 - `F6`: toggle the cyan collision debug layer. The layer shows the exact active PhysicsServer2D snapshot.
+
+## Noita-style character controller
+
+The former free-flying gradient demo anchor has been replaced by the character in
+`assets/player/`. The controller now uses the generated pixel collision, samples
+live liquids, aims an independent arm/wand at the mouse and fires digging bolts.
+
+- `A` / `D` or left/right: move
+- `Shift`: sprint
+- `W`, `Space` or up: jump; hold in the air to consume levitation fuel
+- `S` or down: crouch on ground, fast-fall in air, swim downward in liquid
+- Mouse: aim
+- Left mouse: fire wand and remove a small circle of simulated material
+- `F` or right mouse: kick animation
+- `+` / `-`: camera zoom
+
+Movement includes acceleration/deceleration, gravity, coyote time, jump buffering,
+short-hop release, crouch clearance checks, grounded fuel recharge and swim control.

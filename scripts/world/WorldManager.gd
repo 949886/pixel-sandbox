@@ -567,6 +567,52 @@ func _regenerate_world(advance_seed: bool) -> void:
 func world_pos_to_chunk(pos: Vector2) -> Vector2i:
 	return Vector2i(floori(pos.x / float(CHUNK_SIZE)), floori(pos.y / float(CHUNK_SIZE)))
 
+func get_element_id_at_world_position(world_position: Vector2) -> int:
+	## Public character/gameplay query for the live simulated material grid.
+	var coord: Vector2i = world_pos_to_chunk(world_position)
+	var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+	if canvas == null:
+		return 0
+	var chunk_origin := Vector2(coord * CHUNK_SIZE)
+	var local := Vector2i((world_position - chunk_origin).floor())
+	return canvas.get_cell(local.x, local.y)
+
+func is_liquid_at_world_position(world_position: Vector2) -> bool:
+	var element_id: int = get_element_id_at_world_position(world_position)
+	return _material_is_liquid(element_id)
+
+func erase_material_circle(world_center: Vector2, radius: float) -> int:
+	## Removes cells from initialized simulation canvases and lets their native dirty
+	## flags rebuild visuals/collision under the existing frame budgets.
+	var safe_radius := clampf(radius, 0.5, 64.0)
+	var min_pixel := Vector2i((world_center - Vector2.ONE * safe_radius).floor())
+	var max_pixel := Vector2i((world_center + Vector2.ONE * safe_radius).ceil())
+	var radius_squared := safe_radius * safe_radius
+	var changed := 0
+	var touched: Dictionary = {}
+	for world_y: int in range(min_pixel.y, max_pixel.y + 1):
+		for world_x: int in range(min_pixel.x, max_pixel.x + 1):
+			var pixel_center := Vector2(world_x + 0.5, world_y + 0.5)
+			if pixel_center.distance_squared_to(world_center) > radius_squared:
+				continue
+			var coord: Vector2i = world_pos_to_chunk(pixel_center)
+			var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+			if canvas == null:
+				continue
+			var origin := coord * CHUNK_SIZE
+			var local_x := world_x - origin.x
+			var local_y := world_y - origin.y
+			if canvas.get_cell(local_x, local_y) == 0:
+				continue
+			canvas.set_cell(local_x, local_y, 0)
+			touched[coord] = canvas
+			changed += 1
+	for canvas_value: Variant in touched.values():
+		var touched_canvas := canvas_value as PixelChunkCanvas
+		if touched_canvas != null:
+			touched_canvas.request_repaint()
+	return changed
+
 func _update_loaded_chunks(force: bool) -> void:
 	if generator == null:
 		return
