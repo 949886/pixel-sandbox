@@ -153,7 +153,7 @@ func _draw_jump_icon(center: Vector2, radius: float) -> void:
 		maxf(2.5, radius * 0.075),
 		true
 	)
-	# Two small exhaust marks visually communicate sustained levitation.
+	# Two small exhaust marks visually communicate the upward jump action.
 	var exhaust_color := Color(icon_color.r, icon_color.g, icon_color.b, 0.70)
 	draw_line(icon_center + Vector2(-width * 0.34, height * 0.58), icon_center + Vector2(-width * 0.34, height * 0.86), exhaust_color, 2.0, true)
 	draw_line(icon_center + Vector2(width * 0.34, height * 0.58), icon_center + Vector2(width * 0.34, height * 0.86), exhaust_color, 2.0, true)

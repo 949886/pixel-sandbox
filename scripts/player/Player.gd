@@ -30,7 +30,7 @@ const BASE_CEILING_RIGHT_POSITION := Vector2(5.0, -13.0)
 const BASE_CEILING_TARGET := Vector2(0.0, -10.0)
 const BASE_CAMERA_POSITION := Vector2(0.0, -28.0)
 const DESKTOP_CONTROLS_TEXT := "A/D 移动  Shift 冲刺  W/空格 跳跃与飞行  S 蹲伏/下潜\n鼠标瞄准  左键施法  F/右键踢击  +/- 缩放"
-const TOUCH_CONTROLS_TEXT := "左侧摇杆：移动  蓝色按钮：跳跃/浮空  右侧射击盘：按住连射并拖动瞄准"
+const TOUCH_CONTROLS_TEXT := "左侧摇杆：移动；拖入上方 JUMP / FLY 区跳跃并按住主动飞行  右侧射击盘：拖动瞄准并连射"
 
 @export_category("Character size")
 @export_range(0.25, 1.0, 0.05) var character_scale: float = 0.5
@@ -113,7 +113,7 @@ var _was_on_floor: bool = false
 var _flight_input_active: bool = false
 var _jump_fly_was_pressed: bool = false
 var _virtual_move_input := Vector2.ZERO
-var _virtual_jump_fly_pressed: bool = false
+var _virtual_jump_pressed: bool = false
 var _virtual_fire_pressed: bool = false
 var _virtual_aim_direction := Vector2.RIGHT
 var _virtual_controls_active: bool = false
@@ -144,8 +144,19 @@ func set_virtual_move_input(input_vector: Vector2) -> void:
 	_virtual_move_input = input_vector.limit_length(1.0)
 
 
+func set_virtual_jump_pressed(pressed: bool) -> void:
+	_virtual_jump_pressed = pressed
+
+
+# Backward-compatible alias for earlier touch-control scenes. The joystick's
+# upper zone now owns the complete combined jump + active-flight input.
 func set_virtual_jump_fly_pressed(pressed: bool) -> void:
-	_virtual_jump_fly_pressed = pressed
+	set_virtual_jump_pressed(pressed)
+
+
+func set_virtual_hover_pressed(pressed: bool) -> void:
+	# Older hover-zone scenes are upgraded to the new active jump/flight semantics.
+	set_virtual_jump_pressed(pressed)
 
 
 func set_virtual_fire_pressed(pressed: bool) -> void:
@@ -163,7 +174,7 @@ func set_virtual_controls_active(active: bool) -> void:
 	_virtual_controls_active = active
 	if not active:
 		_virtual_move_input = Vector2.ZERO
-		_virtual_jump_fly_pressed = false
+		_virtual_jump_pressed = false
 		_virtual_fire_pressed = false
 	if is_instance_valid(controls_label):
 		controls_label.text = TOUCH_CONTROLS_TEXT if active else DESKTOP_CONTROLS_TEXT
@@ -214,24 +225,23 @@ func _tick_timers(delta: float) -> void:
 		_coyote_timer = coyote_time
 
 func _handle_action_input() -> void:
-	# Build one edge-aware jump/fly state from keyboard/gamepad and the dedicated
-	# touch button. The movement joystick no longer owns jump or levitation.
-	var jump_fly_pressed := Input.is_action_pressed(&"jump_fly") or _virtual_jump_fly_pressed
-	var jump_fly_just_pressed := jump_fly_pressed and not _jump_fly_was_pressed
-	var jump_fly_just_released := not jump_fly_pressed and _jump_fly_was_pressed
+	# Keyboard/gamepad and the joystick's upper semicircular zone both provide
+	# the same combined jump + active-lift control.
+	var physical_jump_fly_pressed := Input.is_action_pressed(&"jump_fly")
+	var jump_pressed := physical_jump_fly_pressed or _virtual_jump_pressed
+	var jump_just_pressed := jump_pressed and not _jump_fly_was_pressed
+	var jump_just_released := not jump_pressed and _jump_fly_was_pressed
 
-	if jump_fly_just_pressed:
+	if jump_just_pressed:
 		_jump_buffer_timer = jump_buffer_time
-		_flight_input_active = true
-	elif jump_fly_just_released:
-		# Releasing while levitating must not consume or lock the remaining fuel.
-		# The next press can immediately resume lift. Only shorten a normal jump.
+	elif jump_just_released:
+		# Releasing either the physical action or the joystick zone shortens a
+		# normal upward jump without clearing the remaining flight fuel.
 		if not flying and velocity.y < -jump_speed * 0.35:
 			velocity.y *= 0.55
-		_flight_input_active = false
-	else:
-		_flight_input_active = jump_fly_pressed
-	_jump_fly_was_pressed = jump_fly_pressed
+
+	_flight_input_active = jump_pressed
+	_jump_fly_was_pressed = jump_pressed
 
 	if (Input.is_action_pressed(&"wand_fire") or _virtual_fire_pressed) and _fire_cooldown <= 0.0 and not _kick_active:
 		_fire_wand()
@@ -273,11 +283,9 @@ func _handle_ground_and_air(delta: float, grounded: bool) -> void:
 
 	flying = false
 	if not grounded:
-		var wants_flight := _flight_input_active and flight_fuel > 0.0
-		if wants_flight:
-			# Drive toward an upward target without applying normal gravity first.
-			# This lets a player release, begin falling, then spend remaining fuel
-			# to brake the fall and rise again on a later press.
+		var wants_active_lift := _flight_input_active and flight_fuel > 0.0
+		if wants_active_lift:
+			# Keyboard/gamepad and the touch jump/flight zone share full upward thrust.
 			flying = true
 			velocity.y = move_toward(
 				velocity.y,
@@ -296,10 +304,10 @@ func _handle_swimming(delta: float) -> void:
 	flying = false
 	_set_crouching(false)
 	var physical_vertical := Input.get_axis(&"jump_fly", &"crouch")
-	var touch_vertical := _virtual_move_input.y
-	if _virtual_jump_fly_pressed:
-		touch_vertical = minf(touch_vertical, -1.0)
-	var vertical_input := _stronger_axis(physical_vertical, touch_vertical)
+	var virtual_vertical := _virtual_move_input.y
+	if _virtual_jump_pressed:
+		virtual_vertical = -1.0
+	var vertical_input := _stronger_axis(physical_vertical, virtual_vertical)
 	var target := Vector2(_horizontal_input, vertical_input)
 	if target.length_squared() > 1.0:
 		target = target.normalized()

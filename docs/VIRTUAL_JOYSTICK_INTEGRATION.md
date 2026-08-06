@@ -19,10 +19,11 @@ state directly to `Player.gd`:
 
 - Joystick X: ground/air horizontal movement.
 - Joystick X/Y: two-dimensional swimming movement.
-- Jump button: jump press, hold-to-levitate, release, and resume levitation.
+- Joystick upper semicircle: touch-hover request while preserving movement.
+- Jump button: jump press/release only.
 - Fire button: hold for continuous wand fire at the configured fire rate.
 
-The joystick no longer triggers jump, levitation, crouch, or fast fall. Physical
+The ordinary joystick circle does not trigger jump, crouch, or fast fall. Only the extra upper semicircle requests touch hovering. Physical
 keyboard/mouse/gamepad input is merged with touch state inside Player, avoiding
 one device releasing another device's active input.
 
@@ -31,10 +32,9 @@ one device releasing another device's active input.
 `TouchControls.gd` derives all radii from the viewport short side, clamps them to
 usable ranges, respects native safe areas, and recalculates on resize or
 orientation changes. The joystick remains lower-left. The primary fire button is
-lower-right, with jump/levitation above-left in a UI.zip-style action cluster.
+lower-right, with the jump-only button above-left in a UI.zip-style action cluster.
 
-All three controls track separate touch indices, so movement, levitation, and
-shooting can be held simultaneously.
+All three controls track separate touch indices. The left thumb can move/hover while the right thumb aims and fires; jump only needs a short independent press.
 
 ## Files
 

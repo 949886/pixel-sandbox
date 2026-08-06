@@ -3,8 +3,9 @@ extends CanvasLayer
 
 const PlatformUtilsScript = preload("res://scripts/platform/PlatformUtils.gd")
 
-## Platform-aware touch HUD. The left joystick is movement-only. Jump/levitation
-## and continuous wand fire are exposed as independent multi-touch buttons.
+## Platform-aware touch HUD. The left joystick owns movement plus an upper
+## 120-degree jump/flight sector. The right thumb is reserved for directional
+## wand aiming and firing, eliminating the former jump-button conflict.
 
 enum VisibilityMode {
 	AUTO,
@@ -24,11 +25,9 @@ enum VisibilityMode {
 @export_range(0.05, 0.2, 0.005) var short_side_radius_ratio: float = 0.105
 @export_range(12.0, 72.0, 1.0) var minimum_edge_margin: float = 22.0
 @export_range(0.35, 0.9, 0.01) var fire_button_radius_ratio: float = 0.64
-@export_range(0.35, 0.9, 0.01) var jump_button_radius_ratio: float = 0.55
 
 @onready var touch_root: Control = $TouchRoot
 @onready var joystick: CherryVirtualJoystick = $TouchRoot/Joystick
-@onready var jump_button: VirtualActionButton = $TouchRoot/JumpButton
 @onready var fire_button: VirtualDirectionButton = $TouchRoot/FireButton
 
 var _player: Node
@@ -41,7 +40,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_resolve_player()
 	joystick.joystick_input.connect(_on_joystick_input)
-	jump_button.pressed_changed.connect(_on_jump_pressed_changed)
+	joystick.jump_fly_zone_changed.connect(_on_jump_fly_zone_changed)
 	fire_button.direction_changed.connect(_on_fire_direction_changed)
 	fire_button.pressed_changed.connect(_on_fire_pressed_changed)
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
@@ -70,7 +69,6 @@ func set_controls_visible(should_show: bool) -> void:
 	touch_root.visible = should_show
 	if not should_show:
 		joystick.cancel_input()
-		jump_button.cancel_input()
 		fire_button.cancel_input()
 		_send_virtual_move_input(Vector2.ZERO)
 		_send_virtual_jump_input(false)
@@ -118,41 +116,31 @@ func _update_responsive_layout() -> void:
 		minimum_radius,
 		maximum_radius
 	)
-	var joystick_diameter := joystick_radius * 2.0
 	var edge_margin := maxf(minimum_edge_margin, short_side * 0.032) * control_scale
 
 	joystick.base_radius = joystick_radius
 	joystick.handle_radius = joystick_radius * 0.46
-	joystick.touch_area_margin = joystick_radius * 0.72
-	joystick.size = Vector2.ONE * joystick_diameter
+	joystick.touch_area_margin = joystick_radius * 0.56
+	var jump_fly_outer_radius := joystick_radius * joystick.flight_zone_outer_radius_ratio
+	var jump_fly_half_angle := deg_to_rad(joystick.flight_zone_arc_degrees * 0.5)
+	var joystick_half_width := maxf(joystick_radius, jump_fly_outer_radius * sin(jump_fly_half_angle))
+	var joystick_control_size := Vector2(joystick_half_width * 2.0, jump_fly_outer_radius + joystick_radius)
+	joystick.size = joystick_control_size
 	joystick.position = Vector2(
 		safe_rect.position.x + edge_margin,
-		safe_rect.end.y - edge_margin - joystick_diameter
+		safe_rect.end.y - edge_margin - joystick_control_size.y
 	)
 
 	var fire_radius := clampf(joystick_radius * fire_button_radius_ratio, 38.0, 60.0)
-	var jump_radius := clampf(joystick_radius * jump_button_radius_ratio, 34.0, 54.0)
 	_set_direction_button_geometry(fire_button, fire_radius)
-	_set_button_geometry(jump_button, jump_radius)
 
-	# UI.zip-style diamond arrangement: main attack button at the lower-right,
-	# jump/levitation above and to its left for comfortable thumb rolling.
+	# With jump/flight moved to the left joystick, the right side is dedicated
+	# to one large directional fire control placed inside the safe area.
 	var fire_center := Vector2(
 		safe_rect.end.x - edge_margin - fire_radius,
 		safe_rect.end.y - edge_margin - fire_radius
 	)
-	var jump_center := fire_center + Vector2(
-		-(fire_radius + jump_radius) * 1.12,
-		-(fire_radius + jump_radius) * 0.88
-	)
 	fire_button.position = fire_center - Vector2.ONE * fire_radius
-	jump_button.position = jump_center - Vector2.ONE * jump_radius
-
-
-func _set_button_geometry(button: VirtualActionButton, radius: float) -> void:
-	button.button_radius = radius
-	button.touch_margin = radius * 0.28
-	button.size = Vector2.ONE * radius * 2.0
 
 
 func _set_direction_button_geometry(button: VirtualDirectionButton, radius: float) -> void:
@@ -189,8 +177,8 @@ func _on_joystick_input(output: Vector2) -> void:
 	_send_virtual_move_input(output)
 
 
-func _on_jump_pressed_changed(pressed: bool) -> void:
-	_send_virtual_jump_input(pressed)
+func _on_jump_fly_zone_changed(active: bool) -> void:
+	_send_virtual_jump_input(active)
 
 
 func _on_fire_direction_changed(direction: Vector2) -> void:
@@ -209,8 +197,11 @@ func _send_virtual_move_input(output: Vector2) -> void:
 
 func _send_virtual_jump_input(pressed: bool) -> void:
 	_resolve_player()
-	if _player != null and _player.has_method("set_virtual_jump_fly_pressed"):
+	if _player != null and _player.has_method("set_virtual_jump_pressed"):
+		_player.call("set_virtual_jump_pressed", pressed)
+	elif _player != null and _player.has_method("set_virtual_jump_fly_pressed"):
 		_player.call("set_virtual_jump_fly_pressed", pressed)
+
 
 
 func _send_virtual_aim_input(direction: Vector2) -> void:

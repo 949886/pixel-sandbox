@@ -1,8 +1,7 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/TouchControls.gd" id="1_touch_controls"]
 [ext_resource type="Script" path="res://scripts/ui/CherryVirtualJoystick.gd" id="2_joystick"]
-[ext_resource type="Script" path="res://scripts/ui/VirtualActionButton.gd" id="3_action_button"]
 [ext_resource type="Script" path="res://scripts/ui/VirtualDirectionButton.gd" id="4_direction_button"]
 
 [node name="TouchControls" type="CanvasLayer"]
@@ -20,12 +19,12 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="Joystick" type="Control" parent="TouchRoot"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(205.25, 193.5)
 layout_mode = 0
 offset_left = 24.0
 offset_top = 540.0
-offset_right = 174.0
-offset_bottom = 690.0
+offset_right = 229.25
+offset_bottom = 733.5
 mouse_filter = 2
 script = ExtResource("2_joystick")
 mode = 0
@@ -35,6 +34,17 @@ clamp_zone = 1.0
 touch_area_margin = 64.0
 base_radius = 75.0
 handle_radius = 34.0
+flight_zone_enabled = true
+flight_zone_outer_radius_ratio = 1.58
+flight_zone_inner_radius_ratio = 0.94
+flight_zone_exit_hysteresis = 0.08
+flight_zone_arc_degrees = 120.0
+flight_zone_angle_exit_hysteresis_degrees = 6.0
+flight_zone_color = Color(0.08, 0.34, 0.54, 0.28)
+flight_zone_active_color = Color(0.12, 0.68, 0.96, 0.62)
+flight_zone_ring_color = Color(0.52, 0.88, 1, 0.9)
+flight_zone_caption = "JUMP / FLY"
+flight_zone_caption_size = 11
 base_color = Color(0.055, 0.075, 0.12, 0.62)
 handle_color = Color(0.58, 0.76, 0.96, 0.84)
 handle_pressed_color = Color(0.88, 0.96, 1, 1)
@@ -42,26 +52,6 @@ inactive_opacity = 0.58
 active_opacity = 1.0
 emit_input_actions = false
 
-[node name="JumpButton" type="Control" parent="TouchRoot"]
-custom_minimum_size = Vector2(92, 92)
-layout_mode = 0
-offset_left = 1000.0
-offset_top = 480.0
-offset_right = 1092.0
-offset_bottom = 572.0
-mouse_filter = 2
-script = ExtResource("3_action_button")
-icon_type = 0
-button_radius = 46.0
-touch_margin = 14.0
-normal_color = Color(0.08, 0.28, 0.48, 0.74)
-pressed_color = Color(0.18, 0.66, 0.94, 0.98)
-ring_color = Color(0.5, 0.84, 1, 0.92)
-icon_color = Color(0.96, 0.99, 1, 1)
-glow_color = Color(0.25, 0.72, 1, 0.28)
-caption = "JUMP"
-caption_font_size = 11
-pressed_scale = 0.9
 
 [node name="FireButton" type="Control" parent="TouchRoot"]
 custom_minimum_size = Vector2(108, 108)
