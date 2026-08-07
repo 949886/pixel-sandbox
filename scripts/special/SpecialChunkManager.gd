@@ -22,6 +22,7 @@ var simulation_hz: float = 60.0
 var simulation_repaint_hz: float = 60.0
 var maximum_collision_triangles: int = 6000
 var collision_cell_size: int = 1
+var collision_sector_size: int = 64
 var preview_downscale_factor: int = 1
 var keep_cpu_visual_images: bool = false
 var deferred_recycle_queue: Array[SpecialPieceRenderer] = []
@@ -41,6 +42,7 @@ func _init(
 	p_simulation_repaint_hz: float = 60.0,
 	p_maximum_collision_triangles: int = 6000,
 	p_collision_cell_size: int = 1,
+	p_collision_sector_size: int = 64,
 	p_preview_downscale_factor: int = 1,
 	p_keep_cpu_visual_images: bool = false,
 	p_worker_yield_ms: int = 0
@@ -57,6 +59,7 @@ func _init(
 	simulation_repaint_hz = maxf(1.0, p_simulation_repaint_hz)
 	maximum_collision_triangles = maxi(0, p_maximum_collision_triangles)
 	collision_cell_size = maxi(1, p_collision_cell_size)
+	collision_sector_size = maxi(16, p_collision_sector_size)
 	preview_downscale_factor = maxi(1, p_preview_downscale_factor)
 	keep_cpu_visual_images = p_keep_cpu_visual_images
 	worker_yield_ms = maxi(0, p_worker_yield_ms)
@@ -196,6 +199,7 @@ func _load_chunk_sync(placement: SpecialChunkPlacement) -> void:
 		simulation_repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size,
+		collision_sector_size,
 		preview_downscale_factor,
 		keep_cpu_visual_images
 	)
@@ -217,6 +221,7 @@ func _load_chunk_from_data(placement: SpecialChunkPlacement, chunks: Array[Piece
 		simulation_repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size,
+		collision_sector_size,
 		keep_cpu_visual_images
 	)
 	instance.set_collision_debug_visible(collision_debug_visible)

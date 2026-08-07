@@ -17,6 +17,8 @@
 | `F2` | 显示/隐藏世界调试绘制层 |
 | `F3` | 使用当前 seed 重新生成世界 |
 | `F4` | 切换到下一个 seed 并重新生成 |
+| `F5` | 开启/关闭像素模拟 |
+| `F6` | 开启/关闭动态碰撞 Sector 调试层 |
 | `WASD` / 方向键 | 移动玩家/摄像机锚点 |
 | `+` / `-` | 缩放视图 |
 
@@ -254,3 +256,18 @@ expected_top/right/bottom/left == actual_top/right/bottom/left
 ```
 
 如果这两条都成立，socket/seam 层基本健康；后续问题就更可能来自 piece 图片内容、连通性 flood fill、碰撞生成或材料模拟层。
+
+---
+
+## F6：碰撞 Sector 调试层
+
+V3.7 的碰撞不再按完整 Chunk 重建，而是把 512×512 Canvas 划分成 8×8 个 64×64 Sector。F6 显示的是实际 PhysicsServer2D Active 快照和增量更新状态：
+
+| 颜色 | 状态 |
+| --- | --- |
+| 青色填充/边线 | 已提交并正在参与物理计算的 Active 碰撞矩形 |
+| 红色 Sector | Native revision 已变化，等待构建或重新排队 |
+| 黄色 Sector | 正在创建 Staging Rectangle Shape |
+| 紫色 Sector | Staging 已完成，等待下一个 physics frame 原子提交 |
+
+F1 HUD 同时显示 `native yes(api 5)` 或 `fallback(api 0)`。只有 API 5 表示 Native Sector 路径已启用；fallback 表示当前仍加载旧 DLL/SO/WASM，并会退回完整 Chunk 碰撞扫描。

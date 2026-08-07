@@ -62,11 +62,14 @@ var simulation_warmup_pixels_per_slice: int = 8192
 var simulation_texture_activation_budget_ms: float = 1.0
 var simulation_texture_activations_per_frame: int = 1
 var predictive_prewarm_chunks: int = 1
+var critical_collision_budget_ms: float = 1.0
 var collision_build_budget_ms: float = 1.0
 var collision_shapes_per_slice: int = 12
 var simulation_update_budget_ms: float = 3.0
 var collision_radius: int = 1
 var collision_cell_size: int = 1
+var collision_sector_size: int = 64
+var collision_sector_commits_per_physics_frame: int = 16
 var recycle_budget_ms: float = 0.5
 
 var library: PieceLibrary
@@ -108,9 +111,11 @@ var _last_collision_shape_count: int = 0
 var _last_simulation_tick_count: int = 0
 var _last_prewarm_direction: Vector2i = Vector2i.ZERO
 var _pipeline_deadline_usec: int = 0
+var _critical_collision_deadline_usec: int = 0
 var _last_pipeline_usec: int = 0
 
 func _ready() -> void:
+	process_physics_priority = -100
 	active_config = _load_config()
 	if active_config == null:
 		push_error("WorldManager: Unable to load WorldGenConfig.")
@@ -178,6 +183,7 @@ func _build_world_runtime() -> void:
 		simulation_repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size,
+		collision_sector_size,
 		visual_texture_downscale_factor,
 		keep_cpu_visual_images,
 		special_worker_yield_ms
@@ -306,11 +312,14 @@ func _apply_runtime_profile() -> void:
 	simulation_texture_activation_budget_ms = runtime_profile.simulation_texture_activation_budget_ms if runtime_profile != null else 1.0
 	simulation_texture_activations_per_frame = runtime_profile.simulation_texture_activations_per_frame if runtime_profile != null else 1
 	predictive_prewarm_chunks = runtime_profile.predictive_prewarm_chunks if runtime_profile != null else 1
+	critical_collision_budget_ms = runtime_profile.critical_collision_budget_ms if runtime_profile != null else 1.0
 	collision_build_budget_ms = runtime_profile.collision_build_budget_ms if runtime_profile != null else 1.0
 	collision_shapes_per_slice = runtime_profile.collision_shapes_per_slice if runtime_profile != null else 12
 	simulation_update_budget_ms = runtime_profile.simulation_update_budget_ms if runtime_profile != null else 3.0
 	collision_radius = runtime_profile.collision_radius if runtime_profile != null else simulation_radius
 	collision_cell_size = runtime_profile.collision_cell_size if runtime_profile != null else 1
+	collision_sector_size = runtime_profile.collision_sector_size if runtime_profile != null else 64
+	collision_sector_commits_per_physics_frame = runtime_profile.collision_sector_commits_per_physics_frame if runtime_profile != null else 16
 	recycle_budget_ms = runtime_profile.recycle_budget_ms if runtime_profile != null else 0.5
 
 func _apply_runtime_profile_to_debug_nodes() -> void:
@@ -330,19 +339,37 @@ func _apply_runtime_profile_to_debug_nodes() -> void:
 
 func _process(delta: float) -> void:
 	var pipeline_started_usec: int = Time.get_ticks_usec()
-	_pipeline_deadline_usec = pipeline_started_usec + int(streaming_pipeline_budget_ms * 1000.0)
+	_last_collision_shape_count = 0
 	var prewarm_direction: Vector2i = _current_prewarm_direction()
 	if prewarm_direction != _last_prewarm_direction:
 		_last_prewarm_direction = prewarm_direction
 		_activity_dirty = true
 	_update_loaded_chunks(false)
-	# Existing foreground simulation is the most latency-sensitive work. Refresh its
-	# rate/activity immediately after player movement, before any chunk attachment or
-	# loading work can consume this frame's budget.
 	if _activity_dirty:
 		_update_simulation_activity()
 		_activity_dirty = false
+
+	# Dynamic terrain consistency is a critical path with its own budget. It is not
+	# allowed to starve behind simulation, texture upload or streaming work.
+	_critical_collision_deadline_usec = Time.get_ticks_usec() + int(critical_collision_budget_ms * 1000.0)
+	_process_collision_budget(_critical_collision_deadline_usec)
+	# A sector committed in the previous physics frame must reach the screen before
+	# the next simulation step can dirty it again. Limit this immediate path to the
+	# player's Canvas; background canvases use the normal texture budget below.
+	var foreground_canvas: PixelChunkCanvas = _canvas_for_chunk(current_player_chunk)
+	if foreground_canvas != null and foreground_canvas.visual_update_due(Time.get_ticks_usec()):
+		foreground_canvas.flush_visual_update(Time.get_ticks_usec())
+
+	_pipeline_deadline_usec = Time.get_ticks_usec() + int(streaming_pipeline_budget_ms * 1000.0)
 	_process_simulation_budget()
+	# Use the historical collision budget as an additional best-effort pass inside
+	# the normal pipeline. Critical player-adjacent work already ran above.
+	if Time.get_ticks_usec() < _pipeline_deadline_usec:
+		var background_collision_deadline_usec: int = mini(
+			_pipeline_deadline_usec,
+			Time.get_ticks_usec() + int(collision_build_budget_ms * 1000.0)
+		)
+		_process_collision_budget(background_collision_deadline_usec)
 
 	var collect_capacity: int = maxi(0, ready_attach_queue_limit - ready_chunk_queue.size())
 	if collect_capacity > 0:
@@ -360,14 +387,12 @@ func _process(delta: float) -> void:
 			if special_uploads > 0:
 				_activity_dirty = true
 	last_chunk_upload_count = normal_uploads + special_uploads
-	# Newly attached canvases receive their timing before warmup starts. They join the
-	# simulation scheduler on the following frame, avoiding a same-frame load spike.
 	if _activity_dirty:
 		_update_simulation_activity()
 		_activity_dirty = false
-	# Collision safety comes before visual warmup. Initial/current-direction collision
-	# snapshots must become complete before optional texture work consumes the budget.
-	_process_collision_budget()
+	# Newly attached chunks may use any remaining critical collision time immediately.
+	if Time.get_ticks_usec() < _critical_collision_deadline_usec:
+		_process_collision_budget(_critical_collision_deadline_usec)
 	_process_warmup_budget()
 	_process_texture_activation_budget()
 	_process_recycle_budget()
@@ -382,6 +407,20 @@ func _process(delta: float) -> void:
 	if debug_update_accum >= debug_update_interval:
 		debug_update_accum = 0.0
 		_update_debug_ui()
+
+
+func _physics_process(_delta: float) -> void:
+	## Sector swaps occur before Player (priority 0) performs move_and_slide().
+	if not generate_static_collision:
+		return
+	var remaining_commits: int = maxi(1, collision_sector_commits_per_physics_frame)
+	for coord: Vector2i in _ordered_canvas_coords(collision_radius):
+		if remaining_commits <= 0:
+			break
+		var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+		if canvas == null:
+			continue
+		remaining_commits -= canvas.commit_ready_collision_sectors(remaining_commits)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -439,6 +478,8 @@ func _build_debug_snapshot(center: Vector2i) -> Dictionary:
 				special_info = "gateway %s via %s" % [str(special_node.special_chunk_id), str(special_node.special_chunk_gateway_side)]
 			else:
 				special_info = "near %s" % str(special_node.special_chunk_id)
+	var current_canvas: PixelChunkCanvas = _canvas_for_chunk(center)
+	var collision_stats: Dictionary = current_canvas.get_collision_debug_stats() if current_canvas != null else {}
 	var chunk_type_text: String = "unknown"
 	if current_chunk != null:
 		chunk_type_text = BiomeMap.chunk_type_name(current_chunk.chunk_type)
@@ -474,9 +515,17 @@ func _build_debug_snapshot(center: Vector2i) -> Dictionary:
 		"renderer": "PixelCanvas threaded" if use_threaded_chunk_generation and chunk_worker != null else "PixelCanvas sync",
 		"simulation_enabled": simulation_enabled,
 		"collision_debug_visible": collision_debug_visible,
+		"collision_sector_size": int(collision_stats.get("sector_size", collision_sector_size)),
+		"collision_sector_count": int(collision_stats.get("sector_count", 0)),
+		"collision_dirty_sectors": int(collision_stats.get("dirty", 0)),
+		"collision_building_sectors": int(collision_stats.get("building", 0)),
+		"collision_pending_sectors": int(collision_stats.get("pending", 0)),
+		"collision_native_sector_api": bool(collision_stats.get("native_sector_api", false)),
+		"collision_native_api_version": int(collision_stats.get("native_api_version", 0)),
+		"critical_collision_budget_ms": critical_collision_budget_ms,
 		"simulation_radius": simulation_radius,
 		"special_pixel_canvases": special_chunk_manager.loaded_canvas_count() if special_chunk_manager != null else 0,
-		"current_canvas_mode": _canvas_for_chunk(center).upload_mode_name() if _canvas_for_chunk(center) != null else "not attached",
+		"current_canvas_mode": current_canvas.upload_mode_name() if current_canvas != null else "not attached",
 		"unit_size": UNIT_SIZE,
 		"units_per_chunk": UNITS_PER_CHUNK,
 		"biome": current_chunk.biome_id if current_chunk != null else biome_map_name(center),
@@ -585,35 +634,20 @@ func is_liquid_at_world_position(world_position: Vector2) -> bool:
 	return _material_is_liquid(element_id)
 
 func erase_material_circle(world_center: Vector2, radius: float) -> int:
-	## Removes cells from initialized simulation canvases and lets their native dirty
-	## flags rebuild visuals/collision under the existing frame budgets.
-	var safe_radius := clampf(radius, 0.5, 64.0)
-	var min_pixel := Vector2i((world_center - Vector2.ONE * safe_radius).floor())
-	var max_pixel := Vector2i((world_center + Vector2.ONE * safe_radius).ceil())
-	var radius_squared := safe_radius * safe_radius
-	var changed := 0
-	var touched: Dictionary = {}
-	for world_y: int in range(min_pixel.y, max_pixel.y + 1):
-		for world_x: int in range(min_pixel.x, max_pixel.x + 1):
-			var pixel_center := Vector2(world_x + 0.5, world_y + 0.5)
-			if pixel_center.distance_squared_to(world_center) > radius_squared:
-				continue
-			var coord: Vector2i = world_pos_to_chunk(pixel_center)
+	## One native edit call per overlapped Canvas. The extension marks only affected
+	## collision sectors dirty, so no GDScript per-pixel loop or full-chunk scan is needed.
+	var safe_radius: float = clampf(radius, 0.5, 64.0)
+	var min_chunk: Vector2i = world_pos_to_chunk(world_center - Vector2.ONE * safe_radius)
+	var max_chunk: Vector2i = world_pos_to_chunk(world_center + Vector2.ONE * safe_radius)
+	var changed: int = 0
+	for chunk_y: int in range(min_chunk.y, max_chunk.y + 1):
+		for chunk_x: int in range(min_chunk.x, max_chunk.x + 1):
+			var coord := Vector2i(chunk_x, chunk_y)
 			var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
 			if canvas == null:
 				continue
-			var origin := coord * CHUNK_SIZE
-			var local_x := world_x - origin.x
-			var local_y := world_y - origin.y
-			if canvas.get_cell(local_x, local_y) == 0:
-				continue
-			canvas.set_cell(local_x, local_y, 0)
-			touched[coord] = canvas
-			changed += 1
-	for canvas_value: Variant in touched.values():
-		var touched_canvas := canvas_value as PixelChunkCanvas
-		if touched_canvas != null:
-			touched_canvas.request_repaint()
+			var local_center: Vector2 = world_center - Vector2(coord * CHUNK_SIZE)
+			changed += canvas.erase_circle_local(local_center, safe_radius, 0)
 	return changed
 
 func _update_loaded_chunks(force: bool) -> void:
@@ -751,6 +785,7 @@ func _attach_chunk_renderer(data: PieceChunkData) -> void:
 		minf(simulation_repaint_hz, simulation_hz if data.coord == current_player_chunk else background_simulation_hz),
 		maximum_collision_triangles,
 		collision_cell_size,
+		collision_sector_size,
 		not keep_cpu_visual_images
 	)
 	renderer.set_collision_debug_visible(collision_debug_visible)
@@ -859,12 +894,23 @@ func _process_warmup_budget() -> void:
 
 func _process_texture_activation_budget() -> void:
 	_last_activation_count = 0
-	if not simulation_enabled or Time.get_ticks_usec() >= _pipeline_deadline_usec:
+	if Time.get_ticks_usec() >= _pipeline_deadline_usec:
 		return
 	var deadline_usec: int = mini(
 		_pipeline_deadline_usec, Time.get_ticks_usec() + int(simulation_texture_activation_budget_ms * 1000.0)
 	)
-	for coord: Vector2i in _ordered_canvas_coords(load_radius):
+	var coords: Array[Vector2i] = _ordered_canvas_coords(load_radius)
+	# A collision-first terrain edit may become ready after the last simulation tick.
+	# Service that repaint independently, including while F5 has paused simulation.
+	for coord: Vector2i in coords:
+		var dirty_canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+		if dirty_canvas != null and dirty_canvas.visual_update_due(Time.get_ticks_usec()):
+			dirty_canvas.flush_visual_update(Time.get_ticks_usec())
+		if Time.get_ticks_usec() >= deadline_usec:
+			return
+	if not simulation_enabled:
+		return
+	for coord: Vector2i in coords:
 		if _last_activation_count >= maxi(1, simulation_texture_activations_per_frame):
 			break
 		var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
@@ -875,13 +921,9 @@ func _process_texture_activation_budget() -> void:
 		if Time.get_ticks_usec() >= deadline_usec:
 			break
 
-func _process_collision_budget() -> void:
-	_last_collision_shape_count = 0
-	if not generate_static_collision or Time.get_ticks_usec() >= _pipeline_deadline_usec:
+func _process_collision_budget(deadline_usec: int) -> void:
+	if not generate_static_collision or Time.get_ticks_usec() >= deadline_usec:
 		return
-	var deadline_usec: int = mini(
-		_pipeline_deadline_usec, Time.get_ticks_usec() + int(collision_build_budget_ms * 1000.0)
-	)
 	for coord: Vector2i in _ordered_canvas_coords(collision_radius):
 		var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
 		if canvas == null or not canvas.needs_collision_work():
@@ -984,9 +1026,9 @@ func is_motion_collision_ready(
 	motion: Vector2,
 	half_extents: Vector2
 ) -> bool:
-	## CharacterBody2D can only collide with shapes that already exist in the physics
-	## server. Streaming chunks are therefore treated as temporarily blocked until a
-	## complete collision snapshot has been atomically committed.
+	## The player may enter a chunk only when every collision sector touched by the
+	## swept bounds has committed the latest native revision. Dirty sectors elsewhere
+	## in the same 512px chunk do not unnecessarily freeze movement.
 	if not generate_static_collision or motion.is_zero_approx():
 		return true
 
@@ -1000,6 +1042,7 @@ func is_motion_collision_ready(
 		maxf(world_position.x, end_position.x),
 		maxf(world_position.y, end_position.y)
 	) + half_extents + margin
+	var swept_rect := Rect2(min_position, max_position - min_position)
 	var min_chunk: Vector2i = world_pos_to_chunk(min_position)
 	var max_chunk: Vector2i = world_pos_to_chunk(max_position)
 
@@ -1009,10 +1052,10 @@ func is_motion_collision_ready(
 			var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
 			if canvas == null:
 				return false
-			# The swept player bounds may touch a neighboring chunk before the player's
-			# center changes chunk. Activate that complete snapshot preemptively.
 			canvas.set_collision_active(true)
-			if not canvas.has_committed_collision_snapshot():
+			var chunk_origin := Vector2(coord * CHUNK_SIZE)
+			var local_rect := Rect2(swept_rect.position - chunk_origin, swept_rect.size)
+			if not canvas.is_collision_region_committed(local_rect):
 				return false
 	return true
 

@@ -1,4 +1,4 @@
-> **V3 提示：** 当前性能实现已升级。请优先阅读 `PERFORMANCE_OPTIMIZATION_V3.md`；本文中的部分 V2 参数和流程仅供历史参考。
+> **V3.7 动态碰撞提示：** 地形碰撞已改为 64×64 Sector + revision 增量更新，并新增 Native `erase_circle()`。压缩包中的旧平台二进制仅提供回退路径；请先重新编译 `extensions/sand-slide`，并在 F1 HUD 确认 `native yes(api 5)`。详见 `docs/COLLISION_SECTOR_REVISION_V3_7.md`。
 
 # Noita Piece World Demo
 
@@ -84,7 +84,7 @@ See `RUNTIME_PROFILES_GUIDE.md` and `MOBILE_PERFORMANCE_GUIDE.md` for details.
 
 ## Collision debug
 
-- `F6`: toggle the cyan collision debug layer. The layer shows the exact active PhysicsServer2D snapshot.
+- `F6`: toggle the collision sector debug layer. Cyan is the exact Active snapshot; red/yellow/magenta show dirty/build/commit-pending sectors.
 
 ## Noita-style character controller
 

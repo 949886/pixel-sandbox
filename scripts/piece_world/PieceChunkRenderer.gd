@@ -21,6 +21,7 @@ func setup(
 	repaint_hz: float = 60.0,
 	maximum_collision_triangles: int = 6000,
 	collision_cell_size: int = 1,
+	collision_sector_size: int = 64,
 	release_visual_image_after_upload: bool = false
 ) -> void:
 	data = p_data
@@ -37,7 +38,8 @@ func setup(
 		simulation_hz,
 		repaint_hz,
 		maximum_collision_triangles,
-		collision_cell_size
+		collision_cell_size,
+		collision_sector_size
 	)
 	data.texture = null
 	data.material_image = null

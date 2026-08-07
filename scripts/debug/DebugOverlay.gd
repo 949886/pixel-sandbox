@@ -118,7 +118,7 @@ func set_debug_snapshot(snapshot: Dictionary) -> void:
 		str(snapshot.get("actual_left_profile", "SSSS")),
 		str(snapshot.get("structure_tags", "fallback")),
 	]
-	stats_label.text = "Pixel sim %s  ·  Radius %d  ·  Special canvases %d  ·  Rate %.0f/%.0fHz  render <= %.0fHz\nFrame pipeline: warm %d  ·  texture %d  ·  collision slices %d  ·  sim ticks %d\nRegular pieces %d  ·  Open sockets %d  ·  Glue %d\nAir units %d  ·  Placements %d  ·  Chambers %d\nSeam repairs %d  ·  Seam broken E/N %d/%d" % [
+	stats_label.text = "Pixel sim %s  ·  Radius %d  ·  Special canvases %d  ·  Rate %.0f/%.0fHz  render <= %.0fHz\nFrame pipeline: warm %d  ·  texture %d  ·  collision slices %d  ·  sim ticks %d\nCollision sectors %dpx x %d  ·  dirty/build/pending %d/%d/%d  ·  native %s(api %d)  ·  critical %.2fms\nRegular pieces %d  ·  Open sockets %d  ·  Glue %d\nAir units %d  ·  Placements %d  ·  Chambers %d\nSeam repairs %d  ·  Seam broken E/N %d/%d" % [
 		"on" if bool(snapshot.get("simulation_enabled", false)) else "off",
 		int(snapshot.get("simulation_radius", 0)),
 		int(snapshot.get("special_pixel_canvases", 0)),
@@ -129,6 +129,14 @@ func set_debug_snapshot(snapshot: Dictionary) -> void:
 		int(snapshot.get("texture_activations", 0)),
 		int(snapshot.get("collision_shapes_built", 0)),
 		int(snapshot.get("simulation_ticks", 0)),
+		int(snapshot.get("collision_sector_size", 64)),
+		int(snapshot.get("collision_sector_count", 0)),
+		int(snapshot.get("collision_dirty_sectors", 0)),
+		int(snapshot.get("collision_building_sectors", 0)),
+		int(snapshot.get("collision_pending_sectors", 0)),
+		"yes" if bool(snapshot.get("collision_native_sector_api", false)) else "fallback",
+		int(snapshot.get("collision_native_api_version", 0)),
+		float(snapshot.get("critical_collision_budget_ms", 0.0)),
 		int(snapshot.get("exact_matches", 0)),
 		int(snapshot.get("compatible_matches", 0)),
 		int(snapshot.get("fallback_count", 0)),

@@ -21,6 +21,7 @@ extends Resource
 @export_range(0.25, 8.0, 0.25) var simulation_texture_activation_budget_ms: float = 1.0
 @export_range(1, 4, 1) var simulation_texture_activations_per_frame: int = 1
 @export_range(0, 3, 1) var predictive_prewarm_chunks: int = 1
+@export_range(0.10, 4.0, 0.10) var critical_collision_budget_ms: float = 1.0
 @export_range(0.25, 8.0, 0.25) var collision_build_budget_ms: float = 1.0
 @export_range(1, 128, 1) var collision_shapes_per_slice: int = 12
 @export_range(0.25, 12.0, 0.25) var simulation_update_budget_ms: float = 3.0
@@ -40,6 +41,8 @@ extends Resource
 @export var generate_static_collision: bool = true
 @export_range(0, 4, 1) var collision_radius: int = 1
 @export_range(1, 32, 1) var collision_cell_size: int = 1
+@export_range(16, 256, 16) var collision_sector_size: int = 64
+@export_range(1, 64, 1) var collision_sector_commits_per_physics_frame: int = 16
 # Retained for compatibility with V2 profiles; greedy rectangles replace triangles.
 @export_range(0, 20000, 100) var maximum_collision_triangles: int = 6000
 @export var exchange_dynamic_materials_across_borders: bool = true
