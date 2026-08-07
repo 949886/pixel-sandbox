@@ -270,4 +270,4 @@ V3.7 的碰撞不再按完整 Chunk 重建，而是把 512×512 Canvas 划分成
 | 黄色 Sector | 正在创建 Staging Rectangle Shape |
 | 紫色 Sector | Staging 已完成，等待下一个 physics frame 原子提交 |
 
-F1 HUD 同时显示 `native yes(api 5)` 或 `fallback(api 0)`。只有 API 5 表示 Native Sector 路径已启用；fallback 表示当前仍加载旧 DLL/SO/WASM，并会退回完整 Chunk 碰撞扫描。
+F1 HUD 同时显示 `native yes(api 8)` 或 `fallback(api 0)`。只有 API 8 表示 Native Sector 路径已启用；fallback 表示当前仍加载旧 DLL/SO/WASM，并会退回完整 Chunk 碰撞扫描。

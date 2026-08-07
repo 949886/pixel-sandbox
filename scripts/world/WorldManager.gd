@@ -70,6 +70,7 @@ var collision_radius: int = 1
 var collision_cell_size: int = 1
 var collision_sector_size: int = 64
 var collision_sector_commits_per_physics_frame: int = 16
+var collision_dynamic_rebuild_hz: float = 20.0
 var recycle_budget_ms: float = 0.5
 
 var library: PieceLibrary
@@ -184,6 +185,7 @@ func _build_world_runtime() -> void:
 		maximum_collision_triangles,
 		collision_cell_size,
 		collision_sector_size,
+		collision_dynamic_rebuild_hz,
 		visual_texture_downscale_factor,
 		keep_cpu_visual_images,
 		special_worker_yield_ms
@@ -320,6 +322,7 @@ func _apply_runtime_profile() -> void:
 	collision_cell_size = runtime_profile.collision_cell_size if runtime_profile != null else 1
 	collision_sector_size = runtime_profile.collision_sector_size if runtime_profile != null else 64
 	collision_sector_commits_per_physics_frame = runtime_profile.collision_sector_commits_per_physics_frame if runtime_profile != null else 16
+	collision_dynamic_rebuild_hz = runtime_profile.collision_dynamic_rebuild_hz if runtime_profile != null else 20.0
 	recycle_budget_ms = runtime_profile.recycle_budget_ms if runtime_profile != null else 0.5
 
 func _apply_runtime_profile_to_debug_nodes() -> void:
@@ -349,21 +352,25 @@ func _process(delta: float) -> void:
 		_update_simulation_activity()
 		_activity_dirty = false
 
-	# Dynamic terrain consistency is a critical path with its own budget. It is not
-	# allowed to starve behind simulation, texture upload or streaming work.
+	# Run the native simulation first, then snapshot collision from the final grid
+	# state of this rendered frame. Building before step() caused continuously
+	# burning sectors to invalidate nearly every staging snapshot.
+	_pipeline_deadline_usec = Time.get_ticks_usec() + int(streaming_pipeline_budget_ms * 1000.0)
+	_process_simulation_budget()
+
+	# Dynamic collision keeps an independent budget so it cannot be starved by
+	# streaming. Removal-only sectors are internally rate-limited; added solids
+	# remain urgent and collision-first.
 	_critical_collision_deadline_usec = Time.get_ticks_usec() + int(critical_collision_budget_ms * 1000.0)
 	_process_collision_budget(_critical_collision_deadline_usec)
-	# A sector committed in the previous physics frame must reach the screen before
-	# the next simulation step can dirty it again. Limit this immediate path to the
-	# player's Canvas; background canvases use the normal texture budget below.
+
+	# Removal-only edits may repaint immediately while their conservative old
+	# collision follows at the configured dynamic rebuild rate.
 	var foreground_canvas: PixelChunkCanvas = _canvas_for_chunk(current_player_chunk)
 	if foreground_canvas != null and foreground_canvas.visual_update_due(Time.get_ticks_usec()):
 		foreground_canvas.flush_visual_update(Time.get_ticks_usec())
 
-	_pipeline_deadline_usec = Time.get_ticks_usec() + int(streaming_pipeline_budget_ms * 1000.0)
-	_process_simulation_budget()
-	# Use the historical collision budget as an additional best-effort pass inside
-	# the normal pipeline. Critical player-adjacent work already ran above.
+	# Additional best-effort collision work uses the normal pipeline remainder.
 	if Time.get_ticks_usec() < _pipeline_deadline_usec:
 		var background_collision_deadline_usec: int = mini(
 			_pipeline_deadline_usec,
@@ -520,9 +527,11 @@ func _build_debug_snapshot(center: Vector2i) -> Dictionary:
 		"collision_dirty_sectors": int(collision_stats.get("dirty", 0)),
 		"collision_building_sectors": int(collision_stats.get("building", 0)),
 		"collision_pending_sectors": int(collision_stats.get("pending", 0)),
+		"collision_unsafe_sectors": int(collision_stats.get("unsafe", 0)),
 		"collision_native_sector_api": bool(collision_stats.get("native_sector_api", false)),
 		"collision_native_api_version": int(collision_stats.get("native_api_version", 0)),
 		"critical_collision_budget_ms": critical_collision_budget_ms,
+		"collision_dynamic_rebuild_hz": collision_dynamic_rebuild_hz,
 		"simulation_radius": simulation_radius,
 		"special_pixel_canvases": special_chunk_manager.loaded_canvas_count() if special_chunk_manager != null else 0,
 		"current_canvas_mode": current_canvas.upload_mode_name() if current_canvas != null else "not attached",
@@ -786,6 +795,7 @@ func _attach_chunk_renderer(data: PieceChunkData) -> void:
 		maximum_collision_triangles,
 		collision_cell_size,
 		collision_sector_size,
+		collision_dynamic_rebuild_hz,
 		not keep_cpu_visual_images
 	)
 	renderer.set_collision_debug_visible(collision_debug_visible)

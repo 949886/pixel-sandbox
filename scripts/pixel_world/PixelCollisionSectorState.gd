@@ -18,3 +18,9 @@ var build_in_progress: bool = false
 var commit_pending: bool = false
 var dirty: bool = false
 var snapshot_prepared: bool = false
+
+# Native API 8 flags describe how the current grid differs from the committed
+# physics mask. Removal-only changes are conservative: the old collision may
+# temporarily block empty space, but it cannot let a body fall through.
+var change_flags: int = 3
+var next_rebuild_usec: int = 0

@@ -7,6 +7,9 @@ extends Node2D
 const CHUNK_SIZE: int = PieceWorldConstants.CHUNK_SIZE
 const TOTAL_PIXELS: int = CHUNK_SIZE * CHUNK_SIZE
 const DEFAULT_COLLISION_SECTOR_SIZE: int = 64
+const COLLISION_CHANGE_REMOVED: int = 1
+const COLLISION_CHANGE_ADDED: int = 2
+const COLLISION_CHANGE_BOTH: int = COLLISION_CHANGE_REMOVED | COLLISION_CHANGE_ADDED
 static var _warned_missing_native_dirty: bool = false
 static var _warned_missing_native_sector_api: bool = false
 
@@ -47,6 +50,7 @@ var _collision_cell_size: int = 1
 var _collision_sector_size: int = DEFAULT_COLLISION_SECTOR_SIZE
 var _collision_sector_width: int = 8
 var _collision_sector_height: int = 8
+var _collision_rebuild_interval_usec: int = 50000
 var _collision_sectors: Array[PixelCollisionSectorState] = []
 var _collision_work_queue: Array[int] = []
 var _initial_collision_queued: bool = false
@@ -86,7 +90,8 @@ func setup(
 	repaint_hz: float = 60.0,
 	_max_collision_triangles: int = 6000,
 	collision_cell_size: int = 1,
-	collision_sector_size: int = DEFAULT_COLLISION_SECTOR_SIZE
+	collision_sector_size: int = DEFAULT_COLLISION_SECTOR_SIZE,
+	collision_dynamic_rebuild_hz: float = 20.0
 ) -> void:
 	recycle_for_pool()
 	chunk_data = data
@@ -100,6 +105,7 @@ func setup(
 	_collision_sector_size = maxi(16, collision_sector_size)
 	_collision_sector_width = ceili(float(CHUNK_SIZE) / float(_collision_sector_size))
 	_collision_sector_height = ceili(float(CHUNK_SIZE) / float(_collision_sector_size))
+	_collision_rebuild_interval_usec = maxi(1000, int(1000000.0 / maxf(collision_dynamic_rebuild_hz, 1.0)))
 	visible = true
 	_ensure_nodes()
 	_reset_collision_sector_states()
@@ -175,6 +181,7 @@ func get_collision_debug_stats() -> Dictionary:
 	var dirty_count: int = 0
 	var building_count: int = 0
 	var pending_count: int = 0
+	var unsafe_count: int = 0
 	for state: PixelCollisionSectorState in _collision_sectors:
 		if state.dirty:
 			dirty_count += 1
@@ -182,12 +189,15 @@ func get_collision_debug_stats() -> Dictionary:
 			building_count += 1
 		if state.commit_pending:
 			pending_count += 1
+		if _sector_requires_collision_first(state):
+			unsafe_count += 1
 	return {
 		"sector_size": _collision_sector_size,
 		"sector_count": _collision_sectors.size(),
 		"dirty": dirty_count,
 		"building": building_count,
 		"pending": pending_count,
+		"unsafe": unsafe_count,
 		"committed": _collision_snapshot_committed,
 		"native_sector_api": _native_collision_sector_supported,
 		"native_api_version": _native_api_version,
@@ -198,17 +208,26 @@ func has_committed_collision_snapshot() -> bool:
 	return _collision_snapshot_committed
 
 
-func has_pending_collision_sync() -> bool:
+func has_pending_collision_sync(unsafe_only: bool = false) -> bool:
 	if not collision_requested:
 		return false
-	if not _collision_snapshot_committed or not _collision_work_queue.is_empty():
+	if not _collision_snapshot_committed:
 		return true
+	if _native_collision_sector_supported:
+		_poll_native_dirty_sectors()
 	for state: PixelCollisionSectorState in _collision_sectors:
-		if state.dirty or state.build_in_progress or state.commit_pending:
+		var pending: bool = state.dirty or state.build_in_progress or state.commit_pending
+		if not pending:
+			continue
+		if not unsafe_only or _sector_requires_collision_first(state):
 			return true
-	if _native_collision_sector_supported and simulation != null:
-		return bool(simulation.call("has_dirty_collision_sectors"))
-	return _native_collision_is_dirty()
+	if not _native_collision_sector_supported:
+		return _native_collision_is_dirty()
+	return false
+
+
+func has_pending_unsafe_collision_sync() -> bool:
+	return has_pending_collision_sync(true)
 
 
 func is_collision_region_committed(local_rect: Rect2) -> bool:
@@ -234,7 +253,11 @@ func is_collision_region_committed(local_rect: Rect2) -> bool:
 	for sector_y: int in range(min_sector.y, max_sector.y + 1):
 		for sector_x: int in range(min_sector.x, max_sector.x + 1):
 			var state: PixelCollisionSectorState = _collision_sectors[_sector_index(sector_x, sector_y)]
-			if not state.initial_committed or state.dirty or state.build_in_progress or state.commit_pending:
+			if not state.initial_committed:
+				return false
+			# Removal-only edits keep a conservative old collision snapshot. They may
+			# temporarily block empty pixels, but cannot let the player enter new solids.
+			if (state.dirty or state.build_in_progress or state.commit_pending) and _sector_requires_collision_first(state):
 				return false
 	return true
 
@@ -288,19 +311,20 @@ func begin_initialization() -> void:
 		simulation.has_method("configure_collision_sectors")
 		and simulation.has_method("get_dirty_collision_sectors")
 		and simulation.has_method("get_collision_sector_snapshot")
+		and simulation.has_method("classify_collision_sector_snapshot")
 		and simulation.has_method("acknowledge_collision_sector")
 		and simulation.has_method("get_collision_sector_revision")
 		and simulation.has_method("has_dirty_collision_sectors")
 	)
 	_native_erase_circle_supported = simulation.has_method("erase_circle")
 	_native_api_version = int(simulation.call("get_native_api_version")) if simulation.has_method("get_native_api_version") else 0
-	_native_collision_sector_supported = _native_collision_sector_supported and _native_api_version >= 5
-	_native_erase_circle_supported = _native_erase_circle_supported and _native_api_version >= 5
+	_native_collision_sector_supported = _native_collision_sector_supported and _native_api_version >= 8
+	_native_erase_circle_supported = _native_erase_circle_supported and _native_api_version >= 6
 	if _native_collision_sector_supported:
 		simulation.call("configure_collision_sectors", _collision_sector_size)
 	elif not _warned_missing_native_sector_api:
 		_warned_missing_native_sector_api = true
-		push_warning("SandSimulation DLL has no collision-sector API; terrain edits fall back to full-chunk collision scans until the GDExtension is rebuilt.")
+		push_warning("SandSimulation collision-sector API is missing or older than API 8; terrain edits fall back to full-chunk collision scans until the GDExtension is rebuilt.")
 	if not _native_dirty_supported and not _warned_missing_native_dirty:
 		_warned_missing_native_dirty = true
 		push_warning("SandSimulation DLL has no is_dirty()/clear_dirty(); using legacy full repaint mode.")
@@ -461,11 +485,11 @@ func commit_ready_collision_sectors(max_count: int = 64) -> int:
 			break
 		if not state.commit_pending:
 			continue
-		_commit_collision_sector(state)
-		committed += 1
+		if _commit_collision_sector(state):
+			committed += 1
 	_update_collision_snapshot_committed()
 	if committed > 0:
-		if not has_pending_collision_sync():
+		if not has_pending_unsafe_collision_sync():
 			next_repaint_due_usec = mini(next_repaint_due_usec, Time.get_ticks_usec())
 		_refresh_collision_debug()
 	return committed
@@ -495,9 +519,9 @@ func visual_update_due(now_usec: int) -> bool:
 
 
 func flush_visual_update(now_usec: int) -> bool:
-	## Solid occupancy must commit first. This method is independent from step(), so
-	## F5-paused simulation and externally edited canvases can still refresh visually.
-	if not visual_update_due(now_usec) or has_pending_collision_sync():
+	## Added solids must commit first. Removal-only changes may render immediately:
+	## the previous collision remains conservative while its throttled rebuild catches up.
+	if not visual_update_due(now_usec) or has_pending_unsafe_collision_sync():
 		return false
 	_repaint()
 	if _native_dirty_supported:
@@ -604,6 +628,7 @@ func recycle_for_pool() -> void:
 	_load_cursor = 0
 	_collision_cell_size = 1
 	_collision_sector_size = DEFAULT_COLLISION_SECTOR_SIZE
+	_collision_rebuild_interval_usec = 50000
 	_initial_collision_queued = false
 	_collision_snapshot_committed = false
 	_collision_work_queue.clear()
@@ -690,6 +715,7 @@ func _queue_initial_collision_sectors() -> void:
 		state.queued_revision = -1
 		state.snapshot_prepared = true
 		state.dirty = true
+		state.change_flags = COLLISION_CHANGE_BOTH
 		_collision_work_queue.append(index)
 	_initial_collision_queued = true
 	_initial_collision_rects = PackedInt32Array()
@@ -713,6 +739,7 @@ func _queue_legacy_full_collision_rebuild() -> void:
 		state.queued_revision = state.building_revision
 		state.snapshot_prepared = true
 		state.dirty = true
+		state.change_flags = COLLISION_CHANGE_BOTH
 		if not _collision_work_queue.has(index):
 			_collision_work_queue.append(index)
 	if _native_collision_dirty_supported:
@@ -723,25 +750,46 @@ func _poll_native_dirty_sectors() -> void:
 	if not _native_collision_sector_supported or simulation == null or warm_state != WarmState.READY:
 		return
 	var dirty_data: PackedInt32Array = simulation.call("get_dirty_collision_sectors", _collision_sectors.size())
-	var entry_count: int = int(dirty_data.size() / 3)
+	var entry_count: int = int(dirty_data.size() / 4)
+	var seen: Dictionary = {}
+	var now_usec: int = Time.get_ticks_usec()
 	for entry: int in range(entry_count):
-		var base: int = entry * 3
+		var base: int = entry * 4
 		var sector_coord := Vector2i(dirty_data[base], dirty_data[base + 1])
 		var revision: int = dirty_data[base + 2]
+		var change_flags: int = dirty_data[base + 3]
 		var index: int = _sector_index(sector_coord.x, sector_coord.y)
 		if index < 0:
 			continue
+		seen[index] = true
 		var state: PixelCollisionSectorState = _collision_sectors[index]
 		state.dirty = true
-		if state.build_in_progress or state.commit_pending:
-			state.queued_revision = maxi(state.queued_revision, revision)
+		state.change_flags = change_flags if change_flags != 0 else COLLISION_CHANGE_BOTH
+		state.queued_revision = maxi(state.queued_revision, revision)
+		if state.build_in_progress or state.commit_pending or _collision_work_queue.has(index):
 			continue
-		if _collision_work_queue.has(index):
-			state.queued_revision = maxi(state.queued_revision, revision)
+		var urgent: bool = _sector_requires_collision_first(state)
+		if urgent or now_usec >= state.next_rebuild_usec:
+			state.snapshot_prepared = false
+			_collision_work_queue.append(index)
+			# Advance the throttle when the task is queued, not only after commit.
+			# A continuously changing removal-only sector may invalidate staging
+			# before the physics frame; without this, it would retry every frame.
+			if not urgent:
+				state.next_rebuild_usec = now_usec + _collision_rebuild_interval_usec
+
+	# A sector can return to the committed occupancy before a pending snapshot is
+	# built. Native API 8 removes it from the dirty list; cancel the queued no-op.
+	for index: int in range(_collision_sectors.size()):
+		var state: PixelCollisionSectorState = _collision_sectors[index]
+		if seen.has(index) or state.build_in_progress or state.commit_pending:
 			continue
-		state.queued_revision = revision
-		state.snapshot_prepared = false
-		_collision_work_queue.append(index)
+		if state.dirty:
+			state.dirty = false
+			state.change_flags = 0
+			state.queued_revision = -1
+			state.snapshot_prepared = false
+			_collision_work_queue.erase(index)
 	_refresh_collision_debug()
 
 
@@ -787,9 +835,29 @@ func _prepare_sector_snapshot(state: PixelCollisionSectorState) -> bool:
 	return true
 
 
-func _commit_collision_sector(state: PixelCollisionSectorState) -> void:
-	# Keep one persistent active body per occupied sector. The staging body exists
-	# only while a replacement is being built, avoiding 128 permanent bodies per Canvas.
+func _commit_collision_sector(state: PixelCollisionSectorState) -> bool:
+	# Reject a snapshot that became stale before the physics frame. Swapping it in
+	# would briefly roll collision backwards and create extra RID churn.
+	if _native_collision_sector_supported and simulation != null and state.building_revision >= 0:
+		var current_revision: int = int(simulation.call(
+			"get_collision_sector_revision", state.coord.x, state.coord.y
+		))
+		if current_revision != state.building_revision:
+			var snapshot_status: int = int(simulation.call(
+				"classify_collision_sector_snapshot",
+				state.coord.x,
+				state.coord.y,
+				state.building_revision
+			))
+			# API 8 may commit a stale snapshot only when it still contains every
+			# currently solid pixel. This is the common continuous-burning case:
+			# the snapshot has a few extra old solids, never a dangerous hole.
+			if snapshot_status < 0 or snapshot_status == 2:
+				_discard_sector_staging(state)
+				state.dirty = true
+				state.queued_revision = current_revision
+				return false
+
 	var new_active_body: RID = state.staging_body
 	var old_active_body: RID = state.active_body
 	var new_active_shapes: Array[RID] = state.staging_shape_rids
@@ -821,14 +889,32 @@ func _commit_collision_sector(state: PixelCollisionSectorState) -> void:
 			"acknowledge_collision_sector", state.coord.x, state.coord.y, committed_revision
 		))
 		state.dirty = not acknowledged
+		if acknowledged:
+			state.change_flags = 0
 	else:
 		state.active_revision = committed_revision
 		state.dirty = false
+		state.change_flags = 0
+	state.next_rebuild_usec = Time.get_ticks_usec() + _collision_rebuild_interval_usec
 	state.building_revision = -1
 	state.queued_revision = -1
 	_clear_body_shapes(old_active_body, old_active_shapes)
 	if old_active_body.is_valid():
 		PhysicsServer2D.free_rid(old_active_body)
+	return true
+
+
+func _discard_sector_staging(state: PixelCollisionSectorState) -> void:
+	_clear_sector_staging(state)
+	if state.staging_body.is_valid():
+		PhysicsServer2D.free_rid(state.staging_body)
+	state.staging_body = RID()
+	state.staging_rects = PackedInt32Array()
+	state.staging_cursor = 0
+	state.build_in_progress = false
+	state.commit_pending = false
+	state.snapshot_prepared = false
+	state.building_revision = -1
 
 
 func _acknowledge_committed_initial_sectors() -> void:
@@ -844,6 +930,9 @@ func _acknowledge_committed_initial_sectors() -> void:
 		state.dirty = not bool(simulation.call(
 			"acknowledge_collision_sector", state.coord.x, state.coord.y, revision
 		))
+		if not state.dirty:
+			state.change_flags = 0
+			state.next_rebuild_usec = Time.get_ticks_usec() + _collision_rebuild_interval_usec
 
 
 func _partition_rects_into_sectors(rects: PackedInt32Array, output: Array) -> void:
@@ -916,6 +1005,8 @@ func _clear_collision_sectors() -> void:
 		state.active_revision = -1
 		state.building_revision = -1
 		state.queued_revision = -1
+		state.change_flags = COLLISION_CHANGE_BOTH
+		state.next_rebuild_usec = 0
 	_collision_work_queue.clear()
 	_collision_snapshot_committed = false
 	_refresh_collision_debug()
@@ -1012,6 +1103,10 @@ func _sector_index(sector_x: int, sector_y: int) -> int:
 	if sector_x < 0 or sector_y < 0 or sector_x >= _collision_sector_width or sector_y >= _collision_sector_height:
 		return -1
 	return sector_y * _collision_sector_width + sector_x
+
+
+func _sector_requires_collision_first(state: PixelCollisionSectorState) -> bool:
+	return (state.change_flags & COLLISION_CHANGE_ADDED) != 0
 
 
 func _refresh_collision_debug() -> void:

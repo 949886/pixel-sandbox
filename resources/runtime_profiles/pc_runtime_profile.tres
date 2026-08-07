@@ -41,6 +41,7 @@ collision_radius = 1
 collision_cell_size = 1
 collision_sector_size = 64
 collision_sector_commits_per_physics_frame = 24
+collision_dynamic_rebuild_hz = 20.0
 maximum_collision_triangles = 6000
 exchange_dynamic_materials_across_borders = true
 border_exchange_hz = 6.0

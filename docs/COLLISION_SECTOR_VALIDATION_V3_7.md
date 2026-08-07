@@ -41,7 +41,7 @@ game/tests/CollisionSectorSmokeTest.tscn
 - 当前 revision acknowledgement 必须成功。
 - 跨四区圆形删除必须标记四个 Sector。
 
-此测试需要先重新编译 API 5 二进制。
+此测试需要先重新编译 API 6 二进制。
 
 ## 当前环境限制
 
@@ -52,7 +52,7 @@ game/tests/CollisionSectorSmokeTest.tscn
 - Windows、Android、Web 二进制替换。
 - 实机物理帧、连续射击和移动端性能测量。
 
-压缩包中的既有平台二进制仍是用户上传版本。源代码已经升级到 API 5，但运行时只有重新编译后才会启用 Native Sector 路径。
+压缩包中的既有平台二进制仍是用户上传版本。源代码已经升级到 API 6，但运行时只有重新编译后才会启用 Native Sector 路径。
 
 ## 非阻塞资源警告
 

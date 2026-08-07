@@ -22,6 +22,7 @@ func setup(
 	maximum_collision_triangles: int = 6000,
 	collision_cell_size: int = 1,
 	collision_sector_size: int = 64,
+	collision_dynamic_rebuild_hz: float = 20.0,
 	release_visual_image_after_upload: bool = false
 ) -> void:
 	data = p_data
@@ -39,7 +40,8 @@ func setup(
 		repaint_hz,
 		maximum_collision_triangles,
 		collision_cell_size,
-		collision_sector_size
+		collision_sector_size,
+		collision_dynamic_rebuild_hz
 	)
 	data.texture = null
 	data.material_image = null

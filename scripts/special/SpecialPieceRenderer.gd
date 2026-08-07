@@ -21,6 +21,7 @@ func setup(
 	maximum_collision_triangles: int = 6000,
 	collision_cell_size: int = 1,
 	collision_sector_size: int = 64,
+	collision_dynamic_rebuild_hz: float = 20.0,
 	preview_downscale_factor: int = 1,
 	keep_cpu_visual_images: bool = false
 ) -> void:
@@ -34,7 +35,7 @@ func setup(
 	setup_with_chunk_data(
 		p_placement, chunks, palette, enable_simulation, enable_collision,
 		simulation_iterations, simulation_hz, repaint_hz, maximum_collision_triangles,
-		collision_cell_size, collision_sector_size, keep_cpu_visual_images
+		collision_cell_size, collision_sector_size, collision_dynamic_rebuild_hz, keep_cpu_visual_images
 	)
 
 func setup_with_chunk_data(
@@ -49,6 +50,7 @@ func setup_with_chunk_data(
 	maximum_collision_triangles: int = 6000,
 	collision_cell_size: int = 1,
 	collision_sector_size: int = 64,
+	collision_dynamic_rebuild_hz: float = 20.0,
 	keep_cpu_visual_images: bool = false
 ) -> void:
 	placement = p_placement
@@ -75,7 +77,8 @@ func setup_with_chunk_data(
 			repaint_hz,
 			maximum_collision_triangles,
 			collision_cell_size,
-			collision_sector_size
+			collision_sector_size,
+			collision_dynamic_rebuild_hz
 		)
 		canvas.set_collision_debug_visible(collision_debug_visible)
 		if not keep_cpu_visual_images:

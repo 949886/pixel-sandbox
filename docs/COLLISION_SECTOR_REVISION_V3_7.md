@@ -14,12 +14,12 @@ V3.7 将动态碰撞改为 **64×64 Sector 增量更新**，保留 1 像素精�
 
 一次小型爆炸通常只重建 1～4 个 Sector，不再扫描和替换整个 Chunk。
 
-## Native API 5
+## Native API 6
 
 `SandSimulation` 新增以下接口：
 
 ```text
-get_native_api_version() -> 5
+get_native_api_version() -> 6
 configure_collision_sectors(sector_size)
 get_collision_sector_revision(x, y)
 get_dirty_collision_sectors(max_count)
@@ -125,11 +125,11 @@ native yes|fallback (api N)
 critical collision budget
 ```
 
-只有显示 `native yes(api 5)` 时，局部 Sector 更新才真正启用。
+只有显示 `native yes(api 6)` 时，局部 Sector 更新才真正启用。
 
 ## 旧二进制回退
 
-压缩包保留用户上传版本中的现有 DLL/SO/WASM，确保原支持平台仍能打开项目。这些二进制不包含 API 5，因此首次运行会警告并回退到完整 Chunk 扫描。
+压缩包保留用户上传版本中的现有 DLL/SO/WASM，确保原支持平台仍能打开项目。这些二进制不包含 API 6，因此首次运行会警告并回退到完整 Chunk 扫描。
 
 必须重新编译 GDExtension 才能启用 V3.7：
 
@@ -149,7 +149,7 @@ build.bat
 
 ## 推荐运行测试
 
-编译 API 5 后执行：
+编译 API 6 后执行：
 
 ```bat
 godot --headless --path game res://tests/CollisionSectorSmokeTest.tscn
@@ -163,7 +163,7 @@ CollisionSectorSmokeTest: PASS
 
 随后在游戏中测试：
 
-1. F1 确认 `native yes(api 5)`。
+1. F1 确认 `native yes(api 6)`。
 2. F6 打开碰撞层。
 3. 在 Sector 内、Sector 边界、Chunk 边界连续射击。
 4. 确认青色碰撞与画面同时切换。

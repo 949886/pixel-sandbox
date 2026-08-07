@@ -1,4 +1,4 @@
-> **V3.7 动态碰撞提示：** 地形碰撞已改为 64×64 Sector + revision 增量更新，并新增 Native `erase_circle()`。压缩包中的旧平台二进制仅提供回退路径；请先重新编译 `extensions/sand-slide`，并在 F1 HUD 确认 `native yes(api 5)`。详见 `docs/COLLISION_SECTOR_REVISION_V3_7.md`。
+> **V3.7.2 燃烧性能修复：** 动态碰撞采用紧凑 Sector 占用位图、删除/新增分级同步与保守快照渐进提交。请重新编译 `extensions/sand-slide`，并在 F1 HUD 确认 `native yes(api 8)`。详见 `docs/COLLISION_BURNING_PERFORMANCE_V3_7_2.md`。
 
 # Noita Piece World Demo
 
