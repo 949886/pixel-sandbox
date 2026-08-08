@@ -50,10 +50,15 @@ var simulation_radius: int = 1
 var simulation_iterations: int = 1
 var simulation_hz: float = 60.0
 var background_simulation_hz: float = 12.0
+var legacy_background_simulation_hz: float = 12.0
 var simulation_repaint_hz: float = 60.0
 var generate_static_collision: bool = true
 var maximum_collision_triangles: int = 6000
 var exchange_dynamic_materials_across_borders: bool = true
+var flow_warm_radius: int = 1
+var border_flow_max_seams_per_frame: int = 16
+var border_neighbor_wake_ms: int = 750
+# Deprecated legacy fallback controls.
 var border_exchange_hz: float = 15.0
 var border_seams_per_tick: int = 2
 var chunk_attach_budget_ms: float = 1.5
@@ -101,6 +106,11 @@ var last_chunk_upload_count: int = 0
 var current_player_chunk: Vector2i = Vector2i.ZERO
 var _border_exchange_accumulator: float = 0.0
 var _border_exchange_phase: int = 0
+var _border_flow_phase: int = 0
+var _simulated_coords_this_frame: Dictionary = {}
+var _last_border_flow_seams: int = 0
+var _last_border_flow_moved: int = 0
+var _warned_missing_native_flow_bridge: bool = false
 var ready_chunk_queue: Array[PieceChunkData] = []
 var deferred_renderer_recycle_queue: Array[PieceChunkRenderer] = []
 var _last_stream_center: Vector2i = Vector2i(2147483647, 2147483647)
@@ -306,6 +316,9 @@ func _apply_runtime_profile() -> void:
 	generate_static_collision = runtime_profile.generate_static_collision if runtime_profile != null else true
 	maximum_collision_triangles = runtime_profile.maximum_collision_triangles if runtime_profile != null else 6000
 	exchange_dynamic_materials_across_borders = runtime_profile.exchange_dynamic_materials_across_borders if runtime_profile != null else true
+	flow_warm_radius = runtime_profile.flow_warm_radius if runtime_profile != null else 1
+	border_flow_max_seams_per_frame = runtime_profile.border_flow_max_seams_per_frame if runtime_profile != null else 16
+	border_neighbor_wake_ms = runtime_profile.border_neighbor_wake_ms if runtime_profile != null else 750
 	border_exchange_hz = runtime_profile.border_exchange_hz if runtime_profile != null else 15.0
 	border_seams_per_tick = runtime_profile.border_seams_per_tick if runtime_profile != null else 2
 	chunk_attach_budget_ms = runtime_profile.chunk_attach_budget_ms if runtime_profile != null else 1.5
@@ -357,6 +370,7 @@ func _process(delta: float) -> void:
 	# burning sectors to invalidate nearly every staging snapshot.
 	_pipeline_deadline_usec = Time.get_ticks_usec() + int(streaming_pipeline_budget_ms * 1000.0)
 	_process_simulation_budget()
+	_process_native_border_flow()
 
 	# Dynamic collision keeps an independent budget so it cannot be starved by
 	# streaming. Removal-only sectors are internally rate-limited; added solids
@@ -403,12 +417,6 @@ func _process(delta: float) -> void:
 	_process_warmup_budget()
 	_process_texture_activation_budget()
 	_process_recycle_budget()
-	if exchange_dynamic_materials_across_borders and simulation_enabled:
-		_border_exchange_accumulator += delta
-		var border_interval: float = 1.0 / maxf(border_exchange_hz, 1.0)
-		if _border_exchange_accumulator >= border_interval and Time.get_ticks_usec() < _pipeline_deadline_usec:
-			_border_exchange_accumulator = fmod(_border_exchange_accumulator, border_interval)
-			_exchange_chunk_borders()
 	_last_pipeline_usec = Time.get_ticks_usec() - pipeline_started_usec
 	debug_update_accum += delta
 	if debug_update_accum >= debug_update_interval:
@@ -487,6 +495,7 @@ func _build_debug_snapshot(center: Vector2i) -> Dictionary:
 				special_info = "near %s" % str(special_node.special_chunk_id)
 	var current_canvas: PixelChunkCanvas = _canvas_for_chunk(center)
 	var collision_stats: Dictionary = current_canvas.get_collision_debug_stats() if current_canvas != null else {}
+	var block_stats: Dictionary = current_canvas.get_simulation_block_stats() if current_canvas != null else {}
 	var chunk_type_text: String = "unknown"
 	if current_chunk != null:
 		chunk_type_text = BiomeMap.chunk_type_name(current_chunk.chunk_type)
@@ -516,6 +525,24 @@ func _build_debug_snapshot(center: Vector2i) -> Dictionary:
 		"simulation_hz": simulation_hz,
 		"background_simulation_hz": background_simulation_hz,
 		"simulation_repaint_hz": simulation_repaint_hz,
+		"border_flow_seams": _last_border_flow_seams,
+		"border_flow_moved": _last_border_flow_moved,
+		"flow_warm_radius": flow_warm_radius,
+		"border_neighbor_wake_ms": border_neighbor_wake_ms,
+		"native_flow_bridge": current_canvas.supports_native_flow_bridge() if current_canvas != null else false,
+		"native_active_blocks": bool(block_stats.get("supported", false)),
+		"block_size": int(block_stats.get("block_size", 16)),
+		"block_total": int(block_stats.get("total", 0)),
+		"block_active": int(block_stats.get("active", 0)),
+		"block_cooling": int(block_stats.get("cooling", 0)),
+		"block_sleeping": int(block_stats.get("sleeping", 0)),
+		"block_occupied": int(block_stats.get("occupied", 0)),
+		"block_autonomous": int(block_stats.get("autonomous", 0)),
+		"block_processed": int(block_stats.get("processed_blocks", 0)),
+		"block_scanned_cells": int(block_stats.get("scanned_cells", 0)),
+		"block_processed_elements": int(block_stats.get("processed_elements", 0)),
+		"block_wakes": int(block_stats.get("wakes", 0)),
+		"block_sleep_quiet_ticks": int(block_stats.get("sleep_quiet_ticks", 4)),
 		"load_radius": load_radius,
 		"visual_downscale": visual_texture_downscale_factor,
 		"renderer_pool": chunk_renderer_pool.size(),
@@ -790,8 +817,8 @@ func _attach_chunk_renderer(data: PieceChunkData) -> void:
 		active,
 		generate_static_collision,
 		simulation_iterations,
-		simulation_hz if data.coord == current_player_chunk else background_simulation_hz,
-		minf(simulation_repaint_hz, simulation_hz if data.coord == current_player_chunk else background_simulation_hz),
+		simulation_hz if data.coord == current_player_chunk else legacy_background_simulation_hz,
+		minf(simulation_repaint_hz, simulation_hz if data.coord == current_player_chunk else legacy_background_simulation_hz),
 		maximum_collision_triangles,
 		collision_cell_size,
 		collision_sector_size,
@@ -826,20 +853,52 @@ func _update_simulation_activity() -> void:
 		if renderer != null:
 			var distance: int = _chunk_distance(coord, current_player_chunk)
 			var active_nearby: bool = simulation_enabled and distance <= simulation_radius
-			var target_hz: float = simulation_hz if distance == 0 else background_simulation_hz
+			var target_hz: float = simulation_hz if distance == 0 else _background_hz_for_canvas(renderer.pixel_canvas)
 			renderer.set_simulation_timing(target_hz, minf(simulation_repaint_hz, target_hz))
 			renderer.set_simulation_active(active_nearby)
-			renderer.set_warmup_requested(active_nearby or predictive_coords.has(coord))
+			var flow_warm: bool = _is_flow_warm_coord(coord)
+			renderer.set_warmup_requested(active_nearby or predictive_coords.has(coord) or flow_warm)
 			renderer.set_collision_active(generate_static_collision and _chunk_distance(coord, current_player_chunk) <= collision_radius)
 	if special_chunk_manager != null:
 		special_chunk_manager.set_simulation_activity(
 			current_player_chunk, simulation_radius, simulation_enabled,
-			simulation_hz, background_simulation_hz, simulation_repaint_hz
+			simulation_hz, background_simulation_hz, simulation_repaint_hz, legacy_background_simulation_hz
 		)
 		special_chunk_manager.set_warmup_activity(
 			current_player_chunk, simulation_radius, simulation_enabled, predictive_coords
 		)
 		special_chunk_manager.set_collision_activity(current_player_chunk, collision_radius, generate_static_collision)
+
+	# Special structures share the same PixelChunkCanvas implementation. Keep only
+	# orthogonal flow neighbors warm on mobile/low-radius profiles; they do not step
+	# until a seam transfer explicitly wakes them.
+	if exchange_dynamic_materials_across_borders and flow_warm_radius > 0:
+		for coord_value: Variant in wanted_chunks.keys():
+			var coord: Vector2i = coord_value
+			if not _is_flow_warm_coord(coord):
+				continue
+			var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+			if canvas == null:
+				continue
+			canvas.set_warmup_requested(true)
+			if _chunk_distance(coord, current_player_chunk) > simulation_radius:
+				var warm_hz: float = _background_hz_for_canvas(canvas)
+				canvas.set_simulation_timing(warm_hz, minf(simulation_repaint_hz, warm_hz))
+
+func _background_hz_for_canvas(canvas: PixelChunkCanvas) -> float:
+	# V3.9 raises the PC 3x3 logical rate to 60Hz only when API 10 Active Blocks
+	# are actually loaded. Packaged API 9 binaries therefore remain safe until
+	# the extension is rebuilt, instead of scanning every occupied block at 60Hz.
+	if canvas != null and canvas.supports_native_active_blocks():
+		return background_simulation_hz
+	return minf(background_simulation_hz, legacy_background_simulation_hz)
+
+
+func _is_flow_warm_coord(coord: Vector2i) -> bool:
+	if not exchange_dynamic_materials_across_borders or flow_warm_radius <= 0:
+		return false
+	var delta: Vector2i = coord - current_player_chunk
+	return absi(delta.x) + absi(delta.y) <= flow_warm_radius
 
 func _current_prewarm_direction() -> Vector2i:
 	if predictive_prewarm_chunks <= 0 or player == null:
@@ -899,6 +958,7 @@ func _process_warmup_budget() -> void:
 			canvas.begin_initialization()
 		if canvas.advance_initialization(simulation_warmup_pixels_per_slice, deadline_usec):
 			_last_warmup_count += 1
+			_activity_dirty = true
 		if Time.get_ticks_usec() >= deadline_usec:
 			break
 
@@ -945,9 +1005,13 @@ func _process_collision_budget(deadline_usec: int) -> void:
 
 func _process_simulation_budget() -> void:
 	_last_simulation_tick_count = 0
+	_simulated_coords_this_frame.clear()
 	if not simulation_enabled or Time.get_ticks_usec() >= _pipeline_deadline_usec:
 		return
-	var coords: Array[Vector2i] = _ordered_canvas_coords(simulation_radius)
+	# Scan the loaded radius so dynamically flow-awake chunks outside the permanent
+	# warm cross can continue stepping. `simulation_due()` cheaply rejects cold or
+	# sleeping canvases.
+	var coords: Array[Vector2i] = _ordered_canvas_coords(load_radius)
 	if coords.is_empty():
 		_simulation_round_robin_cursor = 0
 		return
@@ -960,6 +1024,7 @@ func _process_simulation_budget() -> void:
 	var now_usec: int = Time.get_ticks_usec()
 	if foreground != null and foreground.simulation_due(now_usec):
 		foreground.run_simulation_tick(now_usec)
+		_simulated_coords_this_frame[current_player_chunk] = true
 		_last_simulation_tick_count += 1
 	if Time.get_ticks_usec() >= deadline_usec:
 		return
@@ -978,6 +1043,7 @@ func _process_simulation_budget() -> void:
 		now_usec = Time.get_ticks_usec()
 		if canvas != null and canvas.simulation_due(now_usec):
 			canvas.run_simulation_tick(now_usec)
+			_simulated_coords_this_frame[background_coords[index]] = true
 			_last_simulation_tick_count += 1
 			_simulation_round_robin_cursor = (index + 1) % background_coords.size()
 			if Time.get_ticks_usec() >= deadline_usec:
@@ -1068,6 +1134,125 @@ func is_motion_collision_ready(
 			if not canvas.is_collision_region_committed(local_rect):
 				return false
 	return true
+
+func _process_native_border_flow() -> void:
+	_last_border_flow_seams = 0
+	_last_border_flow_moved = 0
+	if not exchange_dynamic_materials_across_borders or not simulation_enabled:
+		return
+	if _simulated_coords_this_frame.is_empty():
+		return
+
+	var seams: Array[Dictionary] = []
+	var native_ready_seen: bool = false
+	var native_missing_seen: bool = false
+	for coord_value: Variant in wanted_chunks.keys():
+		var coord: Vector2i = coord_value
+		var current: PixelChunkCanvas = _canvas_for_chunk(coord)
+		if current == null:
+			continue
+		for seam_data: Dictionary in [
+			{"direction": PixelChunkCanvas.BORDER_RIGHT, "offset": Vector2i.RIGHT},
+			{"direction": PixelChunkCanvas.BORDER_BOTTOM, "offset": Vector2i.DOWN},
+		]:
+			var direction: int = int(seam_data.get("direction", 0))
+			var offset: Vector2i = seam_data.get("offset", Vector2i.ZERO)
+			var neighbor_coord: Vector2i = coord + offset
+			if not _simulated_coords_this_frame.has(coord) and not _simulated_coords_this_frame.has(neighbor_coord):
+				continue
+			var neighbor: PixelChunkCanvas = _canvas_for_chunk(neighbor_coord)
+			if neighbor == null:
+				continue
+
+			# If a simulated chunk reaches a loaded-but-cold neighbor, start warming that
+			# neighbor only when the relevant native edge actually contains a mover.
+			# This lets flow propagate beyond the permanent warm cross without keeping the
+			# entire load radius resident as active simulations.
+			if not neighbor.is_warm() and current.supports_native_flow_bridge() and _simulated_coords_this_frame.has(coord):
+				var current_mask: int = current.border_flow_activity_mask()
+				var required_mask: int = 2 if direction == PixelChunkCanvas.BORDER_RIGHT else 4
+				if (current_mask & required_mask) != 0:
+					neighbor.set_warmup_requested(true)
+					var neighbor_hz: float = _background_hz_for_canvas(neighbor)
+					neighbor.set_simulation_timing(neighbor_hz, minf(simulation_repaint_hz, neighbor_hz))
+			if not current.is_warm() and neighbor.supports_native_flow_bridge() and _simulated_coords_this_frame.has(neighbor_coord):
+				var neighbor_mask: int = neighbor.border_flow_activity_mask()
+				var opposite_mask: int = 8 if direction == PixelChunkCanvas.BORDER_RIGHT else 1
+				if (neighbor_mask & opposite_mask) != 0:
+					current.set_warmup_requested(true)
+					var current_hz: float = _background_hz_for_canvas(current)
+					current.set_simulation_timing(current_hz, minf(simulation_repaint_hz, current_hz))
+
+			if not current.is_warm() or not neighbor.is_warm():
+				continue
+			if current.supports_native_flow_bridge() and neighbor.supports_native_flow_bridge():
+				native_ready_seen = true
+				var distance_priority: int = mini(
+					coord.distance_squared_to(current_player_chunk),
+					neighbor_coord.distance_squared_to(current_player_chunk)
+				)
+				var player_priority: int = 0 if coord == current_player_chunk or neighbor_coord == current_player_chunk else 1
+				seams.append({
+					"coord": coord,
+					"neighbor": neighbor_coord,
+					"direction": direction,
+					"player_priority": player_priority,
+					"distance_priority": distance_priority,
+				})
+			else:
+				native_missing_seen = true
+
+	if native_missing_seen and not native_ready_seen:
+		if not _warned_missing_native_flow_bridge:
+			_warned_missing_native_flow_bridge = true
+			push_warning("SandSimulation API 9 native seam bridge is unavailable; using the legacy low-frequency border fallback until the GDExtension is rebuilt.")
+		_border_exchange_accumulator += get_process_delta_time()
+		var interval: float = 1.0 / maxf(border_exchange_hz, 1.0)
+		if _border_exchange_accumulator >= interval:
+			_border_exchange_accumulator = fmod(_border_exchange_accumulator, interval)
+			_exchange_chunk_borders()
+		return
+
+	if seams.is_empty():
+		return
+	seams.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var ap: int = int(a["player_priority"])
+		var bp: int = int(b["player_priority"])
+		if ap != bp:
+			return ap < bp
+		var ad: int = int(a["distance_priority"])
+		var bd: int = int(b["distance_priority"])
+		if ad != bd:
+			return ad < bd
+		var ac: Vector2i = a["coord"]
+		var bc: Vector2i = b["coord"]
+		if ac.y != bc.y:
+			return ac.y < bc.y
+		if ac.x != bc.x:
+			return ac.x < bc.x
+		return int(a["direction"]) < int(b["direction"])
+	)
+
+	var count: int = mini(border_flow_max_seams_per_frame, seams.size())
+	for index: int in range(count):
+		var seam: Dictionary = seams[index]
+		var coord: Vector2i = seam["coord"]
+		var neighbor_coord: Vector2i = seam["neighbor"]
+		var current: PixelChunkCanvas = _canvas_for_chunk(coord)
+		var neighbor: PixelChunkCanvas = _canvas_for_chunk(neighbor_coord)
+		if current == null or neighbor == null:
+			continue
+		var result: PackedInt32Array = current.exchange_border_with(
+			neighbor, int(seam["direction"]), _border_flow_phase + index
+		)
+		_last_border_flow_seams += 1
+		if result.size() < 1 or result[0] <= 0:
+			continue
+		_last_border_flow_moved += result[0]
+		current.wake_for_flow(border_neighbor_wake_ms)
+		neighbor.wake_for_flow(border_neighbor_wake_ms)
+	_border_flow_phase = (_border_flow_phase + count + 1) & 0x7fffffff
+
 
 func _exchange_chunk_borders() -> void:
 	var seams: Array[Dictionary] = []

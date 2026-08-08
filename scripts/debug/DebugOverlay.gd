@@ -154,6 +154,26 @@ func set_debug_snapshot(snapshot: Dictionary) -> void:
 	var detail_text: String = "SpecialChunk: %s" % (special_text if special_text != "" else "none nearby / current normal chunk")
 	if chamber_text != "":
 		detail_text += "\nChamber: " + chamber_text
+	detail_text += "\nNative flow: %s  ·  seams %d  ·  moved %d  ·  warm R%d / wake %dms" % [
+		"yes" if bool(snapshot.get("native_flow_bridge", false)) else "fallback",
+		int(snapshot.get("border_flow_seams", 0)),
+		int(snapshot.get("border_flow_moved", 0)),
+		int(snapshot.get("flow_warm_radius", 0)),
+		int(snapshot.get("border_neighbor_wake_ms", 0)),
+	]
+	detail_text += "\nActive blocks: %s  ·  %dpx  A/C/S %d/%d/%d of %d  ·  occupied %d  ·  processed %d  ·  cells %d/%d  ·  wakes %d" % [
+		"yes" if bool(snapshot.get("native_active_blocks", false)) else "fallback",
+		int(snapshot.get("block_size", 16)),
+		int(snapshot.get("block_active", 0)),
+		int(snapshot.get("block_cooling", 0)),
+		int(snapshot.get("block_sleeping", 0)),
+		int(snapshot.get("block_total", 0)),
+		int(snapshot.get("block_occupied", 0)),
+		int(snapshot.get("block_processed", 0)),
+		int(snapshot.get("block_processed_elements", 0)),
+		int(snapshot.get("block_scanned_cells", 0)),
+		int(snapshot.get("block_wakes", 0)),
+	]
 	special_label.text = detail_text
 	help_label.text = "F1 HUD  F2 World Debug  F3 Regenerate  F4 Next Seed  F5 Pixel Sim  F6 Collision Debug\nSocket marker: hollow ring=Expected, filled dot=Actual, red strip=mismatch"
 

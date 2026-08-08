@@ -9,6 +9,10 @@ extends Resource
 @export_range(0, 4096, 1) var engine_element_id: int = 0
 @export_enum("Powder", "Static", "Liquid", "Gas", "Energy") var simulation_state: int = 1
 
+# Native Active Block policy. Auto infers a conservative policy from the palette
+# state; use Autonomous for materials with time-based behavior even while stationary.
+@export_enum("Auto", "Inert", "Movable", "Reactive", "Autonomous") var activity_mode: int = 0
+
 # Fields retained from the world-generation demo's original MaterialEntry resource.
 @export var solid: bool = false
 @export var liquid: bool = false
@@ -24,6 +28,21 @@ func effective_state() -> int:
 	if solid and simulation_state == 0:
 		return 1
 	return simulation_state
+
+
+func effective_activity_mode() -> int:
+	if activity_mode >= 1 and activity_mode <= 4:
+		return activity_mode
+	if engine_element_id == 0:
+		return 1 # INERT
+	match effective_state():
+		0, 2, 3:
+			return 2 # MOVABLE
+		4:
+			return 4 # AUTONOMOUS
+		1:
+			return 3 # REACTIVE
+	return 4
 
 func effective_density() -> float:
 	# Custom sand-slide elements multiply this normalized value by 128 internally.

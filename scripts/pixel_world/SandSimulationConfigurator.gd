@@ -15,6 +15,8 @@ static var _prepared_fluid: Dictionary = {}
 static var _prepared_metal: Dictionary = {}
 static var _prepared_custom: Dictionary = {}
 static var _prepared_collision_ids: PackedInt32Array = PackedInt32Array()
+static var _prepared_flow_states: PackedInt32Array = PackedInt32Array()
+static var _prepared_activity_modes: PackedInt32Array = PackedInt32Array()
 
 static func prepare(palette: MaterialPalette) -> void:
 	## Build immutable dictionaries once during world startup instead of duplicating and
@@ -30,6 +32,13 @@ static func prepare(palette: MaterialPalette) -> void:
 	_prepared_metal = _base_metal.duplicate(true)
 	_prepared_custom = {}
 	_prepared_collision_ids = PackedInt32Array()
+	_prepared_flow_states = PackedInt32Array()
+	_prepared_flow_states.resize(4097)
+	_prepared_flow_states.fill(-1)
+	_prepared_activity_modes = PackedInt32Array()
+	_prepared_activity_modes.resize(4097)
+	_prepared_activity_modes.fill(4) # Unknown sand-slide elements stay AUTONOMOUS.
+	_prepared_activity_modes[0] = 1 # Empty is INERT.
 	if palette == null:
 		return
 	palette.rebuild_cache()
@@ -37,6 +46,9 @@ static func prepare(palette: MaterialPalette) -> void:
 		if entry == null:
 			continue
 		var element_id: int = entry.engine_element_id
+		if element_id >= 0 and element_id < _prepared_flow_states.size():
+			_prepared_flow_states[element_id] = entry.effective_state()
+			_prepared_activity_modes[element_id] = entry.effective_activity_mode()
 		if entry.solid:
 			_prepared_collision_ids.append(element_id)
 		var packed_color: int = entry.color.to_rgba32()
@@ -64,6 +76,10 @@ static func configure(simulation: SandSimulation, palette: MaterialPalette) -> v
 	simulation.initialize_metal_color(_prepared_metal)
 	if simulation.has_method("set_collision_elements"):
 		simulation.call("set_collision_elements", _prepared_collision_ids)
+	if simulation.has_method("set_flow_states"):
+		simulation.call("set_flow_states", _prepared_flow_states)
+	if simulation.has_method("set_activity_modes"):
+		simulation.call("set_activity_modes", _prepared_activity_modes)
 
 static func _custom_element_data(entry: MaterialEntry) -> Array:
 	return [

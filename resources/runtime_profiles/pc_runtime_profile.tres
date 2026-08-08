@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1")
 id = &"pc"
-display_name = "PC Smooth Streaming"
+display_name = "PC Active Blocks 60Hz"
 use_threaded_chunk_generation = true
 use_threaded_special_generation = true
 generation_worker_yield_ms = 1
@@ -34,7 +34,7 @@ simulation_enabled = true
 simulation_radius = 1
 simulation_iterations = 1
 simulation_hz = 60.0
-background_simulation_hz = 12.0
+background_simulation_hz = 60.0
 simulation_repaint_hz = 60.0
 generate_static_collision = true
 collision_radius = 1
@@ -44,6 +44,9 @@ collision_sector_commits_per_physics_frame = 24
 collision_dynamic_rebuild_hz = 20.0
 maximum_collision_triangles = 6000
 exchange_dynamic_materials_across_borders = true
+flow_warm_radius = 1
+border_flow_max_seams_per_frame = 16
+border_neighbor_wake_ms = 750
 border_exchange_hz = 6.0
 border_seams_per_tick = 2
 debug_overlay_visible_on_start = false

@@ -154,14 +154,16 @@ func get_chunk_canvas(coord: Vector2i) -> PixelChunkCanvas:
 
 func set_simulation_activity(
 	center: Vector2i, radius: int, enabled: bool,
-	foreground_hz: float, background_hz: float, repaint_hz: float
+	foreground_hz: float, background_hz: float, repaint_hz: float, legacy_background_hz: float = 12.0
 ) -> void:
 	for coord: Vector2i in chunk_canvas_by_coord.keys():
 		var canvas: PixelChunkCanvas = chunk_canvas_by_coord.get(coord, null) as PixelChunkCanvas
 		if canvas != null:
 			var distance: int = _chunk_distance(coord, center)
 			var active: bool = enabled and distance <= radius
-			var target_hz: float = foreground_hz if distance == 0 else background_hz
+			var target_hz: float = foreground_hz
+			if distance != 0:
+				target_hz = background_hz if canvas.supports_native_active_blocks() else minf(background_hz, legacy_background_hz)
 			canvas.set_simulation_timing(target_hz, minf(repaint_hz, target_hz))
 			canvas.set_simulation_active(active)
 

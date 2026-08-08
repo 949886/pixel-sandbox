@@ -47,6 +47,12 @@ extends Resource
 # Retained for compatibility with V2 profiles; greedy rectangles replace triangles.
 @export_range(0, 20000, 100) var maximum_collision_triangles: int = 6000
 @export var exchange_dynamic_materials_across_borders: bool = true
+# V3.8 native seam bridge. Orthogonal neighbors can stay warm without being
+# continuously simulated; a successful transfer wakes both chunks temporarily.
+@export_range(0, 2, 1) var flow_warm_radius: int = 1
+@export_range(1, 32, 1) var border_flow_max_seams_per_frame: int = 16
+@export_range(100, 3000, 50) var border_neighbor_wake_ms: int = 750
+# Deprecated V3.7 fallback knobs, retained so old resources still load.
 @export_range(1.0, 60.0, 1.0) var border_exchange_hz: float = 10.0
 @export_range(1, 16, 1) var border_seams_per_tick: int = 2
 

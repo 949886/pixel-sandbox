@@ -10,8 +10,11 @@ const DEFAULT_COLLISION_SECTOR_SIZE: int = 64
 const COLLISION_CHANGE_REMOVED: int = 1
 const COLLISION_CHANGE_ADDED: int = 2
 const COLLISION_CHANGE_BOTH: int = COLLISION_CHANGE_REMOVED | COLLISION_CHANGE_ADDED
+const BORDER_RIGHT: int = 1
+const BORDER_BOTTOM: int = 2
 static var _warned_missing_native_dirty: bool = false
 static var _warned_missing_native_sector_api: bool = false
+static var _warned_missing_native_active_blocks: bool = false
 
 
 enum WarmState {
@@ -62,7 +65,11 @@ var _native_collision_dirty_supported: bool = false
 var _native_collision_rects_supported: bool = false
 var _native_collision_sector_supported: bool = false
 var _native_erase_circle_supported: bool = false
+var _native_flow_bridge_supported: bool = false
+var _native_active_blocks_supported: bool = false
 var _native_api_version: int = 0
+var _flow_wake_until_usec: int = 0
+var _flow_wake_hold_usec: int = 750000
 
 
 func _ready() -> void:
@@ -140,6 +147,20 @@ func set_simulation_active(active: bool) -> void:
 		warmup_requested = true
 	if active and warm_state == WarmState.READY:
 		next_simulation_due_usec = mini(next_simulation_due_usec, Time.get_ticks_usec())
+
+
+func wake_for_flow(duration_ms: int) -> void:
+	var now_usec: int = Time.get_ticks_usec()
+	_flow_wake_hold_usec = maxi(1000, duration_ms * 1000)
+	_flow_wake_until_usec = maxi(_flow_wake_until_usec, now_usec + _flow_wake_hold_usec)
+	warmup_requested = true
+	if warm_state == WarmState.READY:
+		next_simulation_due_usec = mini(next_simulation_due_usec, now_usec)
+
+
+func is_flow_awake(now_usec: int = -1) -> bool:
+	var current_usec: int = Time.get_ticks_usec() if now_usec < 0 else now_usec
+	return current_usec < _flow_wake_until_usec
 
 
 func set_warmup_requested(active: bool) -> void:
@@ -269,7 +290,7 @@ func is_collision_active() -> bool:
 func is_simulation_active() -> bool:
 	# Do not let the native grid advance past the worker-baked initial collision.
 	return (
-		simulation_requested
+		(simulation_requested or is_flow_awake())
 		and warm_state == WarmState.READY
 		and simulation != null
 		and (not collision_requested or _collision_snapshot_committed)
@@ -299,7 +320,10 @@ func begin_initialization() -> void:
 	if simulation.has_method("reset_grid"):
 		simulation.call("reset_grid", CHUNK_SIZE, CHUNK_SIZE, 16)
 	else:
-		simulation.set_chunk_size(16)
+		if simulation.has_method("set_block_size"):
+			simulation.call("set_block_size", 16)
+		else:
+			simulation.set_chunk_size(16)
 		simulation.resize(CHUNK_SIZE, CHUNK_SIZE)
 	SandSimulationConfigurator.configure(simulation, material_palette)
 	used_ranged_bulk_upload = simulation.has_method("set_cells_bulk_range")
@@ -317,9 +341,23 @@ func begin_initialization() -> void:
 		and simulation.has_method("has_dirty_collision_sectors")
 	)
 	_native_erase_circle_supported = simulation.has_method("erase_circle")
+	_native_flow_bridge_supported = (
+		simulation.has_method("exchange_border_with")
+		and simulation.has_method("get_border_flow_activity_mask")
+	)
+	_native_active_blocks_supported = (
+		simulation.has_method("set_activity_modes")
+		and simulation.has_method("get_block_stats")
+		and simulation.has_method("get_block_states")
+	)
 	_native_api_version = int(simulation.call("get_native_api_version")) if simulation.has_method("get_native_api_version") else 0
 	_native_collision_sector_supported = _native_collision_sector_supported and _native_api_version >= 8
 	_native_erase_circle_supported = _native_erase_circle_supported and _native_api_version >= 6
+	_native_flow_bridge_supported = _native_flow_bridge_supported and _native_api_version >= 9
+	_native_active_blocks_supported = _native_active_blocks_supported and _native_api_version >= 10
+	if not _native_active_blocks_supported and not _warned_missing_native_active_blocks:
+		_warned_missing_native_active_blocks = true
+		push_warning("SandSimulation API 10 Active Blocks are unavailable; simulation falls back to the legacy occupied-block scan until the GDExtension is rebuilt.")
 	if _native_collision_sector_supported:
 		simulation.call("configure_collision_sectors", _collision_sector_size)
 	elif not _warned_missing_native_sector_api:
@@ -504,6 +542,8 @@ func run_simulation_tick(now_usec: int) -> void:
 		return
 	simulation.step(simulation_iterations)
 	var changed: bool = bool(simulation.call("is_dirty")) if _native_dirty_supported else true
+	if changed and is_flow_awake(now_usec):
+		_flow_wake_until_usec = maxi(_flow_wake_until_usec, now_usec + _flow_wake_hold_usec)
 	_visual_dirty_pending = _visual_dirty_pending or changed or _repaint_requested
 	flush_visual_update(now_usec)
 	next_simulation_due_usec = now_usec + simulation_interval_usec
@@ -530,6 +570,62 @@ func flush_visual_update(now_usec: int) -> bool:
 	_repaint_requested = false
 	next_repaint_due_usec = now_usec + repaint_interval_usec
 	return true
+
+
+func supports_native_active_blocks() -> bool:
+	return _native_active_blocks_supported and simulation != null
+
+
+func get_simulation_block_stats() -> Dictionary:
+	if not supports_native_active_blocks():
+		return {"supported": false}
+	var values: PackedInt32Array = simulation.call("get_block_stats")
+	if values.size() < 12:
+		return {"supported": false}
+	return {
+		"supported": true,
+		"block_size": values[0],
+		"total": values[1],
+		"active": values[2],
+		"cooling": values[3],
+		"sleeping": values[4],
+		"occupied": values[5],
+		"autonomous": values[6],
+		"processed_blocks": values[7],
+		"scanned_cells": values[8],
+		"processed_elements": values[9],
+		"wakes": values[10],
+		"sleep_quiet_ticks": values[11],
+	}
+
+
+func supports_native_flow_bridge() -> bool:
+	return (
+		_native_flow_bridge_supported
+		and simulation != null
+		and (warm_state == WarmState.READY_TO_UPLOAD or warm_state == WarmState.READY)
+	)
+
+
+func border_flow_activity_mask() -> int:
+	if not supports_native_flow_bridge():
+		return 0
+	return int(simulation.call("get_border_flow_activity_mask"))
+
+
+func exchange_border_with(other: PixelChunkCanvas, direction: int, phase: int) -> PackedInt32Array:
+	var empty_result := PackedInt32Array([0, 0, 0, 0, 0])
+	if other == null or not supports_native_flow_bridge() or not other.supports_native_flow_bridge():
+		return empty_result
+	var result: PackedInt32Array = simulation.call("exchange_border_with", other.simulation, direction, phase)
+	if result.size() < 5:
+		return empty_result
+	if result[0] > 0:
+		_visual_dirty_pending = true
+		other._visual_dirty_pending = true
+		next_repaint_due_usec = mini(next_repaint_due_usec, Time.get_ticks_usec())
+		other.next_repaint_due_usec = mini(other.next_repaint_due_usec, Time.get_ticks_usec())
+	return result
 
 
 func get_cell(local_x: int, local_y: int) -> int:
@@ -642,7 +738,11 @@ func recycle_for_pool() -> void:
 	_native_collision_rects_supported = false
 	_native_collision_sector_supported = false
 	_native_erase_circle_supported = false
+	_native_flow_bridge_supported = false
+	_native_active_blocks_supported = false
 	_native_api_version = 0
+	_flow_wake_until_usec = 0
+	_flow_wake_hold_usec = 750000
 	_element_ids = PackedInt32Array()
 	_initial_collision_rects = PackedInt32Array()
 	_free_collision_sector_bodies()

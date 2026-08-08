@@ -9,7 +9,7 @@ func _ready() -> void:
 	if not _failures.is_empty():
 		_finish()
 		return
-	_require(int(simulation.call("get_native_api_version")) >= 8, "native API must be >= 8")
+	_require(int(simulation.call("get_native_api_version")) >= 9, "native API must be >= 9")
 	_require(simulation.has_method("erase_circle"), "erase_circle missing")
 	_require(simulation.has_method("get_collision_sector_snapshot"), "sector snapshot API missing")
 	_require(simulation.has_method("classify_collision_sector_snapshot"), "snapshot classification API missing")
