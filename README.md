@@ -1,3 +1,9 @@
+> **V3.9.1 Native Block API Cleanup：** `SandSimulation` 的 16×16 Simulation Blocks 现在只暴露 `get_block()` / `set_block_size()`；旧 `get_chunk()` / `set_chunk_size()` 已从 C++ 与 GDScript API 中彻底删除。Active Block 调度逻辑保持 V3.9 不变。稳定的 INERT/MOVABLE 区域会在 4 个 quiet tick 后睡眠，`set_cell()`、爆炸、地形破坏与 API 9 Native Seam 会自动唤醒本 Block 与 3×3 邻域；REACTIVE/AUTONOMOUS 材料使用保守 Activity Policy 防止反应睡死。PC 的 3×3 simulation radius 现在统一使用 60Hz，依靠 Active Blocks 降低实际扫描量。请重新编译 `extensions/sand-slide`，并在 F1 确认 `native yes(api 11)` 与 `Active blocks: yes`。详见 `docs/NATIVE_BLOCK_API_CLEANUP_V3_9_1.md` 与 `docs/NATIVE_ACTIVE_BLOCKS_V3_9.md`。
+
+> **V3.8.1 Native Cross-Chunk Flow：** 液体、气体与显式 Powder 现在通过 API 9 Native Seam Bridge 跨 Chunk；移动端保留 `simulation_radius = 0`，正交邻居只保持 Warm，真实跨边界后临时唤醒。请重新编译 `extensions/sand-slide`，并在 F1 确认 `Native flow: yes` / `api 9`。V3.8.1 额外修复 MSVC 对 `std::min(int, int64_t)` 的严格模板推导错误；运行时 Native API 仍为 9。详见 `docs/NATIVE_CROSS_CHUNK_FLOW_V3_8.md` 与 `docs/MSVC_BUILD_FIX_V3_8_1.md`。
+
+> **V3.7.3 移动端 PC 预算测试：** 移动端的流水线、模拟、碰撞构建与 Sector 提交预算已统一到 PC 档；加载范围、模拟频率、纹理缩放和对象池仍保留移动端设置。详见 `docs/MOBILE_PC_BUDGETS_V3_7_3.md`。
+
 > **V3.7.2 燃烧性能修复：** 动态碰撞采用紧凑 Sector 占用位图、删除/新增分级同步与保守快照渐进提交。请重新编译 `extensions/sand-slide`，并在 F1 HUD 确认 `native yes(api 8)`。详见 `docs/COLLISION_BURNING_PERFORMANCE_V3_7_2.md`。
 
 # Noita Piece World Demo

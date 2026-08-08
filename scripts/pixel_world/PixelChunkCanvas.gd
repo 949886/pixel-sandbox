@@ -320,10 +320,7 @@ func begin_initialization() -> void:
 	if simulation.has_method("reset_grid"):
 		simulation.call("reset_grid", CHUNK_SIZE, CHUNK_SIZE, 16)
 	else:
-		if simulation.has_method("set_block_size"):
-			simulation.call("set_block_size", 16)
-		else:
-			simulation.set_chunk_size(16)
+		simulation.call("set_block_size", 16)
 		simulation.resize(CHUNK_SIZE, CHUNK_SIZE)
 	SandSimulationConfigurator.configure(simulation, material_palette)
 	used_ranged_bulk_upload = simulation.has_method("set_cells_bulk_range")

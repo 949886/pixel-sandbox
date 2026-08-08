@@ -174,7 +174,7 @@ cell change
 
 V3.7.2 API 8 的 Occupancy Bitset、Removed/Added 分类、Conservative Snapshot、PhysicsServer2D 原子提交全部保留。
 
-## Native API 10
+## Native API 11
 
 新增接口：
 
@@ -187,19 +187,19 @@ get_block(int)
 set_block_size(int)
 ```
 
-旧 `get_chunk()` / `set_chunk_size()` 作为 sand-slide Painting Demo 的兼容别名保留，但 Native 内部不再使用 `chunks[]`、`chunk_width`、`chunk_height`。
+V3.9.1 起旧 `get_chunk()` / `set_chunk_size()` 已从声明、实现与 ClassDB 绑定中彻底删除；Painting Demo 与运行时代码统一迁移到 `get_block()` / `set_block_size()`。Native 内部不再使用 `chunks[]`、`chunk_width`、`chunk_height`。
 
 F1 正确状态：
 
 ```text
-native yes(api 10)
+native yes(api 11)
 Native flow: yes
 Active blocks: yes
 ```
 
 ### 旧 Native 二进制安全回退
 
-V3.9 的 PC Profile 将 3×3 Simulation 区域统一为 60Hz，但只有检测到 API 10 Active Blocks 后才会对邻居真正启用 60Hz。压缩包内如果仍加载 API 9 旧 DLL，非当前 Chunk 会自动退回 12Hz，避免旧 occupied-block 全扫描在 3×3 范围内被强制拉到 60Hz。重新编译并加载 API 10 后会自动切回 Profile 中的 60Hz。
+V3.9 的 PC Profile 将 3×3 Simulation 区域统一为 60Hz，但只有检测到 API 10+ Active Blocks 后才会对邻居真正启用 60Hz。压缩包内如果仍加载 API 9 旧 DLL，非当前 Chunk 会自动退回 12Hz，避免旧 occupied-block 全扫描在 3×3 范围内被强制拉到 60Hz。重新编译并加载 API 11 后会自动切回 Profile 中的 60Hz。
 
 ## F1 Block Stats
 

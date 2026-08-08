@@ -7,7 +7,7 @@ func _ready() -> void:
 	_require(sim.has_method("set_activity_modes"), "set_activity_modes missing")
 	_require(sim.has_method("get_block_stats"), "get_block_stats missing")
 	_require(sim.has_method("get_block_states"), "get_block_states missing")
-	_require(int(sim.call("get_native_api_version")) >= 10, "native API must be >= 10")
+	_require(int(sim.call("get_native_api_version")) >= 11, "native API must be >= 11")
 	if not _failures.is_empty():
 		_finish()
 		return
