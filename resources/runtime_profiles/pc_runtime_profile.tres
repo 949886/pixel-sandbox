@@ -4,51 +4,68 @@
 
 [resource]
 script = ExtResource("1")
+
+# Profile
 id = &"pc"
 display_name = "PC Active Blocks 60Hz"
+
+# Streaming & Generation / World Window
+load_radius = 2
+predictive_prewarm_chunks = 2
+
+# Streaming & Generation / Workers
 use_threaded_chunk_generation = true
 use_threaded_special_generation = true
 generation_worker_yield_ms = 1
 special_worker_yield_ms = 1
-load_radius = 2
-main_thread_upload_budget_per_frame = 1
-ready_attach_queue_limit = 6
 generation_result_backlog = 3
+ready_attach_queue_limit = 6
+main_thread_upload_budget_per_frame = 1
+
+# Streaming & Generation / Frame Budgets
 streaming_pipeline_budget_ms = 6.0
 chunk_attach_budget_ms = 1.0
 simulation_warmup_budget_ms = 1.5
 simulation_warmup_pixels_per_slice = 8192
 simulation_texture_activation_budget_ms = 1.0
 simulation_texture_activations_per_frame = 1
-predictive_prewarm_chunks = 2
-critical_collision_budget_ms = 1.25
-collision_build_budget_ms = 0.75
-collision_shapes_per_slice = 16
 simulation_update_budget_ms = 4.00
 recycle_budget_ms = 0.25
+
+# Visuals & Pools
 keep_cpu_visual_images = false
 visual_texture_downscale_factor = 2
 chunk_renderer_pool_limit = 64
 special_renderer_pool_limit = 32
+
+# Pixel Simulation
 simulation_enabled = true
 simulation_radius = 1
 simulation_iterations = 1
 simulation_hz = 60.0
 background_simulation_hz = 60.0
 simulation_repaint_hz = 60.0
-generate_static_collision = true
-collision_radius = 1
-collision_cell_size = 1
-collision_sector_size = 64
-collision_sector_commits_per_physics_frame = 24
-collision_dynamic_rebuild_hz = 20.0
-maximum_collision_triangles = 6000
+
+# Cross-Chunk Flow
 exchange_dynamic_materials_across_borders = true
 flow_warm_radius = 1
 border_flow_max_seams_per_frame = 16
 border_neighbor_wake_ms = 750
-border_exchange_hz = 6.0
-border_seams_per_tick = 2
+
+# Collision
+# Coverage & Precision
+generate_static_collision = true
+collision_radius = 1
+collision_cell_size = 1
+collision_sector_size = 64
+# Dynamic Sector Rebuild
+critical_collision_budget_ms = 1.25
+collision_build_budget_ms = 0.75
+collision_shapes_per_slice = 16
+collision_sector_commits_per_physics_frame = 24
+collision_dynamic_rebuild_hz = 20.0
+
+# Debug
 debug_overlay_visible_on_start = false
 world_debug_visible_on_start = false
 debug_update_interval = 0.25
@@ -57,3 +74,8 @@ show_world_debug_chunk_bounds = true
 show_world_debug_socket_profiles = true
 show_world_debug_chunk_labels = true
 show_world_debug_piece_bounds = true
+# Legacy Fallback
+maximum_collision_triangles = 6000
+border_exchange_hz = 6.0
+border_seams_per_tick = 2
+

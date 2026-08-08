@@ -1,106 +1,146 @@
-> **V3 提示：** 当前性能实现已升级。请优先阅读 `PERFORMANCE_OPTIMIZATION_V3.md`；本文中的部分 V2 参数和流程仅供历史参考。
+# Runtime Profiles Guide
 
-# Runtime Profiles: PC vs Mobile
+`WorldRuntimeProfile` 只负责平台运行时与性能策略；世界内容生成仍由 `WorldGenConfig`、Biome、Special Chunk 和 Piece 资源负责。
 
-World generation content is still configured by `WorldGenConfig`:
-
-- `resources/world_gen/default_world_gen_config.tres`
-- biome resources
-- special chunk resources
-- piece library resources
-
-Runtime performance behavior is now configured separately by `WorldRuntimeProfile` resources:
+当前内置资源：
 
 - `resources/runtime_profiles/pc_runtime_profile.tres`
 - `resources/runtime_profiles/mobile_runtime_profile.tres`
 
-This separation prevents mobile optimizations from silently changing the PC/editor experience.
+`WorldManager.runtime_profile_mode`：
 
-## Selection
+- `Auto`：桌面/编辑器选 PC，移动平台选 Mobile。
+- `PC`：强制 PC Profile。
+- `Mobile`：强制 Mobile Profile。
+- `Custom`：使用 `custom_runtime_profile`。
 
-`WorldManager.runtime_profile_mode` controls which profile is used:
+## Inspector 分组
 
-- `Auto`: use Mobile on Android/iOS/mobile exports, otherwise use PC.
-- `PC`: always use `pc_runtime_profile`.
-- `Mobile`: always use `mobile_runtime_profile`.
-- `Custom`: use `custom_runtime_profile`.
+V3.9.2 起，Profile 不再是一条很长的平铺属性列表。Inspector 顺序与运行时流水线保持一致：
 
-The main `World.tscn` is set to `Auto` and references both bundled profile resources.
+### Profile
 
-## PC profile defaults
+只放身份信息：
 
-`pc_runtime_profile.tres` favors quality and editor/debug usability:
+- `id`
+- `display_name`
 
-- `load_radius = 2` for a 5 x 5 normal chunk window.
-- `main_thread_upload_budget_per_frame = 2`.
-- `visual_texture_downscale_factor = 1`, so 512 x 512 chunk visuals upload at full resolution.
-- `keep_cpu_visual_images = true`, which keeps CPU visual images available for inspection and future editing systems.
-- `chunk_renderer_pool_limit = 64`.
-- `special_renderer_pool_limit = 32`.
-- World debug draw options remain enabled in the profile, though the debug node still starts hidden.
+### Streaming & Generation
 
-## Mobile profile defaults
+**World Window**：
 
-`mobile_runtime_profile.tres` favors stable frame pacing:
+- `load_radius`
+- `predictive_prewarm_chunks`
 
-- `load_radius = 1` for a 3 x 3 normal chunk window.
-- `main_thread_upload_budget_per_frame = 1`, shared between normal and special chunks.
-- `visual_texture_downscale_factor = 2`, so 512 x 512 generated images upload as 256 x 256 textures and render back at world scale with nearest-neighbor filtering.
-- `keep_cpu_visual_images = false`, so CPU visual images are released after texture upload.
-- `chunk_renderer_pool_limit = 32`.
-- `special_renderer_pool_limit = 16`.
-- Debug HUD and world debug start hidden, and world-debug details are disabled by default.
+**Workers**：
 
-## What belongs in a runtime profile
+- Chunk / Special threaded generation
+- worker yield
+- result backlog
+- ready attach queue
+- per-frame main-thread upload limit
 
-Put platform/performance settings here:
+**Pipeline Budgets & Limits**：
 
-- chunk loading radius
-- main-thread texture upload budget
-- visual texture downscale
-- whether CPU visual images are retained after upload
-- renderer pool limits
-- debug refresh/draw intervals
-- default debug visibility and detail flags
+- 总 streaming pipeline budget
+- attach / warmup / texture activation / simulation / recycle budget
+- warmup slice pixels
+- texture activations per frame
 
-Do not put content-generation rules here. Keep those in `WorldGenConfig`, biome configs, special chunk defs, and piece resources.
+### Visuals & Pools
 
-## Recommended workflow
+只管理视觉内存和对象池：
 
-For desktop development, leave `runtime_profile_mode = Auto`; in the editor/desktop run this selects PC.
+- CPU visual image retention
+- texture downscale
+- normal/special renderer pool limit
 
-To test mobile behavior on PC, set:
+### Pixel Simulation
 
-```gdscript
-runtime_profile_mode = Mobile
-```
+只管理 Simulation cadence：
 
-To tune mobile without affecting PC, edit only:
+- enabled
+- radius
+- iterations
+- foreground Hz
+- background Hz
+- repaint Hz
 
-```text
-resources/runtime_profiles/mobile_runtime_profile.tres
-```
+### Cross-Chunk Flow
 
-To tune PC/editor without affecting mobile, edit only:
+只管理 API 9+ Native Seam Bridge：
 
-```text
-resources/runtime_profiles/pc_runtime_profile.tres
-```
+- dynamic material exchange
+- warm radius
+- max seams per frame
+- neighbor wake duration
 
-## Debug HUD
+### Collision
 
-The F1 HUD now shows the selected profile on the first line:
+**Coverage & Precision**：
 
-```text
-Profile PC
-Profile Mobile
-```
+- collision enabled
+- collision radius
+- 1-pixel precision cell size
+- sector size
 
-It also shows:
+**Dynamic Sector Rebuild**：
 
-- `Radius`: effective profile load radius.
-- `Downscale`: visual texture downscale factor.
-- `Pool`: current pooled normal chunk renderer count.
-- `last gen/upload`: last worker generation time and texture uploads attached on the last frame.
+- critical collision budget
+- background collision build budget
+- shapes per slice
+- sector commits per physics frame
+- dynamic rebuild Hz
 
-If mobile still stutters, first verify that the HUD says `Profile Mobile` and `last gen/upload` usually ends with `/1`.
+### Debug
+
+只管理 F1/F2 的默认可见性、刷新间隔和 World Debug 细节。
+
+### Legacy Fallback
+
+最后单独放历史兼容参数，正常使用 API 11 时一般不需要调整：
+
+- `maximum_collision_triangles`：V2 兼容入口；当前 greedy rectangles 不依赖 triangle budget。
+- `border_exchange_hz`
+- `border_seams_per_tick`
+
+后两项只用于 API < 9 的 GDScript seam fallback；Native Seam Bridge 不使用它们。
+
+## 当前 PC Profile
+
+关键行为：
+
+- `load_radius = 2`
+- `simulation_radius = 1`
+- foreground/background/repaint = `60 / 60 / 60 Hz`
+- `visual_texture_downscale_factor = 2`
+- Native flow warm radius = `1`
+- collision sector = `64px`
+- collision dynamic rebuild = `20Hz`
+
+V3.9 Active Blocks 可用时，玩家周围 3×3 Simulation 使用统一 60Hz；性能由 16×16 Active Block 睡眠系统控制，而不是人为把邻 Chunk 降到 12Hz。
+
+## 当前 Mobile Profile
+
+显示名为 `Mobile Active Blocks`。关键行为：
+
+- `load_radius = 1`
+- `simulation_radius = 0`
+- foreground/background/repaint = `30 / 8 / 30 Hz`
+- `visual_texture_downscale_factor = 4`
+- renderer pools 更小
+- Flow Warm Radius = `1`，跨 Chunk 流动时临时唤醒邻 Chunk
+
+V3.7.3 起，移动端主要 frame/collision budgets 与 PC 对齐，但加载范围、模拟频率、纹理缩放和 pool 规模仍保持移动端策略。
+
+## 调参建议
+
+先用 F1 HUD 找到对应分组，再回 Profile Inspector 修改同名类别：
+
+- Chunk 来不及加载 → `Streaming & Generation`
+- Simulation tick 不足 → `Pixel Simulation` / pipeline simulation budget
+- 跨 Chunk 水/气体异常 → `Cross-Chunk Flow`
+- Collision dirty 长期积压 → `Collision`
+- GPU/纹理内存问题 → `Visuals & Pools`
+
+不要先改 `Legacy Fallback`；API 11 正常加载时这些字段通常不是主路径。

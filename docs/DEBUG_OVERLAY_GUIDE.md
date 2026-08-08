@@ -1,141 +1,147 @@
 # Debug Overlay 使用说明
 
-这份文档说明当前迁移版中的两套调试显示：
+当前调试显示分为：
 
-- `DebugOverlay.gd`：按 `F1` 打开的左上角 HUD 文本面板。
-- `WorldDebugDrawer.gd`：按 `F2` 打开的世界空间调试绘制层。
-
-当前项目已经从 TileMap 迁移到 Piece/Socket 世界，因此调试信息也围绕 **chunk、piece、socket、seam** 展开。
-
----
+- `F1`：分组式 Runtime HUD。
+- `F2`：世界空间 Piece/Socket/Seam 调试。
+- `F6`：64×64 Collision Sector 状态。
 
 ## 快捷键
 
 | 按键 | 作用 |
 | --- | --- |
-| `F1` | 显示/隐藏左上角 Debug HUD |
+| `F1` | 显示/隐藏分组式 Runtime HUD |
 | `F2` | 显示/隐藏世界调试绘制层 |
-| `F3` | 使用当前 seed 重新生成世界 |
-| `F4` | 切换到下一个 seed 并重新生成 |
+| `F3` | 当前 seed 重新生成 |
+| `F4` | 下一个 seed 并重新生成 |
 | `F5` | 开启/关闭像素模拟 |
-| `F6` | 开启/关闭动态碰撞 Sector 调试层 |
-| `WASD` / 方向键 | 移动玩家/摄像机锚点 |
-| `+` / `-` | 缩放视图 |
+| `F6` | 开启/关闭 Collision Sector 调试 |
 
----
+## F1：新的分组结构
 
-## F1：左上角 Debug HUD 怎么看
+V3.9.2 不再把所有统计挤在 `World / Chunk / Stats / Special` 四个长文本块中。HUD 改为左右两栏，并与 `WorldRuntimeProfile` 的分类保持相近语义。
 
-HUD 主要用来查看当前玩家所在 chunk 的结构状态。
-
-### World 行
-
-示例：
+顶部状态栏：
 
 ```text
-Seed 12345  ·  Loaded 49  ·  Radius 3
-Player chunk (0, 1)  ·  Renderer PieceImage  ·  Unit 128px x 4
+Profile PC Active Blocks 60Hz · Native API 11 · Canvas ...
 ```
 
-含义：
+用于先确认当前 Profile、Native 版本和 Canvas upload mode。
 
-| 字段 | 含义 |
+### 左栏：世界与生成
+
+**WORLD / STREAMING**
+
+- Seed / Player Chunk
+- Loaded / Pending / Load Radius
+- Renderer / Visual Downscale / Renderer Pool
+- Chunk 尺寸与 Unit 尺寸
+
+**CURRENT CHUNK**
+
+- Biome / Chunk Type
+- Open sides / Intended links
+- Structure tags
+
+**PIECES / SEAMS**
+
+- Expected 四边 socket profile
+- Actual 四边 socket profile
+- Regular pieces / Open sockets / Glue
+- Seam repairs / broken expected / broken neighbor
+
+健康状态优先看：
+
+```text
+Broken expected/neighbor 0/0
+```
+
+**GENERATION / QUEUES**
+
+- Chunk/Special worker 是否启用
+- Chunk queue/results
+- Ready attach queue
+- Special pending/worker queue
+- Last generation ms / last uploads
+
+**STRUCTURE / SPECIAL**
+
+- 当前或附近 Special Chunk
+- Chamber
+- Air units / Placements / Chambers
+
+### 右栏：像素运行时
+
+**SIMULATION**
+
+- Pixel Sim ON/OFF
+- Simulation radius
+- Foreground / Background / Repaint Hz
+- 本帧 simulation ticks
+
+**ACTIVE BLOCKS**
+
+- Block size（当前 16px）
+- Active Blocks 能力是否可用
+- Active / Cooling / Sleeping / Total
+- Occupied / Processed Blocks
+- Processed Elements / Scanned Cells / Wakes
+- Quiet threshold
+
+调优时最重要的是比较：
+
+```text
+Occupied vs Processed
+```
+
+稳定场景中 Processed 应显著低于 Occupied。
+
+**CROSS-CHUNK FLOW**
+
+- Native Seam Bridge YES/NO
+- 本帧处理 seams
+- 实际 moved cells
+- Flow Warm Radius
+- Neighbor Wake ms
+
+水或气体穿越 Chunk 边界时，`Moved cells` 应出现非零值。
+
+**COLLISION**
+
+- Sector size / count
+- Native sector capability
+- Dirty / Building / Pending / Unsafe
+- Rebuild Hz / commits per physics frame
+- F6 状态
+
+重点健康状态：
+
+```text
+Dirty 0 · Building 0 · Pending 0 · Unsafe 0
+```
+
+静态场景应逐渐回到接近零。
+
+**FRAME PIPELINE**
+
+- 实际 pipeline ms / 总 budget
+- 本帧 warm / texture / collision shapes / simulation ticks
+- Simulation / Collision / Critical Collision budget
+- Attach / Warm / Texture / Recycle budget
+
+这一区用于判断“任务积压”到底来自 Simulation、Collision 还是 Streaming，而不是只看总 FPS。
+
+## Socket 字符
+
+| 字符 | 含义 |
 | --- | --- |
-| `Seed` | 当前世界种子 |
-| `Loaded` | 当前已加载 chunk 数量 |
-| `Radius` | chunk streaming 加载半径 |
-| `Player chunk` | 玩家/摄像机当前所在 chunk 坐标 |
-| `Renderer` | 当前地形渲染路径，迁移后应为 `PieceImage` |
-| `Unit 128px x 4` | 每个 piece unit 为 128px，每个 chunk 每边 4 个 socket slot |
-
----
-
-### Chunk 行
-
-示例：
-
-```text
-Biome mine  ·  Type MAIN_PATH  ·  Open sides 2  ·  Conn 2
-Expected: T SSSS  R smSS  B SSSS  L smSS
-Actual:   T SSSS  R smSS  B SSSS  L smSS
-Tags main_path
-```
-
-重点看 `Expected` 和 `Actual`。
-
-| 字段 | 含义 |
-| --- | --- |
-| `Biome` | 当前 chunk 所属 biome |
-| `Type` | 当前 chunk 的宏观结构类型，例如主路、洞穴、分支、特殊房间等 |
-| `Open sides` | 这个 chunk 有多少条边被规划为可连接 |
-| `Conn` | 世界结构规划希望这个 chunk 连接到多少个邻居 |
-| `Expected` | `WorldSeamRegistry` 规定的权威 socket profile |
-| `Actual` | 当前 chunk 实际由 piece/glue 生成出来的边缘 socket profile |
-| `Tags` | 世界结构标签，例如 main path、branch、chamber 等 |
-
-`Expected` 和 `Actual` 正常情况下应该一致。若不一致，说明当前 chunk 的边缘没有满足全局 seam 要求。
-
----
-
-### Socket 字符含义
-
-每条边有 4 个 socket slot，对应 4 个 128px piece unit。
-
-| 字符 | Socket | 含义 | 典型颜色 |
-| --- | --- | --- | --- |
-| `S` | `SOLID` | 封闭实体边，不应连通 | 半透明白 / 灰白 |
-| `s` | `OPEN_SMALL` | 小开口 | 绿色 |
-| `d` | `DOUBLE_OPEN_SMALL` | 双小开口 | 浅蓝 |
-| `m` | `OPEN_MEDIUM` | 中开口 | 青绿色 |
-| `L` | `OPEN_LARGE` | 大开口 | 黄色 |
-| `?` | `ANY` | 通配 socket，通常会在 seam registry 中被具体化 | 白色 |
-
-示例：
-
-```text
-Right: smSS
-```
-
-表示右边 4 个 slot 从上到下分别是：
-
-```text
-slot 0 = open_small
-slot 1 = open_medium
-slot 2 = solid
-slot 3 = solid
-```
-
----
-
-### Stats 行
-
-示例：
-
-```text
-Regular pieces 12  ·  Open sockets 8  ·  Glue 3
-Air units 5  ·  Placements 16  ·  Special loaded 1
-Chambers 0  ·  Seam repairs 1  ·  Seam broken E/N 0/0
-```
-
-| 字段 | 含义 |
-| --- | --- |
-| `Regular pieces` | 普通 piece 数量 |
-| `Open sockets` | 当前 chunk 中参与连通的开放 socket 数量 |
-| `Glue` | glue piece 数量 |
-| `Air units` | 空气/空白 unit 统计 |
-| `Placements` | 当前 chunk 内 piece placement 总数 |
-| `Special loaded` | 已加载 special chunk 数量 |
-| `Chambers` | 当前 world structure 中的 chamber 数量 |
-| `Seam repairs` | seam repair 发生次数 |
-| `Seam broken E/N` | seam 检查错误数：`E = expected-vs-actual`，`N = neighbor actual-vs-actual` |
-
-`Seam broken E/N` 是最重要的健康指标：
-
-- `E > 0`：当前 chunk 自己没有满足 canonical seam。
-- `N > 0`：当前 chunk 与已加载邻居的实际边缘不一致。
-- 理想状态是 `0/0`。
-
----
+| `S` | SOLID |
+| `s` | OPEN_SMALL |
+| `d` | DOUBLE_OPEN_SMALL |
+| `m` | OPEN_MEDIUM |
+| `L` | OPEN_LARGE |
+| `?` | ANY |
 
 ## F2：世界调试绘制层怎么看
 
@@ -270,4 +276,4 @@ V3.7 的碰撞不再按完整 Chunk 重建，而是把 512×512 Canvas 划分成
 | 黄色 Sector | 正在创建 Staging Rectangle Shape |
 | 紫色 Sector | Staging 已完成，等待下一个 physics frame 原子提交 |
 
-F1 HUD 同时显示 `native yes(api 8)` 或 `fallback(api 0)`。只有 API 8 表示 Native Sector 路径已启用；fallback 表示当前仍加载旧 DLL/SO/WASM，并会退回完整 Chunk 碰撞扫描。
+F1 HUD 同时显示 `native yes(api 11)` 表示当前 V3.9.2 Native 路径已加载。Collision Sector 能力来自 API 8+；Native Seam 来自 API 9+；Active Blocks 来自 API 10+。若 HUD 显示旧 API 或 fallback，应先检查 DLL/SO/WASM 是否重新编译。
