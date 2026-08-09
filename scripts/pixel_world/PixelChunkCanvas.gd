@@ -7,6 +7,8 @@ extends Node2D
 const CHUNK_SIZE: int = PieceWorldConstants.CHUNK_SIZE
 const TOTAL_PIXELS: int = CHUNK_SIZE * CHUNK_SIZE
 const DEFAULT_COLLISION_SECTOR_SIZE: int = 64
+const DEFAULT_VISUAL_SECTOR_SIZE: int = 64
+const VISUAL_FULL_REPAINT_THRESHOLD: int = 24
 const COLLISION_CHANGE_REMOVED: int = 1
 const COLLISION_CHANGE_ADDED: int = 2
 const COLLISION_CHANGE_BOTH: int = COLLISION_CHANGE_REMOVED | COLLISION_CHANGE_ADDED
@@ -15,6 +17,8 @@ const BORDER_BOTTOM: int = 2
 static var _warned_missing_native_dirty: bool = false
 static var _warned_missing_native_sector_api: bool = false
 static var _warned_missing_native_active_blocks: bool = false
+static var _warned_missing_native_visual_sector_api: bool = false
+static var _warned_missing_rendering_device: bool = false
 
 
 enum WarmState {
@@ -43,13 +47,20 @@ var next_repaint_due_usec: int = 0
 
 var _sprite: Sprite2D
 var _static_texture: ImageTexture
-var _simulation_texture: ImageTexture
+var _simulation_texture: Texture2D
+var _visual_texture_rd: Texture2DRD
+var _rendering_device: RenderingDevice
+var _visual_texture_rd_rid: RID = RID()
+var _visual_staging_rd_rid: RID = RID()
 var _collision_debug_drawer: PixelCollisionDebugDrawer
 var _collision_debug_visible: bool = false
 var _element_ids: PackedInt32Array = PackedInt32Array()
 var _initial_collision_rects: PackedInt32Array = PackedInt32Array()
 var _load_cursor: int = 0
 var _collision_cell_size: int = 1
+var _visual_sector_size: int = DEFAULT_VISUAL_SECTOR_SIZE
+var _visual_sector_width: int = 8
+var _visual_sector_height: int = 8
 var _collision_sector_size: int = DEFAULT_COLLISION_SECTOR_SIZE
 var _collision_sector_width: int = 8
 var _collision_sector_height: int = 8
@@ -61,6 +72,8 @@ var _collision_snapshot_committed: bool = false
 var _repaint_requested: bool = false
 var _visual_dirty_pending: bool = false
 var _native_dirty_supported: bool = false
+var _native_visual_sector_supported: bool = false
+var _rd_visual_update_supported: bool = false
 var _native_collision_dirty_supported: bool = false
 var _native_collision_rects_supported: bool = false
 var _native_collision_sector_supported: bool = false
@@ -80,6 +93,7 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_free_collision_sector_bodies()
+	_free_visual_rd_resources()
 
 
 func _notification(what: int) -> void:
@@ -326,6 +340,16 @@ func begin_initialization() -> void:
 	used_ranged_bulk_upload = simulation.has_method("set_cells_bulk_range")
 	used_bulk_upload = simulation.has_method("set_cells_bulk")
 	_native_dirty_supported = simulation.has_method("is_dirty") and simulation.has_method("clear_dirty")
+	_native_visual_sector_supported = (
+		simulation.has_method("configure_visual_sectors")
+		and simulation.has_method("get_visual_sector_size")
+		and simulation.has_method("get_visual_sector_width")
+		and simulation.has_method("get_visual_sector_height")
+		and simulation.has_method("get_dirty_visual_sectors")
+		and simulation.has_method("get_visual_sector_image")
+		and simulation.has_method("acknowledge_visual_sector")
+		and simulation.has_method("has_dirty_visual_sectors")
+	)
 	_native_collision_dirty_supported = simulation.has_method("is_collision_dirty") and simulation.has_method("clear_collision_dirty")
 	_native_collision_rects_supported = simulation.has_method("get_collision_rects")
 	_native_collision_sector_supported = (
@@ -348,6 +372,7 @@ func begin_initialization() -> void:
 		and simulation.has_method("get_block_states")
 	)
 	_native_api_version = int(simulation.call("get_native_api_version")) if simulation.has_method("get_native_api_version") else 0
+	_native_visual_sector_supported = _native_visual_sector_supported and _native_api_version >= 12
 	_native_collision_sector_supported = _native_collision_sector_supported and _native_api_version >= 8
 	_native_erase_circle_supported = _native_erase_circle_supported and _native_api_version >= 6
 	_native_flow_bridge_supported = _native_flow_bridge_supported and _native_api_version >= 9
@@ -355,6 +380,15 @@ func begin_initialization() -> void:
 	if not _native_active_blocks_supported and not _warned_missing_native_active_blocks:
 		_warned_missing_native_active_blocks = true
 		push_warning("SandSimulation API 10 Active Blocks are unavailable; simulation falls back to the legacy occupied-block scan until the GDExtension is rebuilt.")
+	if _native_visual_sector_supported:
+		simulation.call("configure_visual_sectors", _visual_sector_size)
+		_visual_sector_size = int(simulation.call("get_visual_sector_size"))
+		_visual_sector_width = int(simulation.call("get_visual_sector_width"))
+		_visual_sector_height = int(simulation.call("get_visual_sector_height"))
+	else:
+		if not _warned_missing_native_visual_sector_api:
+			_warned_missing_native_visual_sector_api = true
+			push_warning("SandSimulation API 12 Visual Sectors are unavailable; visual updates fall back to full-chunk texture uploads until the GDExtension is rebuilt.")
 	if _native_collision_sector_supported:
 		simulation.call("configure_collision_sectors", _collision_sector_size)
 	elif not _warned_missing_native_sector_api:
@@ -408,9 +442,11 @@ func advance_initialization(pixel_budget: int, deadline_usec: int) -> bool:
 func activate_simulation_texture() -> bool:
 	if not needs_texture_activation():
 		return false
-	_repaint()
+	_repaint_full()
 	warm_state = WarmState.READY
-	if _native_dirty_supported:
+	if _native_visual_sector_supported and _rd_visual_update_supported:
+		_acknowledge_all_visual_sectors()
+	elif _native_dirty_supported:
 		simulation.call("clear_dirty")
 	# Sector dirty flags are acknowledged per committed revision. The legacy global
 	# flag may still be cleared because it has no region/revision semantics.
@@ -560,10 +596,15 @@ func flush_visual_update(now_usec: int) -> bool:
 	## the previous collision remains conservative while its throttled rebuild catches up.
 	if not visual_update_due(now_usec) or has_pending_unsafe_collision_sync():
 		return false
-	_repaint()
-	if _native_dirty_supported:
-		simulation.call("clear_dirty")
-	_visual_dirty_pending = false
+	var updated: bool = _repaint_incremental()
+	if not updated:
+		return false
+	if _native_visual_sector_supported and _rd_visual_update_supported:
+		_visual_dirty_pending = bool(simulation.call("has_dirty_visual_sectors"))
+	else:
+		if _native_dirty_supported:
+			simulation.call("clear_dirty")
+		_visual_dirty_pending = false
 	_repaint_requested = false
 	next_repaint_due_usec = now_usec + repaint_interval_usec
 	return true
@@ -720,6 +761,9 @@ func recycle_for_pool() -> void:
 	warm_state = WarmState.COLD
 	_load_cursor = 0
 	_collision_cell_size = 1
+	_visual_sector_size = DEFAULT_VISUAL_SECTOR_SIZE
+	_visual_sector_width = 8
+	_visual_sector_height = 8
 	_collision_sector_size = DEFAULT_COLLISION_SECTOR_SIZE
 	_collision_rebuild_interval_usec = 50000
 	_initial_collision_queued = false
@@ -731,6 +775,8 @@ func recycle_for_pool() -> void:
 	next_simulation_due_usec = 0
 	next_repaint_due_usec = 0
 	_native_dirty_supported = false
+	_native_visual_sector_supported = false
+	_rd_visual_update_supported = false
 	_native_collision_dirty_supported = false
 	_native_collision_rects_supported = false
 	_native_collision_sector_supported = false
@@ -743,6 +789,7 @@ func recycle_for_pool() -> void:
 	_element_ids = PackedInt32Array()
 	_initial_collision_rects = PackedInt32Array()
 	_free_collision_sector_bodies()
+	_free_visual_rd_resources()
 	_simulation_texture = null
 	if _sprite != null:
 		_sprite.texture = null
@@ -776,17 +823,192 @@ func _upload_static_preview() -> void:
 	_sprite.scale = Vector2(float(CHUNK_SIZE) / float(preview.get_width()), float(CHUNK_SIZE) / float(preview.get_height()))
 
 
-func _repaint() -> void:
+func _repaint_incremental() -> bool:
+	if simulation == null:
+		return false
+	if not _native_visual_sector_supported or not _ensure_visual_rd_resources():
+		_repaint_full()
+		if _native_visual_sector_supported and _rd_visual_update_supported:
+			_acknowledge_all_visual_sectors()
+		return true
+
+	var dirty: PackedInt32Array = simulation.call("get_dirty_visual_sectors", 0)
+	var dirty_count: int = int(dirty.size() / 3)
+	if dirty_count <= 0:
+		return true
+	if dirty_count >= VISUAL_FULL_REPAINT_THRESHOLD:
+		_repaint_full()
+		_acknowledge_visual_sector_list(dirty)
+		return true
+
+	var expected_bytes: int = _visual_sector_size * _visual_sector_size * 4
+	for offset: int in range(0, dirty.size(), 3):
+		var sector_x: int = dirty[offset]
+		var sector_y: int = dirty[offset + 1]
+		var revision: int = dirty[offset + 2]
+		var rgba: PackedByteArray = simulation.call(
+			"get_visual_sector_image", sector_x, sector_y, true
+		)
+		# Pixel Piece World chunks are exactly divisible by the 64px visual sector.
+		# Keep a full-repaint escape hatch if that invariant changes later.
+		if rgba.size() != expected_bytes:
+			_repaint_full()
+			_acknowledge_all_visual_sectors()
+			return true
+		var update_error: int = _rendering_device.texture_update(
+			_visual_staging_rd_rid, 0, rgba
+		)
+		if update_error != OK:
+			_repaint_full()
+			_acknowledge_all_visual_sectors()
+			return true
+		var copy_error: int = _rendering_device.texture_copy(
+			_visual_staging_rd_rid,
+			_visual_texture_rd_rid,
+			Vector3.ZERO,
+			Vector3(
+				float(sector_x * _visual_sector_size),
+				float(sector_y * _visual_sector_size),
+				0.0
+			),
+			Vector3(float(_visual_sector_size), float(_visual_sector_size), 1.0),
+			0,
+			0,
+			0,
+			0
+		)
+		if copy_error != OK:
+			_repaint_full()
+			_acknowledge_all_visual_sectors()
+			return true
+		simulation.call("acknowledge_visual_sector", sector_x, sector_y, revision)
+
+	_sprite.texture = _simulation_texture
+	_sprite.scale = Vector2.ONE
+	return true
+
+
+func _repaint_full() -> void:
 	if simulation == null:
 		return
 	var rgba: PackedByteArray = simulation.get_color_image(true)
+	if _ensure_visual_rd_resources(rgba):
+		_sprite.texture = _simulation_texture
+		_sprite.scale = Vector2.ONE
+		return
 	var image: Image = Image.create_from_data(CHUNK_SIZE, CHUNK_SIZE, false, Image.FORMAT_RGBA8, rgba)
-	if _simulation_texture == null:
-		_simulation_texture = ImageTexture.create_from_image(image)
+	if _simulation_texture is ImageTexture:
+		(_simulation_texture as ImageTexture).update(image)
 	else:
-		_simulation_texture.update(image)
+		_free_visual_rd_resources()
+		_simulation_texture = ImageTexture.create_from_image(image)
 	_sprite.texture = _simulation_texture
 	_sprite.scale = Vector2.ONE
+
+
+func _ensure_visual_rd_resources(initial_rgba: PackedByteArray = PackedByteArray()) -> bool:
+	if _rd_visual_update_supported and _visual_texture_rd_rid.is_valid() and _visual_staging_rd_rid.is_valid():
+		if not initial_rgba.is_empty():
+			var error: int = _rendering_device.texture_update(_visual_texture_rd_rid, 0, initial_rgba)
+			return error == OK
+		return true
+	if not _native_visual_sector_supported:
+		return false
+	# Never create an uninitialized 512x512 destination during an incremental
+	# repaint. Let the caller perform one full repaint first so clean sectors
+	# always contain valid pixels.
+	if initial_rgba.is_empty():
+		return false
+	_rendering_device = RenderingServer.get_rendering_device()
+	if _rendering_device == null:
+		if not _warned_missing_rendering_device:
+			_warned_missing_rendering_device = true
+			push_warning("RenderingDevice is unavailable; Visual Sectors use the full ImageTexture fallback.")
+		return false
+
+	var main_format := RDTextureFormat.new()
+	main_format.width = CHUNK_SIZE
+	main_format.height = CHUNK_SIZE
+	main_format.depth = 1
+	main_format.array_layers = 1
+	main_format.mipmaps = 1
+	main_format.texture_type = RenderingDevice.TEXTURE_TYPE_2D
+	main_format.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
+	main_format.usage_bits = (
+		RenderingDevice.TEXTURE_USAGE_SAMPLING_BIT
+		| RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
+		| RenderingDevice.TEXTURE_USAGE_CAN_COPY_TO_BIT
+	)
+	var main_data: Array[PackedByteArray] = []
+	if not initial_rgba.is_empty():
+		main_data.append(initial_rgba)
+	_visual_texture_rd_rid = _rendering_device.texture_create(
+		main_format, RDTextureView.new(), main_data
+	)
+	if not _visual_texture_rd_rid.is_valid():
+		_free_visual_rd_resources()
+		return false
+
+	var staging_format := RDTextureFormat.new()
+	staging_format.width = _visual_sector_size
+	staging_format.height = _visual_sector_size
+	staging_format.depth = 1
+	staging_format.array_layers = 1
+	staging_format.mipmaps = 1
+	staging_format.texture_type = RenderingDevice.TEXTURE_TYPE_2D
+	staging_format.format = RenderingDevice.DATA_FORMAT_R8G8B8A8_UNORM
+	staging_format.usage_bits = (
+		RenderingDevice.TEXTURE_USAGE_CAN_UPDATE_BIT
+		| RenderingDevice.TEXTURE_USAGE_CAN_COPY_FROM_BIT
+	)
+	var zero_data := PackedByteArray()
+	zero_data.resize(_visual_sector_size * _visual_sector_size * 4)
+	_visual_staging_rd_rid = _rendering_device.texture_create(
+		staging_format, RDTextureView.new(), [zero_data]
+	)
+	if not _visual_staging_rd_rid.is_valid():
+		_free_visual_rd_resources()
+		return false
+
+	_visual_texture_rd = Texture2DRD.new()
+	_visual_texture_rd.texture_rd_rid = _visual_texture_rd_rid
+	_simulation_texture = _visual_texture_rd
+	_rd_visual_update_supported = true
+	return true
+
+
+func _acknowledge_visual_sector_list(dirty: PackedInt32Array) -> void:
+	if simulation == null or not _native_visual_sector_supported:
+		return
+	for offset: int in range(0, dirty.size(), 3):
+		simulation.call(
+			"acknowledge_visual_sector",
+			dirty[offset],
+			dirty[offset + 1],
+			dirty[offset + 2]
+		)
+
+
+func _acknowledge_all_visual_sectors() -> void:
+	if simulation == null or not _native_visual_sector_supported:
+		return
+	var dirty: PackedInt32Array = simulation.call("get_dirty_visual_sectors", 0)
+	_acknowledge_visual_sector_list(dirty)
+
+
+func _free_visual_rd_resources() -> void:
+	if _sprite != null and _sprite.texture == _visual_texture_rd:
+		_sprite.texture = null
+	_visual_texture_rd = null
+	if _rendering_device != null:
+		if _visual_staging_rd_rid.is_valid():
+			_rendering_device.free_rid(_visual_staging_rd_rid)
+		if _visual_texture_rd_rid.is_valid():
+			_rendering_device.free_rid(_visual_texture_rd_rid)
+	_visual_staging_rd_rid = RID()
+	_visual_texture_rd_rid = RID()
+	_rendering_device = null
+	_rd_visual_update_supported = false
 
 
 func _native_collision_is_dirty() -> bool:
