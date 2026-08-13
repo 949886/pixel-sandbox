@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="2_projectile_def"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="3_projectile_effect"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/DamageEffect.gd" id="4_damage"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/TerrainEraseEffect.gd" id="5_dig"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/light_bullet.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Damage_spark"]
+script = ExtResource("4_damage")
+amount = 10.0
+damage_type = 1
+impulse = 24.0
+tag = &"spark_bolt"
+
+[sub_resource type="Resource" id="Dig_spark"]
+script = ExtResource("5_dig")
+radius = 1.5
+
+[sub_resource type="Resource" id="ProjectileDef_spark"]
+script = ExtResource("2_projectile_def")
+speed = 820.0
+lifetime = 1.35
+collision_query_mask = 5
+impact_effects = Array[Resource]([SubResource("Damage_spark"), SubResource("Dig_spark")])
+primary_color = Color(0.78, 1, 1, 1)
+secondary_color = Color(0.2, 0.72, 1, 1)
+core_pixel_size = 2.0
+trail_length = 8
+trail_spacing = 3.5
+impact_particle_count = 11
+impact_pixel_size = 1.0
+impact_particle_speed = 105.0
+trail_jitter = 0.8
+
+[sub_resource type="Resource" id="ProjectileEffect_spark"]
+script = ExtResource("3_projectile_effect")
+projectile_def = SubResource("ProjectileDef_spark")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"spark_bolt"
+icon = ExtResource("99_icon")
+display_name = "Spark Bolt"
+description = "Fast accurate combat bolt with a tiny amount of digging."
+mana_cost = 5.0
+cast_delay_add = 0.0
+spread_degrees = 0.7
+cast_effects = Array[Resource]([SubResource("ProjectileEffect_spark")])
+muzzle_primary = Color(0.78, 1, 1, 1)
+muzzle_secondary = Color(0.2, 0.72, 1, 1)
+muzzle_particle_count = 5

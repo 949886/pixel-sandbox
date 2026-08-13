@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/DamageEffect.gd" id="2_damage"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="3_pdef"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="4_proj"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/RadialProjectileEffect.gd" id="5_radial"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ApplyStatusEffect.gd" id="6_status"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/iceball.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Damage"]
+script = ExtResource("2_damage")
+amount = 15.0
+damage_type = 1
+impulse = 18.0
+tag = &"ice_bolt"
+
+[sub_resource type="Resource" id="Slow"]
+script = ExtResource("6_status")
+status_kind = 3
+duration = 3.0
+slow_factor = 0.3
+
+[sub_resource type="Resource" id="ShardDamage"]
+script = ExtResource("2_damage")
+amount = 3.0
+damage_type = 1
+impulse = 4.0
+tag = &"ice_shard"
+
+[sub_resource type="Resource" id="ShardDef"]
+script = ExtResource("3_pdef")
+speed = 170.0
+lifetime = 0.55
+collision_query_mask = 5
+impact_effects = Array[Resource]([SubResource("ShardDamage")])
+primary_color = Color(0.72, 0.95, 1, 1)
+secondary_color = Color(0.25, 0.7, 1, 1)
+core_pixel_size = 1.0
+trail_length = 4
+trail_spacing = 3.0
+impact_particle_count = 4
+impact_pixel_size = 1.0
+impact_particle_speed = 45.0
+
+[sub_resource type="Resource" id="Shards"]
+script = ExtResource("5_radial")
+projectile_def = SubResource("ShardDef")
+count = 6
+arc_degrees = 360.0
+
+[sub_resource type="Resource" id="PDef"]
+script = ExtResource("3_pdef")
+speed = 610.0
+lifetime = 5.0
+collision_query_mask = 5
+impact_effects = Array[Resource]([SubResource("Damage"), SubResource("Slow"), SubResource("Shards")])
+primary_color = Color(0.65, 0.92, 1, 1)
+secondary_color = Color(0.92, 1, 1, 1)
+core_pixel_size = 3.0
+trail_length = 10
+trail_spacing = 3.0
+impact_particle_count = 20
+impact_pixel_size = 1.0
+impact_particle_speed = 105.0
+trail_jitter = 1.2
+satellite_pixels = 1
+
+[sub_resource type="Resource" id="Projectile"]
+script = ExtResource("4_proj")
+projectile_def = SubResource("PDef")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"ice_bolt"
+icon = ExtResource("99_icon")
+display_name = "Ice Bolt"
+description = "Freezing bolt that shatters into six crisp ice-pixel shards."
+mana_cost = 30
+cast_delay_add = 0.4
+recharge_time_add = 1.2
+spread_degrees = 2
+recoil = 14
+critical_chance = 0.08
+cast_effects = Array[Resource]([SubResource("Projectile")])
+muzzle_primary = Color(0.65, 0.92, 1, 1)
+muzzle_secondary = Color(0.92, 1, 1, 1)
+muzzle_particle_count = 8

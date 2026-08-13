@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/SpawnSpecialRuntimeEffect.gd" id="2_special"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/chainsaw.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Special"]
+script = ExtResource("2_special")
+mode = 3
+duration = 0.5
+radius = 28.0
+damage_per_second = 40.0
+terrain_radius = 3.0
+primary_color = Color(0.9, 0.9, 0.75, 1)
+secondary_color = Color(1, 0.35, 0.08, 1)
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"chainsaw"
+icon = ExtResource("99_icon")
+display_name = "Chainsaw"
+description = "Short-range rapid cutting field; cheap and strong at terrain carving."
+mana_cost = 0
+cast_delay_add = 0.0
+recharge_time_add = -0.08
+spread_degrees = 0
+recoil = 10
+critical_chance = 0
+cast_effects = Array[Resource]([SubResource("Special")])
+muzzle_primary = Color(0.95, 0.9, 0.75, 1)
+muzzle_secondary = Color(1, 0.3, 0.05, 1)
+muzzle_particle_count = 8

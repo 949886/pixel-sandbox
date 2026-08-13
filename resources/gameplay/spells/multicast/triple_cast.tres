@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/scatter_3.tres" id="99_icon"]
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"triple_cast"
+icon = ExtResource("99_icon")
+display_name = "Triple Cast"
+description = "Draws and casts three following action cards in a small formation."
+kind = 6
+mana_cost = 25.0
+cast_delay_add = 0.2
+extra_draw = 3
+modifier_spread_degrees = 8.0
+formation_count = 3
+formation_start_degrees = -10.0
+formation_end_degrees = 10.0
+muzzle_primary = Color(0.75, 0.5, 1, 1)
+muzzle_secondary = Color(0.3, 0.9, 1, 1)
+muzzle_particle_count = 10

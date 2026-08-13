@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ExplosionEffect.gd" id="2_explosion"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="3_pdef"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="4_proj"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/dynamite.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Explosion"]
+script = ExtResource("2_explosion")
+radius = 100.0
+damage = 80.0
+terrain_radius = 60.0
+impulse = 520.0
+particle_count = 55
+spawn_fire_pixels = true
+fire_pixel_radius = 5.0
+primary_color = Color(1, 0.7, 0.15, 1)
+secondary_color = Color(0.9, 0.08, 0.02, 1)
+
+[sub_resource type="Resource" id="PDef"]
+script = ExtResource("3_pdef")
+speed = 390.0
+lifetime = 2.0
+gravity = 420.0
+collision_query_mask = 5
+detonate_on_timeout = true
+impact_effects = Array[Resource]([SubResource("Explosion")])
+primary_color = Color(0.86, 0.12, 0.06, 1)
+secondary_color = Color(1, 0.75, 0.12, 1)
+core_pixel_size = 4.0
+trail_length = 5
+trail_spacing = 7.0
+impact_particle_count = 10
+impact_pixel_size = 2.0
+impact_particle_speed = 70.0
+
+[sub_resource type="Resource" id="Projectile"]
+script = ExtResource("4_proj")
+projectile_def = SubResource("PDef")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"dynamite"
+icon = ExtResource("99_icon")
+display_name = "Dynamite"
+description = "Thrown explosive with a short fuse, huge impulse and strong terrain destruction."
+mana_cost = 70
+cast_delay_add = 0.7
+recharge_time_add = 2.0
+spread_degrees = 3
+recoil = 38
+critical_chance = 0.05
+cast_effects = Array[Resource]([SubResource("Projectile")])
+muzzle_primary = Color(0.9, 0.12, 0.05, 1)
+muzzle_secondary = Color(1, 0.75, 0.12, 1)
+muzzle_particle_count = 8

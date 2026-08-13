@@ -1,0 +1,53 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="2_projectile_def"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="3_projectile_effect"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/DamageEffect.gd" id="4_damage"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/TerrainEraseEffect.gd" id="5_dig"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/digger.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Damage_dig"]
+script = ExtResource("4_damage")
+amount = 4.0
+damage_type = 1
+impulse = 10.0
+tag = &"dig_bolt"
+
+[sub_resource type="Resource" id="Dig_dig"]
+script = ExtResource("5_dig")
+radius = 6.0
+
+[sub_resource type="Resource" id="ProjectileDef_dig"]
+script = ExtResource("2_projectile_def")
+speed = 720.0
+lifetime = 1.15
+collision_query_mask = 5
+impact_effects = Array[Resource]([SubResource("Damage_dig"), SubResource("Dig_dig")])
+primary_color = Color(1, 0.82, 0.28, 1)
+secondary_color = Color(0.95, 0.42, 0.12, 1)
+core_pixel_size = 2.0
+trail_length = 6
+trail_spacing = 4.0
+impact_particle_count = 14
+impact_pixel_size = 2.0
+impact_particle_speed = 92.0
+trail_jitter = 1.25
+
+[sub_resource type="Resource" id="ProjectileEffect_dig"]
+script = ExtResource("3_projectile_effect")
+projectile_def = SubResource("ProjectileDef_dig")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"dig_bolt"
+icon = ExtResource("99_icon")
+display_name = "Dig Bolt"
+description = "Low damage utility shot that carves a wider pixel tunnel."
+mana_cost = 8.0
+cast_delay_add = 0.03
+spread_degrees = 1.3
+cast_effects = Array[Resource]([SubResource("ProjectileEffect_dig")])
+muzzle_primary = Color(1, 0.82, 0.28, 1)
+muzzle_secondary = Color(0.95, 0.42, 0.12, 1)
+muzzle_particle_count = 7

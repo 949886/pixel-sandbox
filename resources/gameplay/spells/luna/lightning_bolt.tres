@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/HitscanEffect.gd" id="2_hitscan"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/lightning_ray.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Hitscan"]
+script = ExtResource("2_hitscan")
+cast_range = 320.0
+collision_mask = 5
+damage = 15.0
+damage_type = 4
+stun_duration = 0.45
+pixel_variance = 7.0
+primary_color = Color(0.5, 0.86, 1, 1)
+secondary_color = Color(1, 1, 1, 1)
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"lightning_bolt"
+icon = ExtResource("99_icon")
+display_name = "Lightning Beam"
+description = "Instant zig-zag pixel lightning ray translated from Luna LightningBolt."
+mana_cost = 30
+cast_delay_add = 0.3
+recharge_time_add = 0.5
+spread_degrees = 0
+recoil = 35
+critical_chance = 0
+cast_effects = Array[Resource]([SubResource("Hitscan")])
+muzzle_primary = Color(0.5, 0.86, 1, 1)
+muzzle_secondary = Color(1, 1, 1, 1)
+muzzle_particle_count = 8

@@ -10,6 +10,11 @@
 [ext_resource type="Resource" uid="uid://d3iitjp1fxcuw" path="res://resources/runtime_profiles/mobile_runtime_profile.tres" id="8"]
 [ext_resource type="Resource" path="res://resources/materials/default_material_palette.tres" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="10_touch_controls"]
+[ext_resource type="Script" path="res://scripts/gameplay/world/WorldGameplayService.gd" id="11_gameplay_world"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/CaveEye.tscn" id="12_cave_eye"]
+[ext_resource type="PackedScene" path="res://scenes/ui/GameplayUI.tscn" id="13_gameplay_ui"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/SpellPickup.tscn" id="14_spell_pickup"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="15_test_spell"]
 
 [node name="World" type="Node2D" unique_id=1354663026]
 script = ExtResource("1")
@@ -23,8 +28,28 @@ mobile_runtime_profile = ExtResource("8")
 
 [node name="SpecialChunks" type="Node2D" parent="." unique_id=1166992168]
 
+[node name="GameplayWorld" type="Node" parent="."]
+script = ExtResource("11_gameplay_world")
+
 [node name="Player" parent="." unique_id=1306727430 instance=ExtResource("2")]
 position = Vector2(256, 256)
+
+[node name="GameplayUI" parent="." instance=ExtResource("13_gameplay_ui")]
+
+[node name="StarterSpellPickup" parent="." instance=ExtResource("14_spell_pickup")]
+position = Vector2(305, 245)
+spell = ExtResource("15_test_spell")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="CaveEyeA" parent="Enemies" instance=ExtResource("12_cave_eye")]
+position = Vector2(390, 210)
+
+[node name="CaveEyeB" parent="Enemies" instance=ExtResource("12_cave_eye")]
+position = Vector2(500, 300)
+
+[node name="CaveEyeC" parent="Enemies" instance=ExtResource("12_cave_eye")]
+position = Vector2(190, 360)
 
 [node name="TouchControls" parent="." instance=ExtResource("10_touch_controls")]
 

@@ -1,9 +1,16 @@
-[gd_scene load_steps=6 format=3 uid="uid://dy2dmllmw3eqq"]
+[gd_scene load_steps=13 format=3 uid="uid://dy2dmllmw3eqq"]
 
 [ext_resource type="Script" path="res://scripts/player/Player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" path="res://assets/player/player_sprite_frames.tres" id="2_body_frames"]
 [ext_resource type="SpriteFrames" path="res://assets/player/player_arm_sprite_frames.tres" id="3_arm_frames"]
-[ext_resource type="Texture2D" path="res://assets/player/wand.png" id="4_wand"]
+[ext_resource type="Script" path="res://scripts/gameplay/combat/HealthComponent.gd" id="5_health"]
+[ext_resource type="Script" path="res://scripts/gameplay/combat/FactionComponent.gd" id="6_faction"]
+[ext_resource type="Script" path="res://scripts/gameplay/status/StatusComponent.gd" id="7_status"]
+[ext_resource type="Script" path="res://scripts/gameplay/status/EnvironmentSensor.gd" id="8_sensor"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/WandController.gd" id="9_wand_controller"]
+[ext_resource type="Resource" path="res://resources/gameplay/wands/starter_wand.tres" id="10_starter_wand"]
+[ext_resource type="Script" path="res://scripts/gameplay/items/PlayerInventory.gd" id="11_inventory"]
+[ext_resource type="Resource" path="res://resources/gameplay/wands/high_performance_test_wand.tres" id="12_test_wand"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 resource_local_to_scene = true
@@ -19,6 +26,31 @@ script = ExtResource("1_player")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -5.5)
 shape = SubResource("RectangleShape2D_player")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("5_health")
+maximum_health = 100.0
+hit_invulnerability_seconds = 0.08
+
+[node name="FactionComponent" type="Node" parent="."]
+script = ExtResource("6_faction")
+faction = 1
+
+[node name="StatusComponent" type="Node" parent="."]
+script = ExtResource("7_status")
+
+[node name="EnvironmentSensor" type="Node" parent="."]
+script = ExtResource("8_sensor")
+
+[node name="WandController" type="Node" parent="."]
+script = ExtResource("9_wand_controller")
+wand_def = ExtResource("10_starter_wand")
+
+[node name="PlayerInventory" type="Node" parent="."]
+script = ExtResource("11_inventory")
+wand_slot_count = 4
+spell_inventory_capacity = 24
+secondary_test_wand = ExtResource("12_test_wand")
 
 [node name="BodySprite" type="AnimatedSprite2D" parent="."]
 z_index = 5
@@ -44,7 +76,6 @@ autoplay = "default"
 [node name="WandSprite" type="Sprite2D" parent="ArmPivot"]
 position = Vector2(9, 0)
 texture_filter = 1
-texture = ExtResource("4_wand")
 
 [node name="Muzzle" type="Marker2D" parent="ArmPivot"]
 position = Vector2(16, 0)
@@ -64,43 +95,3 @@ position = Vector2(0, -14)
 zoom = Vector2(2, 2)
 position_smoothing_enabled = true
 position_smoothing_speed = 10.0
-
-[node name="HUD" type="CanvasLayer" parent="."]
-layer = 10
-
-[node name="Margin" type="MarginContainer" parent="HUD"]
-offset_left = 18.0
-offset_top = 18.0
-offset_right = 330.0
-offset_bottom = 108.0
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 8
-
-[node name="Panel" type="VBoxContainer" parent="HUD/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 4
-
-[node name="Title" type="Label" parent="HUD/Margin/Panel"]
-layout_mode = 2
-text = "角色控制"
-
-[node name="FuelCaption" type="Label" parent="HUD/Margin/Panel"]
-layout_mode = 2
-text = "飞行能量"
-
-[node name="FuelBar" type="ProgressBar" parent="HUD/Margin/Panel"]
-custom_minimum_size = Vector2(220, 12)
-layout_mode = 2
-max_value = 1.0
-value = 1.0
-show_percentage = false
-
-[node name="StateLabel" type="Label" parent="HUD/Margin/Panel"]
-layout_mode = 2
-text = "地面 | 速度 0"
-
-[node name="ControlsLabel" type="Label" parent="HUD/Margin/Panel"]
-layout_mode = 2
-text = "A/D 移动  Shift 冲刺  W/空格 跳跃与飞行  S 蹲伏/下潜\n鼠标瞄准  左键施法  F/右键踢击  +/- 缩放"

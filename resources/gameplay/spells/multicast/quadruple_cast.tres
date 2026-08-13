@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/quad_shot.tres" id="99_icon"]
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"quadruple_cast"
+icon = ExtResource("99_icon")
+display_name = "Quadruple Cast"
+description = "Draws four following action cards."
+kind = 6
+mana_cost = 35.0
+extra_draw = 4
+modifier_spread_degrees = 12.0
+formation_count = 4
+formation_start_degrees = -18.0
+formation_end_degrees = 18.0
+muzzle_primary = Color(0.9, 0.4, 1, 1)
+muzzle_secondary = Color(0.2, 0.85, 1, 1)
+muzzle_particle_count = 12

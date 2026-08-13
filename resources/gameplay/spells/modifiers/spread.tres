@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/heavy_spread.tres" id="99_icon"]
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"spread"
+icon = ExtResource("99_icon")
+display_name = "Spread"
+description = "Adds 10 degrees of projectile spread."
+kind = 5
+mana_cost = 10.0
+extra_draw = 1
+modifier_spread_degrees = 10.0
+muzzle_primary = Color(0.7, 0.5, 1, 1)
+muzzle_secondary = Color(0.3, 0.8, 1, 1)
+muzzle_particle_count = 4

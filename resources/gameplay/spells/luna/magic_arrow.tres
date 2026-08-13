@@ -1,0 +1,52 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/DamageEffect.gd" id="2_damage"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="3_pdef"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="4_proj"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/arrow.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Damage"]
+script = ExtResource("2_damage")
+amount = 14.0
+damage_type = 1
+impulse = 24.0
+tag = &"magic_arrow"
+
+[sub_resource type="Resource" id="PDef"]
+script = ExtResource("3_pdef")
+speed = 800.0
+lifetime = 4.0
+collision_query_mask = 5
+can_pierce = true
+max_pierces = 1
+impact_effects = Array[Resource]([SubResource("Damage")])
+primary_color = Color(0.35, 0.55, 1, 1)
+secondary_color = Color(0.75, 0.9, 1, 1)
+core_pixel_size = 2.0
+trail_length = 12
+trail_spacing = 3.0
+impact_particle_count = 8
+impact_pixel_size = 1.0
+impact_particle_speed = 90.0
+
+[sub_resource type="Resource" id="Projectile"]
+script = ExtResource("4_proj")
+projectile_def = SubResource("PDef")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"magic_arrow"
+icon = ExtResource("99_icon")
+display_name = "Magic Arrow"
+description = "Fast blue pixel arrow with one-target penetration."
+mana_cost = 15
+cast_delay_add = 0.25
+recharge_time_add = 0.6
+spread_degrees = 0
+recoil = 6
+critical_chance = 0.05
+cast_effects = Array[Resource]([SubResource("Projectile")])
+muzzle_primary = Color(0.35, 0.55, 1, 1)
+muzzle_secondary = Color(0.75, 0.9, 1, 1)
+muzzle_particle_count = 8

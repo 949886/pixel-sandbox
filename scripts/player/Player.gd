@@ -8,8 +8,9 @@ extends CharacterBody2D
 
 signal flight_fuel_changed(current: float, maximum: float)
 signal wand_fired(origin: Vector2, direction: Vector2)
-
-const NoitaBolt = preload("res://scripts/player/NoitaBolt.gd")
+signal health_changed(current: float, maximum: float)
+signal gold_changed(current: int)
+signal player_died
 
 const BODY_DEFAULT_ORIGIN := Vector2(31.0, 35.0)
 const BODY_ORIGIN_OVERRIDES := {
@@ -29,8 +30,6 @@ const BASE_CEILING_LEFT_POSITION := Vector2(-5.0, -13.0)
 const BASE_CEILING_RIGHT_POSITION := Vector2(5.0, -13.0)
 const BASE_CEILING_TARGET := Vector2(0.0, -10.0)
 const BASE_CAMERA_POSITION := Vector2(0.0, -28.0)
-const DESKTOP_CONTROLS_TEXT := "A/D 移动  Shift 冲刺  W/空格 跳跃与飞行  S 蹲伏/下潜\n鼠标瞄准  左键施法  F/右键踢击  +/- 缩放"
-const TOUCH_CONTROLS_TEXT := "左侧摇杆：移动；拖入上方 JUMP / FLY 区跳跃并按住主动飞行  右侧射击盘：拖动瞄准并连射"
 
 @export_category("Character size")
 @export_range(0.25, 1.0, 0.05) var character_scale: float = 0.5
@@ -65,12 +64,9 @@ const TOUCH_CONTROLS_TEXT := "左侧摇杆：移动；拖入上方 JUMP / FLY �
 @export var swim_gravity_scale: float = 0.12
 @export var liquid_sample_radius: float = 6.0
 
-@export_category("Wand")
-@export var wand_shots_per_second: float = 7.0
-@export var projectile_speed: float = 760.0
-@export var projectile_lifetime: float = 1.2
-@export var projectile_dig_radius: float = 5.0
-@export var wand_spread_degrees: float = 1.4
+@export_category("Combat")
+@export var respawn_delay: float = 1.25
+@export var starting_gold: int = 0
 
 @export_category("Camera")
 @export var zoom_step: float = 0.1
@@ -89,11 +85,15 @@ const TOUCH_CONTROLS_TEXT := "左侧摇杆：移动；拖入上方 JUMP / FLY �
 @onready var camera: Camera2D = $Camera2D
 @onready var ceiling_left: RayCast2D = $CeilingLeft
 @onready var ceiling_right: RayCast2D = $CeilingRight
-@onready var fuel_bar: ProgressBar = $HUD/Margin/Panel/FuelBar
-@onready var state_label: Label = $HUD/Margin/Panel/StateLabel
-@onready var controls_label: Label = $HUD/Margin/Panel/ControlsLabel
+@onready var health_component: HealthComponent = $HealthComponent
+@onready var faction_component: FactionComponent = $FactionComponent
+@onready var status_component: StatusComponent = $StatusComponent
+@onready var environment_sensor: EnvironmentSensor = $EnvironmentSensor
+@onready var wand_controller: WandController = $WandController
+@onready var inventory_component: PlayerInventory = $PlayerInventory
 
 var world_manager: Node
+var world_interface: Node
 var flight_fuel: float
 var aim_direction := Vector2.RIGHT
 var facing_left: bool = false
@@ -103,7 +103,6 @@ var flying: bool = false
 
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
-var _fire_cooldown: float = 0.0
 var _kick_active: bool = false
 var _landing_active: bool = false
 var _action_animation: StringName = &""
@@ -118,26 +117,42 @@ var _virtual_fire_pressed: bool = false
 var _virtual_aim_direction := Vector2.RIGHT
 var _virtual_controls_active: bool = false
 var _rng := RandomNumberGenerator.new()
+var _dead: bool = false
+var _spawn_position := Vector2.ZERO
+var gold: int = 0
 
 func _ready() -> void:
 	_ensure_input_actions()
 	world_manager = get_parent()
+	world_interface = world_manager.get_node_or_null("GameplayWorld") if world_manager != null else null
+	if world_interface == null:
+		world_interface = world_manager
+	_spawn_position = global_position
+	gold = maxi(0, starting_gold)
 	motion_mode = CharacterBody2D.MOTION_MODE_GROUNDED
 	floor_snap_length = 3.0
 	floor_max_angle = deg_to_rad(50.0)
 	floor_stop_on_slope = false
 	floor_constant_speed = true
 	camera.make_current()
-	flight_fuel = maximum_flight_fuel
+	_set_flight_fuel(maximum_flight_fuel)
 	_rng.randomize()
 	_configure_animated_sprites()
 	_apply_character_scale()
 	body_sprite.animation_finished.connect(_on_body_animation_finished)
+	if health_component != null:
+		health_component.health_changed.connect(_on_health_changed)
+		health_component.died.connect(_on_player_died)
+	if wand_controller != null:
+		if not wand_controller.wand_changed.is_connected(_on_player_wand_changed):
+			wand_controller.wand_changed.connect(_on_player_wand_changed)
+		_on_player_wand_changed(wand_controller.wand_def)
+	if inventory_component != null:
+		inventory_component.initialize(wand_controller)
 	_set_crouching(false, true)
 	_play_body_animation(&"stand", true)
 	arm_sprite.play(&"default")
 	_update_aim()
-	_update_hud()
 
 
 func set_virtual_move_input(input_vector: Vector2) -> void:
@@ -176,13 +191,15 @@ func set_virtual_controls_active(active: bool) -> void:
 		_virtual_move_input = Vector2.ZERO
 		_virtual_jump_pressed = false
 		_virtual_fire_pressed = false
-	if is_instance_valid(controls_label):
-		controls_label.text = TOUCH_CONTROLS_TEXT if active else DESKTOP_CONTROLS_TEXT
 
 
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
 	_update_environment_state()
+	if _dead:
+		velocity = Vector2.ZERO
+		flying = false
+		return
 	_update_aim()
 	_handle_action_input()
 	_handle_movement(delta)
@@ -196,7 +213,6 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		flying = false
 		_update_animation()
-		_update_hud()
 		return
 
 	var stepped_up := _try_step_up(delta)
@@ -209,7 +225,6 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 
 	_update_animation()
-	_update_hud()
 
 func _process(_delta: float) -> void:
 	if Input.is_action_just_pressed(&"zoom_in"):
@@ -220,11 +235,14 @@ func _process(_delta: float) -> void:
 func _tick_timers(delta: float) -> void:
 	_coyote_timer = maxf(0.0, _coyote_timer - delta)
 	_jump_buffer_timer = maxf(0.0, _jump_buffer_timer - delta)
-	_fire_cooldown = maxf(0.0, _fire_cooldown - delta)
 	if is_on_floor():
 		_coyote_timer = coyote_time
 
 func _handle_action_input() -> void:
+	if status_component != null and status_component.is_stunned():
+		_flight_input_active = false
+		_jump_fly_was_pressed = false
+		return
 	# Keyboard/gamepad and the joystick's upper semicircular zone both provide
 	# the same combined jump + active-lift control.
 	var physical_jump_fly_pressed := Input.is_action_pressed(&"jump_fly")
@@ -243,7 +261,8 @@ func _handle_action_input() -> void:
 	_flight_input_active = jump_pressed
 	_jump_fly_was_pressed = jump_pressed
 
-	if (Input.is_action_pressed(&"wand_fire") or _virtual_fire_pressed) and _fire_cooldown <= 0.0 and not _kick_active:
+	_handle_wand_selection_input()
+	if (Input.is_action_pressed(&"wand_fire") or _virtual_fire_pressed) and not _kick_active:
 		_fire_wand()
 	if Input.is_action_just_pressed(&"kick") and not _kick_active:
 		_start_kick()
@@ -263,11 +282,12 @@ func _handle_movement(delta: float) -> void:
 		_handle_ground_and_air(delta, grounded)
 
 func _handle_ground_and_air(delta: float, grounded: bool) -> void:
-	var target_speed := walk_speed
+	var status_speed_scale := status_component.movement_speed_multiplier() if status_component != null else 1.0
+	var target_speed := walk_speed * status_speed_scale
 	if crouching:
-		target_speed = crouch_speed
+		target_speed = crouch_speed * status_speed_scale
 	elif Input.is_action_pressed(&"sprint"):
-		target_speed = sprint_speed
+		target_speed = sprint_speed * status_speed_scale
 
 	var target_x := _horizontal_input * target_speed
 	var acceleration := ground_acceleration if grounded else air_acceleration
@@ -326,20 +346,19 @@ func _stronger_axis(physical_value: float, virtual_value: float) -> float:
 	return virtual_value if absf(virtual_value) > absf(physical_value) else physical_value
 
 func _update_environment_state() -> void:
-	if world_manager == null or not world_manager.has_method("is_liquid_at_world_position"):
+	if world_interface == null or not is_instance_valid(world_interface) or environment_sensor == null:
 		swimming = false
 		return
-	var samples := [
+	var samples: Array[Vector2] = [
 		global_position + Vector2(0.0, -4.0) * character_scale,
 		global_position + Vector2(-liquid_sample_radius, -11.0) * character_scale,
 		global_position + Vector2(liquid_sample_radius, -11.0) * character_scale,
 		global_position + Vector2(0.0, -18.0) * character_scale,
 	]
-	var liquid_count := 0
-	for sample: Vector2 in samples:
-		if bool(world_manager.call("is_liquid_at_world_position", sample)):
-			liquid_count += 1
-	swimming = liquid_count >= 2
+	environment_sensor.sample_points(world_interface, samples)
+	swimming = environment_sensor.swimming
+	if status_component != null:
+		status_component.apply_environment(environment_sensor, world_interface)
 
 func _update_aim() -> void:
 	if _virtual_controls_active:
@@ -365,24 +384,56 @@ func _update_aim() -> void:
 	arm_sprite.visible = equipment_visible
 	wand_sprite.visible = equipment_visible
 
-func _fire_wand() -> void:
-	if world_manager == null:
+
+func _on_player_wand_changed(definition: WandDef) -> void:
+	if wand_sprite == null:
 		return
-	_fire_cooldown = 1.0 / maxf(0.1, wand_shots_per_second)
-	var spread := deg_to_rad(_rng.randf_range(-wand_spread_degrees, wand_spread_degrees))
-	var shot_direction := aim_direction.rotated(spread).normalized()
-	var bolt := NoitaBolt.new()
-	world_manager.add_child(bolt)
-	bolt.global_position = muzzle.global_position
-	bolt.setup(
-		shot_direction,
-		self,
-		world_manager,
-		projectile_speed,
-		projectile_lifetime,
-		projectile_dig_radius
-	)
-	wand_fired.emit(muzzle.global_position, shot_direction)
+	if definition == null:
+		wand_sprite.visible = false
+		return
+	if definition.visual_texture != null:
+		wand_sprite.texture = definition.visual_texture
+	wand_sprite.modulate = definition.visual_modulate
+	wand_sprite.visible = not _kick_active
+
+func _fire_wand() -> void:
+	if world_manager == null or not is_instance_valid(world_manager) or world_manager.is_queued_for_deletion() or wand_controller == null:
+		return
+	if wand_controller.try_cast(muzzle.global_position, aim_direction, self, world_interface, world_manager):
+		wand_fired.emit(muzzle.global_position, aim_direction)
+
+func _handle_wand_selection_input() -> void:
+	if inventory_component == null:
+		return
+	if Input.is_action_just_pressed(&"wand_slot_1"):
+		inventory_component.equip_wand(0)
+	elif Input.is_action_just_pressed(&"wand_slot_2"):
+		inventory_component.equip_wand(1)
+	elif Input.is_action_just_pressed(&"wand_slot_3"):
+		inventory_component.equip_wand(2)
+	elif Input.is_action_just_pressed(&"wand_slot_4"):
+		inventory_component.equip_wand(3)
+
+func _unhandled_input(event: InputEvent) -> void:
+	if inventory_component == null or not (event is InputEventMouseButton):
+		return
+	var mouse_event := event as InputEventMouseButton
+	if not mouse_event.pressed:
+		return
+	if mouse_event.button_index == MOUSE_BUTTON_WHEEL_UP:
+		_cycle_wand(-1)
+	elif mouse_event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		_cycle_wand(1)
+
+func _cycle_wand(delta: int) -> void:
+	if inventory_component == null or inventory_component.wands.is_empty():
+		return
+	var start := inventory_component.equipped_wand_index
+	for offset: int in range(1, inventory_component.wands.size() + 1):
+		var candidate := posmod(start + delta * offset, inventory_component.wands.size())
+		if inventory_component.wands[candidate] != null:
+			inventory_component.equip_wand(candidate)
+			return
 
 func _update_animation() -> void:
 	if _landing_active and (swimming or not is_on_floor()):
@@ -550,7 +601,7 @@ func _try_step_up(delta: float) -> bool:
 	return false
 
 func _motion_collision_is_ready(motion: Vector2) -> bool:
-	if world_manager == null or not world_manager.has_method("is_motion_collision_ready"):
+	if world_manager == null or not is_instance_valid(world_manager) or not world_manager.has_method("is_motion_collision_ready"):
 		return true
 	return bool(world_manager.call(
 		"is_motion_collision_ready",
@@ -565,11 +616,47 @@ func _set_flight_fuel(value: float) -> void:
 	if not is_equal_approx(previous, flight_fuel):
 		flight_fuel_changed.emit(flight_fuel, maximum_flight_fuel)
 
-func _update_hud() -> void:
-	fuel_bar.max_value = maximum_flight_fuel
-	fuel_bar.value = flight_fuel
-	var state := "游泳" if swimming else ("飞行" if flying else ("蹲伏" if crouching else ("地面" if is_on_floor() else "空中")))
-	state_label.text = "%s  |  速度 %d" % [state, int(velocity.length())]
+func receive_damage(packet: DamagePacket) -> float:
+	if health_component == null:
+		return 0.0
+	return health_component.take_damage(packet)
+
+func add_gold(amount: int) -> void:
+	if amount <= 0:
+		return
+	gold += amount
+	gold_changed.emit(gold)
+
+func pickup_spell(spell: SpellDef) -> bool:
+	return inventory_component.add_spell(spell) if inventory_component != null else false
+
+func heal(amount: float) -> float:
+	return health_component.heal(amount) if health_component != null else 0.0
+
+func _on_health_changed(current: float, maximum: float) -> void:
+	health_changed.emit(current, maximum)
+
+func _on_player_died(_packet) -> void:
+	if _dead:
+		return
+	_dead = true
+	player_died.emit()
+	_respawn_after_delay()
+
+func _respawn_after_delay() -> void:
+	await get_tree().create_timer(maxf(0.1, respawn_delay)).timeout
+	if not is_inside_tree():
+		return
+	global_position = _spawn_position
+	velocity = Vector2.ZERO
+	_set_flight_fuel(maximum_flight_fuel)
+	if status_component != null:
+		status_component.clear_all()
+	if health_component != null:
+		health_component.reset_health()
+	if wand_controller != null:
+		wand_controller.reset_mana()
+	_dead = false
 
 func _set_zoom(value: float) -> void:
 	var clamped := clampf(value, min_zoom, max_zoom)
@@ -584,6 +671,10 @@ func _ensure_input_actions() -> void:
 	_add_key_action(&"kick", [KEY_F])
 	_add_key_action(&"zoom_in", [KEY_EQUAL, KEY_KP_ADD])
 	_add_key_action(&"zoom_out", [KEY_MINUS, KEY_KP_SUBTRACT])
+	_add_key_action(&"wand_slot_1", [KEY_1])
+	_add_key_action(&"wand_slot_2", [KEY_2])
+	_add_key_action(&"wand_slot_3", [KEY_3])
+	_add_key_action(&"wand_slot_4", [KEY_4])
 	_add_mouse_action(&"wand_fire", MOUSE_BUTTON_LEFT)
 	_add_mouse_action(&"kick", MOUSE_BUTTON_RIGHT)
 

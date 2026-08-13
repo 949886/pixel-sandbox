@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WandDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/WandDef.gd" id="1_wand"]
+[ext_resource type="Texture2D" path="res://assets/player/wand.png" id="2_visual"]
+
+[resource]
+script = ExtResource("1_wand")
+wand_id = &"high_performance_test_wand"
+display_name = "High Performance Test Wand"
+visual_texture = ExtResource("2_visual")
+visual_modulate = Color(0.45, 0.95, 1, 1)
+mana_max = 2000.0
+mana_recharge_per_second = 1000.0
+cast_delay = 0.02
+recharge_time = 0.08
+multicast = 1
+capacity = 24
+shuffle = false
+spread_degrees = 0.0
+spells = Array[Resource]([])

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/t_shot.tres" id="99_icon"]
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"formation_back_front"
+icon = ExtResource("99_icon")
+display_name = "Formation Back And Front"
+description = "Draws two spells, firing one forward and one backward."
+kind = 6
+mana_cost = 0.0
+extra_draw = 2
+formation_count = 2
+formation_start_degrees = 0.0
+formation_end_degrees = 180.0
+muzzle_primary = Color(0.85, 0.55, 1, 1)
+muzzle_secondary = Color(0.3, 0.85, 1, 1)
+muzzle_particle_count = 8

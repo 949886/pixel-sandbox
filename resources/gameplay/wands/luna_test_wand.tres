@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="WandDef" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/WandDef.gd" id="1_wand"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="2_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/modifiers/light.tres" id="3_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/spark.tres" id="4_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="5_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/modifiers/light.tres" id="6_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/multicast/double_scatter.tres" id="7_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="8_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/spark.tres" id="9_spell"]
+[ext_resource type="Texture2D" path="res://assets/player/wand.png" id="99_wand_visual"]
+
+[resource]
+script = ExtResource("1_wand")
+wand_id = &"luna_test_wand"
+visual_texture = ExtResource("99_wand_visual")
+visual_modulate = Color(1, 1, 1, 1)
+display_name = "Luna Test Wand (GDScript)"
+mana_max = 100.0
+mana_recharge_per_second = 10.0
+cast_delay = 0.1
+recharge_time = 1.0
+multicast = 1
+capacity = 8
+shuffle = false
+spread_degrees = 10.0
+spells = Array[Resource]([ExtResource("2_spell"), ExtResource("3_spell"), ExtResource("4_spell"), ExtResource("5_spell"), ExtResource("6_spell"), ExtResource("7_spell"), ExtResource("8_spell"), ExtResource("9_spell")])

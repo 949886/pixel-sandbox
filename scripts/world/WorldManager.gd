@@ -662,6 +662,11 @@ func _regenerate_world(advance_seed: bool) -> void:
 func world_pos_to_chunk(pos: Vector2) -> Vector2i:
 	return Vector2i(floori(pos.x / float(CHUNK_SIZE)), floori(pos.y / float(CHUNK_SIZE)))
 
+func is_world_position_loaded(world_position: Vector2) -> bool:
+	## Gameplay-safe readiness query. This intentionally exposes only whether the
+	## live pixel canvas exists, not chunk/sector implementation details.
+	return _canvas_for_chunk(world_pos_to_chunk(world_position)) != null
+
 func get_element_id_at_world_position(world_position: Vector2) -> int:
 	## Public character/gameplay query for the live simulated material grid.
 	var coord: Vector2i = world_pos_to_chunk(world_position)
@@ -675,6 +680,43 @@ func get_element_id_at_world_position(world_position: Vector2) -> int:
 func is_liquid_at_world_position(world_position: Vector2) -> bool:
 	var element_id: int = get_element_id_at_world_position(world_position)
 	return _material_is_liquid(element_id)
+
+func set_element_id_at_world_position(world_position: Vector2, element_id: int) -> bool:
+	## Small gameplay edits (fire sparks, spell residue) use the same live canvas
+	## setter as other simulation writes so native dirty/activity tracking stays intact.
+	var coord: Vector2i = world_pos_to_chunk(world_position)
+	var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+	if canvas == null:
+		return false
+	var chunk_origin := Vector2(coord * CHUNK_SIZE)
+	var local := Vector2i((world_position - chunk_origin).floor())
+	if local.x < 0 or local.y < 0 or local.x >= CHUNK_SIZE or local.y >= CHUNK_SIZE:
+		return false
+	var clamped := clampi(element_id, 0, 4096)
+	if canvas.get_cell(local.x, local.y) == clamped:
+		return false
+	canvas.set_cell(local.x, local.y, clamped)
+	return true
+
+func paint_material_circle(world_center: Vector2, radius: float, element_id: int, only_replace_air: bool = true) -> int:
+	## Intended for small spell residues, not bulk terrain generation. The radius is
+	## deliberately capped so Gameplay cannot accidentally create a per-frame full chunk loop.
+	var safe_radius := clampf(radius, 0.5, 12.0)
+	var min_pixel := Vector2i((world_center - Vector2.ONE * safe_radius).floor())
+	var max_pixel := Vector2i((world_center + Vector2.ONE * safe_radius).ceil())
+	var radius_squared := safe_radius * safe_radius
+	var changed := 0
+	for world_y: int in range(min_pixel.y, max_pixel.y + 1):
+		for world_x: int in range(min_pixel.x, max_pixel.x + 1):
+			var pixel_center := Vector2(world_x + 0.5, world_y + 0.5)
+			if pixel_center.distance_squared_to(world_center) > radius_squared:
+				continue
+			var position := Vector2(world_x, world_y)
+			if only_replace_air and get_element_id_at_world_position(position) != 0:
+				continue
+			if set_element_id_at_world_position(position, element_id):
+				changed += 1
+	return changed
 
 func erase_material_circle(world_center: Vector2, radius: float) -> int:
 	## One native edit call per overlapped Canvas. The extension marks only affected

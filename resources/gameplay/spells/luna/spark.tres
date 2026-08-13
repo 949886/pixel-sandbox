@@ -1,0 +1,41 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="2_pdef"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="3_proj"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/bounce_spark.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="PDef"]
+script = ExtResource("2_pdef")
+speed = 500.0
+lifetime = 2.0
+collision_query_mask = 5
+primary_color = Color(0.85, 1, 1, 1)
+secondary_color = Color(0.4, 0.75, 1, 1)
+core_pixel_size = 1.0
+trail_length = 5
+trail_spacing = 2.0
+impact_particle_count = 6
+impact_pixel_size = 1.0
+impact_particle_speed = 80.0
+
+[sub_resource type="Resource" id="Projectile"]
+script = ExtResource("3_proj")
+projectile_def = SubResource("PDef")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"spark"
+icon = ExtResource("99_icon")
+display_name = "Spark"
+description = "Tiny zero-damage utility spark retained from the Luna spell set."
+mana_cost = 3
+cast_delay_add = 0.05
+recharge_time_add = 0
+spread_degrees = 0
+recoil = 0
+critical_chance = 0
+cast_effects = Array[Resource]([SubResource("Projectile")])
+muzzle_primary = Color(0.85, 1, 1, 1)
+muzzle_secondary = Color(0.4, 0.75, 1, 1)
+muzzle_particle_count = 8

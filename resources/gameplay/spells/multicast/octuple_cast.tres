@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/burst_8.tres" id="99_icon"]
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"octuple_cast"
+icon = ExtResource("99_icon")
+display_name = "Octuple Cast"
+description = "Draws eight following action cards; normalized from the old inconsistent octuple resources."
+kind = 6
+mana_cost = 70.0
+extra_draw = 8
+modifier_spread_degrees = 22.0
+formation_count = 8
+formation_start_degrees = -38.0
+formation_end_degrees = 38.0
+muzzle_primary = Color(1, 0.35, 0.9, 1)
+muzzle_secondary = Color(0.2, 0.85, 1, 1)
+muzzle_particle_count = 16

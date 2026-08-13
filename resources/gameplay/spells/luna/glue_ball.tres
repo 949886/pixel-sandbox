@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/DamageEffect.gd" id="2_damage"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="3_pdef"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="4_proj"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/SpawnSpecialRuntimeEffect.gd" id="5_special"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/glue_shot.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Damage"]
+script = ExtResource("2_damage")
+amount = 15.0
+damage_type = 1
+impulse = 8.0
+tag = &"glue_ball"
+
+[sub_resource type="Resource" id="Glue"]
+script = ExtResource("5_special")
+mode = 4
+spawn_at_hit_position = true
+duration = 4.0
+radius = 35.0
+damage_per_second = 0.0
+slow_factor = 0.3
+status_duration = 0.7
+primary_color = Color(0.72, 0.95, 0.28, 1)
+secondary_color = Color(0.3, 0.55, 0.08, 1)
+
+[sub_resource type="Resource" id="PDef"]
+script = ExtResource("3_pdef")
+speed = 350.0
+lifetime = 5.0
+gravity = 80.0
+collision_query_mask = 5
+impact_effects = Array[Resource]([SubResource("Damage"), SubResource("Glue")])
+primary_color = Color(0.72, 0.95, 0.28, 1)
+secondary_color = Color(0.3, 0.55, 0.08, 1)
+core_pixel_size = 4.0
+trail_length = 8
+trail_spacing = 4.0
+impact_particle_count = 16
+impact_pixel_size = 2.0
+impact_particle_speed = 55.0
+trail_jitter = 1.5
+
+[sub_resource type="Resource" id="Projectile"]
+script = ExtResource("4_proj")
+projectile_def = SubResource("PDef")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"glue_ball"
+icon = ExtResource("99_icon")
+display_name = "Glue Ball"
+description = "Sticky green projectile that leaves a pixel glue field and slows actors."
+mana_cost = 40
+cast_delay_add = 0.6
+recharge_time_add = 1.5
+spread_degrees = 0
+recoil = 10
+critical_chance = 0.05
+cast_effects = Array[Resource]([SubResource("Projectile")])
+muzzle_primary = Color(0.7, 0.95, 0.25, 1)
+muzzle_secondary = Color(0.25, 0.5, 0.05, 1)
+muzzle_particle_count = 8

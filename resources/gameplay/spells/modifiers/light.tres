@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/light.tres" id="99_icon"]
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"light"
+icon = ExtResource("99_icon")
+display_name = "Light"
+description = "Adds orbiting one-pixel light motes to the next projectile."
+kind = 5
+mana_cost = 0.0
+cast_delay_add = 0.1
+extra_draw = 1
+add_pixel_light = true
+muzzle_primary = Color(1, 1, 0.75, 1)
+muzzle_secondary = Color(0.65, 0.9, 1, 1)
+muzzle_particle_count = 6

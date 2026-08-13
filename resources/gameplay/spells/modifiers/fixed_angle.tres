@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/i_shot.tres" id="99_icon"]
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"fixed_angle"
+icon = ExtResource("99_icon")
+display_name = "Fixed Angle"
+description = "Rotates the next spell by a fixed 45 degree angle."
+kind = 5
+mana_cost = 0.0
+extra_draw = 1
+modifier_operation = 0
+fixed_angle_enabled = true
+fixed_angle_degrees = 45.0
+muzzle_primary = Color(0.95, 0.95, 0.7, 1)
+muzzle_secondary = Color(0.35, 0.85, 1, 1)
+muzzle_particle_count = 3

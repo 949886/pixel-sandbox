@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ExplosionEffect.gd" id="2_explosion"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="3_pdef"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="4_proj"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/high_explosive.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Explosion"]
+script = ExtResource("2_explosion")
+radius = 80.0
+damage = 35.0
+terrain_radius = 55.0
+impulse = 420.0
+particle_count = 46
+spawn_fire_pixels = true
+fire_pixel_radius = 4.0
+primary_color = Color(1, 0.8, 0.18, 1)
+secondary_color = Color(1, 0.16, 0.03, 1)
+
+[sub_resource type="Resource" id="PDef"]
+script = ExtResource("3_pdef")
+speed = 330.0
+lifetime = 1.5
+gravity = 300.0
+collision_query_mask = 5
+detonate_on_timeout = true
+impact_effects = Array[Resource]([SubResource("Explosion")])
+primary_color = Color(0.95, 0.75, 0.18, 1)
+secondary_color = Color(0.25, 0.1, 0.03, 1)
+core_pixel_size = 4.0
+trail_length = 7
+trail_spacing = 5.0
+impact_particle_count = 14
+impact_pixel_size = 2.0
+impact_particle_speed = 95.0
+
+[sub_resource type="Resource" id="Projectile"]
+script = ExtResource("4_proj")
+projectile_def = SubResource("PDef")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"explosive_bomb"
+icon = ExtResource("99_icon")
+display_name = "Explosive Bomb"
+description = "Heavy legacy Luna bomb translated to the pixel-world projectile runtime."
+mana_cost = 50
+cast_delay_add = 0.7
+recharge_time_add = 2.0
+spread_degrees = 0
+recoil = 45
+critical_chance = 0.05
+cast_effects = Array[Resource]([SubResource("Projectile")])
+muzzle_primary = Color(1, 0.75, 0.15, 1)
+muzzle_secondary = Color(0.45, 0.12, 0.02, 1)
+muzzle_particle_count = 8

@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="SpellDef" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/SpellDef.gd" id="1_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="2_projectile_def"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ProjectileEffect.gd" id="3_projectile_effect"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/ExplosionEffect.gd" id="4_explosion"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/atlas_textures/bomb.tres" id="99_icon"]
+
+[sub_resource type="Resource" id="Explosion_bomb"]
+script = ExtResource("4_explosion")
+radius = 34.0
+damage = 36.0
+terrain_radius = 22.0
+impulse = 260.0
+actor_collision_mask = 6
+particle_count = 34
+primary_color = Color(1, 0.78, 0.2, 1)
+secondary_color = Color(1, 0.18, 0.04, 1)
+
+[sub_resource type="Resource" id="ProjectileDef_bomb"]
+script = ExtResource("2_projectile_def")
+speed = 360.0
+lifetime = 2.6
+gravity = 260.0
+collision_query_mask = 5
+detonate_on_timeout = true
+impact_effects = Array[Resource]([SubResource("Explosion_bomb")])
+primary_color = Color(1, 0.58, 0.1, 1)
+secondary_color = Color(0.35, 0.08, 0.04, 1)
+core_pixel_size = 4.0
+trail_length = 9
+trail_spacing = 5.0
+impact_particle_count = 12
+impact_pixel_size = 2.0
+impact_particle_speed = 80.0
+trail_jitter = 1.4
+
+[sub_resource type="Resource" id="ProjectileEffect_bomb"]
+script = ExtResource("3_projectile_effect")
+projectile_def = SubResource("ProjectileDef_bomb")
+
+[resource]
+script = ExtResource("1_spell")
+spell_id = &"bomb"
+icon = ExtResource("99_icon")
+display_name = "Bomb"
+description = "Heavy arcing explosive that destroys terrain and damages actors in an area."
+mana_cost = 35.0
+cast_delay_add = 0.35
+spread_degrees = 1.0
+cast_effects = Array[Resource]([SubResource("ProjectileEffect_bomb")])
+muzzle_primary = Color(1, 0.68, 0.12, 1)
+muzzle_secondary = Color(0.5, 0.1, 0.04, 1)
+muzzle_particle_count = 12
