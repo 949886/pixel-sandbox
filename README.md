@@ -1,3 +1,11 @@
+> **Gameplay V4.4.3 Wand Visual / Native Refresh：** 修复 `WandGlyph.gd` 在 warnings-as-errors 下的类型推导编译错误；WANDS 快捷栏与展开 Wand 编辑行重新统一读取 `WandDef.visual_texture`，详情图标框固定为正方形并放大 Glyph；所有 Gameplay 版本文档迁入 `docs/`；`bin/fallingsand/` 已替换为最新提供的 Windows x86_64、Android arm64 与 Web wasm 编译产物。详见 `docs/GAMEPLAY_V4_4_3_WAND_VISUAL_NATIVE_REFRESH.md`。
+
+> **Gameplay V4.3 Wand Editor / Inventory / Spell Pickup UI：** Player 身上的临时 HUD 已完全移除，`World.tscn` 现在挂载独立 `GameplayUI` CanvasLayer。新 UI 提供 HP/Mana/Flight/Gold/Status、实时 Wand Deck、Recharge、死亡提示、Spell Pickup toast，以及可暂停 Gameplay 的 Wand Editor + 24 格 Spell Inventory。新增 `PlayerInventory`（4 Wand slots）、Spell 拖拽/点选交换、运行中 Deck 即时重建、638 张 16×16 Spell atlas 图标接入、世界 Spell Pickup 和 Cave Eye 随机法术掉落。`Tab/I` 打开编辑器，`Esc` 关闭。详见 `docs/GAMEPLAY_V4_3_WAND_EDITOR_INVENTORY_UI.md`。
+
+> **Gameplay V4.1 Wand & Pixel Spells：** 法杖参数已从 `Player.gd` 迁移到 `WandController / WandDef / SpellDef / GameplayEffect / ProjectileDef` 数据链。Starter Wand 默认提供 Spark Bolt、Dig Bolt、Fire Bolt、Bomb 四个验证法术，并新增 Mana HUD、1–4/鼠标滚轮切换。弹丸与施法特效采用整数像素对齐的方形核心、离散像素尾迹、枪口碎粒与撞击碎粒；Fire Bolt 还会向 SandSimulation 写入少量真实 Fire 像素，Bomb 同时作用于 Actor 与可破坏地形。视觉目标是低分辨率、模拟世界一致的像素颗粒感，而不是复刻 Noita 的具体贴图/特效资产。详见 `docs/GAMEPLAY_V4_1_WAND_PIXEL_SPELLS.md`。
+
+> **Gameplay V4.0 Foundation：** 当前主线切换到 Gameplay。新增统一 DamagePacket / HealthComponent / FactionComponent、Player HP 与死亡重生、共享 GameplayProjectile、Cave Eye 第一只远程敌人、Gold Pickup，以及 Water/Oil/Fire/Lava/Acid 驱动的 Wet/Oiled/Burning/Toxic 环境状态。Gameplay 通过 `WorldGameplayService` 访问像素世界，不依赖 Chunk/Sector 内部细节。详见 `docs/GAMEPLAY_V4_0_FOUNDATION.md`。
+
 > **V3.9.1 Native Block API Cleanup：** `SandSimulation` 的 16×16 Simulation Blocks 现在只暴露 `get_block()` / `set_block_size()`；旧 `get_chunk()` / `set_chunk_size()` 已从 C++ 与 GDScript API 中彻底删除。Active Block 调度逻辑保持 V3.9 不变。稳定的 INERT/MOVABLE 区域会在 4 个 quiet tick 后睡眠，`set_cell()`、爆炸、地形破坏与 API 9 Native Seam 会自动唤醒本 Block 与 3×3 邻域；REACTIVE/AUTONOMOUS 材料使用保守 Activity Policy 防止反应睡死。PC 的 3×3 simulation radius 现在统一使用 60Hz，依靠 Active Blocks 降低实际扫描量。请重新编译 `extensions/sand-slide`，并在 F1 确认 `native yes(api 11)` 与 `Active blocks: yes`。详见 `docs/NATIVE_BLOCK_API_CLEANUP_V3_9_1.md` 与 `docs/NATIVE_ACTIVE_BLOCKS_V3_9.md`。
 
 > **V3.8.1 Native Cross-Chunk Flow：** 液体、气体与显式 Powder 现在通过 API 9 Native Seam Bridge 跨 Chunk；移动端保留 `simulation_radius = 0`，正交邻居只保持 Warm，真实跨边界后临时唤醒。请重新编译 `extensions/sand-slide`，并在 F1 确认 `Native flow: yes` / `api 9`。V3.8.1 额外修复 MSVC 对 `std::min(int, int64_t)` 的严格模板推导错误；运行时 Native API 仍为 9。详见 `docs/NATIVE_CROSS_CHUNK_FLOW_V3_8.md` 与 `docs/MSVC_BUILD_FIX_V3_8_1.md`。
@@ -26,8 +34,10 @@ The runtime terrain generation path now uses 128px **Piece** units instead of
 
 ## Runtime controls
 
-- `WASD` / arrow keys: move player camera anchor
-- `+` / `-`: zoom
+- `A/D` / arrow keys: move; `W` / Space: jump and levitate; `S`: crouch / dive
+- Mouse: aim; left click: cast; `1`–`4` or mouse wheel: select spell
+- `Tab` / `I`: open the standalone Wand Editor / Spell Inventory; `Esc`: close
+- `F` / right click: kick; `+` / `-`: zoom
 - `F1`: toggle HUD
 - `F2`: toggle world debug overlay
 - `F3`: regenerate same seed
