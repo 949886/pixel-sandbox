@@ -699,22 +699,37 @@ func set_element_id_at_world_position(world_position: Vector2, element_id: int) 
 	return true
 
 func paint_material_circle(world_center: Vector2, radius: float, element_id: int, only_replace_air: bool = true) -> int:
-	## Intended for small spell residues, not bulk terrain generation. The radius is
-	## deliberately capped so Gameplay cannot accidentally create a per-frame full chunk loop.
-	var safe_radius := clampf(radius, 0.5, 12.0)
-	var min_pixel := Vector2i((world_center - Vector2.ONE * safe_radius).floor())
-	var max_pixel := Vector2i((world_center + Vector2.ONE * safe_radius).ceil())
-	var radius_squared := safe_radius * safe_radius
-	var changed := 0
+	# Creative replace-mode uses the native circle replacement path, one call per
+	# overlapped chunk. Small spell residues can still request air-only placement.
+	var safe_radius: float = clampf(radius, 0.5, 64.0)
+	var clamped_element: int = clampi(element_id, 0, 4096)
+	if not only_replace_air:
+		var min_chunk: Vector2i = world_pos_to_chunk(world_center - Vector2.ONE * safe_radius)
+		var max_chunk: Vector2i = world_pos_to_chunk(world_center + Vector2.ONE * safe_radius)
+		var native_changed: int = 0
+		for chunk_y: int in range(min_chunk.y, max_chunk.y + 1):
+			for chunk_x: int in range(min_chunk.x, max_chunk.x + 1):
+				var coord: Vector2i = Vector2i(chunk_x, chunk_y)
+				var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+				if canvas == null:
+					continue
+				var local_center: Vector2 = world_center - Vector2(coord * CHUNK_SIZE)
+				native_changed += canvas.erase_circle_local(local_center, safe_radius, clamped_element)
+		return native_changed
+	var small_radius: float = minf(safe_radius, 12.0)
+	var min_pixel: Vector2i = Vector2i((world_center - Vector2.ONE * small_radius).floor())
+	var max_pixel: Vector2i = Vector2i((world_center + Vector2.ONE * small_radius).ceil())
+	var radius_squared: float = small_radius * small_radius
+	var changed: int = 0
 	for world_y: int in range(min_pixel.y, max_pixel.y + 1):
 		for world_x: int in range(min_pixel.x, max_pixel.x + 1):
-			var pixel_center := Vector2(world_x + 0.5, world_y + 0.5)
+			var pixel_center: Vector2 = Vector2(world_x + 0.5, world_y + 0.5)
 			if pixel_center.distance_squared_to(world_center) > radius_squared:
 				continue
-			var position := Vector2(world_x, world_y)
-			if only_replace_air and get_element_id_at_world_position(position) != 0:
+			var position: Vector2 = Vector2(world_x, world_y)
+			if get_element_id_at_world_position(position) != 0:
 				continue
-			if set_element_id_at_world_position(position, element_id):
+			if set_element_id_at_world_position(position, clamped_element):
 				changed += 1
 	return changed
 

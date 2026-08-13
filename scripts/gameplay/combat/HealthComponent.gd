@@ -11,6 +11,7 @@ signal died(packet)
 
 var current_health: float = 0.0
 var dead: bool = false
+var invulnerable: bool = false
 var _invulnerability_remaining: float = 0.0
 
 func _ready() -> void:
@@ -21,7 +22,7 @@ func _physics_process(delta: float) -> void:
 	_invulnerability_remaining = maxf(0.0, _invulnerability_remaining - delta)
 
 func take_damage(packet: DamagePacket) -> float:
-	if dead or packet == null or packet.amount <= 0.0:
+	if dead or invulnerable or packet == null or packet.amount <= 0.0:
 		return 0.0
 	if _invulnerability_remaining > 0.0:
 		return 0.0

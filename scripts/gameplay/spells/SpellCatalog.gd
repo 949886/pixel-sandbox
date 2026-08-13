@@ -1,6 +1,8 @@
 class_name SpellCatalog
 extends RefCounted
 
+static var _cached_spells: Array[SpellDef] = []
+
 const SPELL_PATHS: PackedStringArray = [
 	"res://resources/gameplay/spells/spark_bolt.tres",
 	"res://resources/gameplay/spells/dig_bolt.tres",
@@ -37,12 +39,13 @@ const SPELL_PATHS: PackedStringArray = [
 ]
 
 static func all_spells() -> Array[SpellDef]:
-	var result: Array[SpellDef] = []
+	if not _cached_spells.is_empty():
+		return _cached_spells.duplicate()
 	for path: String in SPELL_PATHS:
-		var resource := load(path)
+		var resource: Resource = load(path) as Resource
 		if resource is SpellDef:
-			result.append(resource as SpellDef)
-	return result
+			_cached_spells.append(resource as SpellDef)
+	return _cached_spells.duplicate()
 
 static func random_spell(rng: RandomNumberGenerator = null, max_tier: int = 99) -> SpellDef:
 	var candidates: Array[SpellDef] = []

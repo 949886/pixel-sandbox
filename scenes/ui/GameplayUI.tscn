@@ -1,7 +1,501 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/gameplay/GameplayUI.gd" id="1_ui"]
+
+[sub_resource type="StyleBoxFlat" id="Style_vitals"]
+bg_color = Color(0.012, 0.012, 0.012, 0.76)
+
+[sub_resource type="StyleBoxFlat" id="Style_detail"]
+bg_color = Color(0.018, 0.014, 0.014, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.94, 0.63, 0.17, 1)
+
+[sub_resource type="StyleBoxFlat" id="Style_tooltip"]
+bg_color = Color(0.012, 0.01, 0.01, 0.985)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.94, 0.63, 0.17, 1)
+
+[sub_resource type="StyleBoxFlat" id="Style_drag"]
+bg_color = Color(0.075, 0.045, 0.026, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.94, 0.63, 0.17, 1)
+
+[sub_resource type="StyleBoxFlat" id="Style_toast"]
+bg_color = Color(0.018, 0.014, 0.014, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.94, 0.63, 0.17, 1)
+
+[sub_resource type="StyleBoxFlat" id="Style_bar_bg"]
+bg_color = Color(0.055, 0.045, 0.043, 0.95)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.1, 0.08, 0.07, 1)
+
+[sub_resource type="StyleBoxFlat" id="Style_hp"]
+bg_color = Color(0.43, 0.83, 0.24, 1)
+[sub_resource type="StyleBoxFlat" id="Style_mana"]
+bg_color = Color(0.2, 0.58, 0.95, 1)
+[sub_resource type="StyleBoxFlat" id="Style_fuel"]
+bg_color = Color(0.96, 0.72, 0.18, 1)
+
+[sub_resource type="StyleBoxFlat" id="Style_empty_slot"]
+bg_color = Color(0.035, 0.023, 0.022, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.2, 0.105, 0.085, 0.95)
 
 [node name="GameplayUI" type="CanvasLayer"]
 layer = 40
 script = ExtResource("1_ui")
+
+[node name="Root" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="QuickRoot" type="Control" parent="Root"]
+unique_name_in_owner = true
+z_index = 20
+layout_mode = 0
+offset_left = 14.0
+offset_top = 10.0
+offset_right = 1044.0
+offset_bottom = 82.0
+mouse_filter = 2
+
+[node name="Sections" type="HBoxContainer" parent="Root/QuickRoot"]
+layout_mode = 0
+theme_override_constants/separation = 10
+mouse_filter = 2
+
+[node name="WandSection" type="VBoxContainer" parent="Root/QuickRoot/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 2
+[node name="Label" type="Label" parent="Root/QuickRoot/Sections/WandSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "WANDS"
+[node name="WandQuickRow" type="HBoxContainer" parent="Root/QuickRoot/Sections/WandSection"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="ItemSection" type="VBoxContainer" parent="Root/QuickRoot/Sections"]
+layout_mode = 2
+theme_override_constants/separation = 2
+[node name="Label" type="Label" parent="Root/QuickRoot/Sections/ItemSection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "ITEMS"
+[node name="ItemQuickRow" type="HBoxContainer" parent="Root/QuickRoot/Sections/ItemSection"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="Item1" type="PanelContainer" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+tooltip_text = "Item slot 1 · item system coming later"
+theme_override_styles/panel = SubResource("Style_empty_slot")
+[node name="Mark" type="Label" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow/Item1"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.105, 0.085, 0.95)
+theme_override_font_sizes/font_size = 15
+text = "·"
+horizontal_alignment = 1
+vertical_alignment = 1
+[node name="Item2" type="PanelContainer" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+tooltip_text = "Item slot 2 · item system coming later"
+theme_override_styles/panel = SubResource("Style_empty_slot")
+[node name="Mark" type="Label" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow/Item2"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.105, 0.085, 0.95)
+theme_override_font_sizes/font_size = 15
+text = "·"
+horizontal_alignment = 1
+vertical_alignment = 1
+[node name="Item3" type="PanelContainer" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+tooltip_text = "Item slot 3 · item system coming later"
+theme_override_styles/panel = SubResource("Style_empty_slot")
+[node name="Mark" type="Label" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow/Item3"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.105, 0.085, 0.95)
+theme_override_font_sizes/font_size = 15
+text = "·"
+horizontal_alignment = 1
+vertical_alignment = 1
+[node name="Item4" type="PanelContainer" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow"]
+custom_minimum_size = Vector2(38, 38)
+layout_mode = 2
+tooltip_text = "Item slot 4 · item system coming later"
+theme_override_styles/panel = SubResource("Style_empty_slot")
+[node name="Mark" type="Label" parent="Root/QuickRoot/Sections/ItemSection/ItemQuickRow/Item4"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.105, 0.085, 0.95)
+theme_override_font_sizes/font_size = 15
+text = "·"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpellInventorySection" type="VBoxContainer" parent="Root/QuickRoot/Sections"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 2
+[node name="Label" type="Label" parent="Root/QuickRoot/Sections/SpellInventorySection"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 13
+text = "SPELLS"
+[node name="SpellInventoryGrid" type="GridContainer" parent="Root/QuickRoot/Sections/SpellInventorySection"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 12
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+
+[node name="HUD" type="VBoxContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -246.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = 192.0
+grow_horizontal = 0
+theme_override_constants/separation = 3
+mouse_filter = 2
+
+[node name="Vitals" type="PanelContainer" parent="Root/HUD"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_vitals")
+[node name="VitalsBox" type="VBoxContainer" parent="Root/HUD/Vitals"]
+layout_mode = 2
+theme_override_constants/separation = 2
+
+[node name="HealthRow" type="HBoxContainer" parent="Root/HUD/Vitals/VitalsBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+[node name="Icon" type="Label" parent="Root/HUD/Vitals/VitalsBox/HealthRow"]
+custom_minimum_size = Vector2(14, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.43, 0.83, 0.24, 1)
+theme_override_font_sizes/font_size = 11
+text = "♥"
+[node name="HealthBar" type="ProgressBar" parent="Root/HUD/Vitals/VitalsBox/HealthRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(118, 6)
+layout_mode = 2
+size_flags_horizontal = 3
+show_percentage = false
+theme_override_styles/background = SubResource("Style_bar_bg")
+theme_override_styles/fill = SubResource("Style_hp")
+[node name="HealthText" type="Label" parent="Root/HUD/Vitals/VitalsBox/HealthRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 2
+
+[node name="ManaRow" type="HBoxContainer" parent="Root/HUD/Vitals/VitalsBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+[node name="Icon" type="Label" parent="Root/HUD/Vitals/VitalsBox/ManaRow"]
+custom_minimum_size = Vector2(14, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.58, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "◆"
+[node name="ManaBar" type="ProgressBar" parent="Root/HUD/Vitals/VitalsBox/ManaRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(118, 6)
+layout_mode = 2
+size_flags_horizontal = 3
+show_percentage = false
+theme_override_styles/background = SubResource("Style_bar_bg")
+theme_override_styles/fill = SubResource("Style_mana")
+[node name="ManaText" type="Label" parent="Root/HUD/Vitals/VitalsBox/ManaRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 2
+
+[node name="FuelRow" type="HBoxContainer" parent="Root/HUD/Vitals/VitalsBox"]
+layout_mode = 2
+theme_override_constants/separation = 5
+[node name="Icon" type="Label" parent="Root/HUD/Vitals/VitalsBox/FuelRow"]
+custom_minimum_size = Vector2(14, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.96, 0.72, 0.18, 1)
+theme_override_font_sizes/font_size = 11
+text = "↑"
+[node name="FuelBar" type="ProgressBar" parent="Root/HUD/Vitals/VitalsBox/FuelRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(118, 6)
+layout_mode = 2
+size_flags_horizontal = 3
+show_percentage = false
+theme_override_styles/background = SubResource("Style_bar_bg")
+theme_override_styles/fill = SubResource("Style_fuel")
+[node name="FuelText" type="Label" parent="Root/HUD/Vitals/VitalsBox/FuelRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 2
+
+[node name="GoldLabel" type="Label" parent="Root/HUD"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 2
+
+[node name="StatusBox" type="VBoxContainer" parent="Root/HUD"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 1
+alignment = 2
+
+[node name="InventoryLayer" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+visible = false
+z_index = 5
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0, 0, 0, 0.16)
+
+[node name="EditorRoot" type="Control" parent="Root/InventoryLayer"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 14.0
+offset_top = 92.0
+offset_right = 784.0
+offset_bottom = 612.0
+
+[node name="WandRows" type="VBoxContainer" parent="Root/InventoryLayer/EditorRoot"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_right = 770.0
+offset_bottom = 500.0
+theme_override_constants/separation = 6
+
+[node name="WandDetailPanel" type="PanelContainer" parent="Root/InventoryLayer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 806.0
+offset_top = 92.0
+offset_right = 1106.0
+offset_bottom = 92.0
+custom_minimum_size = Vector2(300, 0)
+theme_override_styles/panel = SubResource("Style_detail")
+[node name="Margin" type="MarginContainer" parent="Root/InventoryLayer/WandDetailPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+[node name="Box" type="VBoxContainer" parent="Root/InventoryLayer/WandDetailPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+[node name="WandDetailTitle" type="Label" parent="Root/InventoryLayer/WandDetailPanel/Margin/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 15
+[node name="WandDetailBody" type="Label" parent="Root/InventoryLayer/WandDetailPanel/Margin/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 12
+autowrap_mode = 2
+
+[node name="CloseHint" type="Label" parent="Root/InventoryLayer"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 3
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = -42.0
+offset_right = 774.0
+offset_bottom = -18.0
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.61, 0.57, 0.5, 1)
+theme_override_font_sizes/font_size = 10
+text = "TAB / I  CLOSE INVENTORY     ·     DRAG SPELLS BETWEEN WAND AND SPELL INVENTORY"
+
+[node name="SpellTooltip" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+z_index = 50
+custom_minimum_size = Vector2(286, 0)
+layout_mode = 0
+offset_right = 286.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_tooltip")
+[node name="Margin" type="MarginContainer" parent="Root/SpellTooltip"]
+layout_mode = 2
+theme_override_constants/margin_left = 9
+theme_override_constants/margin_top = 9
+theme_override_constants/margin_right = 9
+theme_override_constants/margin_bottom = 9
+[node name="Box" type="VBoxContainer" parent="Root/SpellTooltip/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+[node name="Head" type="HBoxContainer" parent="Root/SpellTooltip/Margin/Box"]
+layout_mode = 2
+theme_override_constants/separation = 8
+[node name="TooltipIcon" type="TextureRect" parent="Root/SpellTooltip/Margin/Box/Head"]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+[node name="Names" type="VBoxContainer" parent="Root/SpellTooltip/Margin/Box/Head"]
+layout_mode = 2
+size_flags_horizontal = 3
+[node name="TooltipTitle" type="Label" parent="Root/SpellTooltip/Margin/Box/Head/Names"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 14
+[node name="TooltipKind" type="Label" parent="Root/SpellTooltip/Margin/Box/Head/Names"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.61, 0.57, 0.5, 1)
+theme_override_font_sizes/font_size = 10
+[node name="TooltipBody" type="Label" parent="Root/SpellTooltip/Margin/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 2
+
+[node name="ToastPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+z_index = 60
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 0.5
+offset_left = -132.0
+offset_top = 22.0
+offset_right = 132.0
+offset_bottom = 70.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("Style_toast")
+[node name="Row" type="HBoxContainer" parent="Root/ToastPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+[node name="ToastIcon" type="TextureRect" parent="Root/ToastPanel/Row"]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+[node name="ToastLabel" type="Label" parent="Root/ToastPanel/Row"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.92, 0.9, 0.82, 1)
+theme_override_font_sizes/font_size = 11
+vertical_alignment = 1
+
+[node name="DeathLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -190.0
+offset_top = -48.0
+offset_right = 190.0
+offset_bottom = 48.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.98, 0.27, 0.22, 1)
+theme_override_font_sizes/font_size = 30
+text = "YOU DIED"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DragLayer" type="CanvasLayer" parent="."]
+unique_name_in_owner = true
+layer = 120
+process_mode = 3
+[node name="DragRoot" type="Control" parent="DragLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+[node name="DragPreviewPanel" type="PanelContainer" parent="DragLayer/DragRoot"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_right = 52.0
+offset_bottom = 52.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("Style_drag")
+[node name="Center" type="CenterContainer" parent="DragLayer/DragRoot/DragPreviewPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+[node name="DragPreviewIcon" type="TextureRect" parent="DragLayer/DragRoot/DragPreviewPanel/Center"]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5

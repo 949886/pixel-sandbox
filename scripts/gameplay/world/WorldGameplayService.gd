@@ -53,3 +53,8 @@ func paint_material_circle(world_center: Vector2, radius: float, element_id: int
 	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("paint_material_circle"):
 		return int(world_manager.call("paint_material_circle", world_center, radius, element_id, only_replace_air))
 	return 0
+
+func material_palette() -> MaterialPalette:
+	if world_manager == null or not is_instance_valid(world_manager):
+		return null
+	return world_manager.get("material_palette") as MaterialPalette

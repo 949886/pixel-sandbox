@@ -47,9 +47,3 @@ static func label(label: Label, size: int = 12, color: Color = TEXT) -> Label:
 	label.add_theme_constant_override("shadow_offset_x", 1)
 	label.add_theme_constant_override("shadow_offset_y", 1)
 	return label
-
-static func section_label(text: String) -> Label:
-	var result := Label.new()
-	result.text = text.to_upper()
-	label(result, 13, TEXT)
-	return result

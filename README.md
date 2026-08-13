@@ -1,3 +1,9 @@
+> **Gameplay V4.5.2 Scene UI + Creative Input Arbitration：** 修复 Creative MATERIALS 绘制时仍会同时发射 Wand 的输入冲突；`GameModeManager` 现在负责 Gameplay/Creative primary-action 仲裁，Material Brush 选中时独占左键。与此同时，GameplayUI 与 CreativeUI 的固定界面已迁移到 `.tscn`，SpellSlot、WandGlyph、Wand Row、Wand Quick Slot、Material Tile、Creative Spell Tile 都改为可复用 PackedScene；UI 脚本只负责数据绑定、显隐、信号与拖拽逻辑，不再通过 `Button.new()/PanelContainer.new()/Label.new()` 构建界面。详见 `docs/GAMEPLAY_V4_5_2_SCENE_UI_INPUT_ARBITRATION.md`。
+
+> **Gameplay V4.5.1 Painting Creative UI：** Creative Mode 的视觉层已完全切换到项目 `painting` 模块的 UI 家族：直接复用 `painting/ui/_theme/theme.tres`、Poppins、灰紫面板、4px 圆角、Painting 按钮/Toggle/ScrollBar，以及橙色选中反馈；Brush / Erase / Pick 复用 Painting 图标。MATERIALS、SPELLS、WANDS、PLAYER、WORLD 的功能仍沿用 V4.5 的 Native Brush / 无限 Spell Library / Runtime Wand Lab 架构，Normal Gameplay UI 继续保持原 Noita-like 风格。详见 `docs/GAMEPLAY_V4_5_1_PAINTING_CREATIVE_UI.md`。
+
+> **Gameplay V4.5 Creative Sandbox + Wand Lab：** 新增正式 `GameModeManager / GameRules`，F8 可在开发阶段切换 Normal / Creative。Creative Mode 使用参考 Painting 模块的底部 Dock：MATERIALS 提供 Native 圆刷/擦除/取样，SPELLS 提供无限 SpellCatalog 与拖拽到当前 Wand，WANDS 可创建/复制/删除 runtime Wand 并实时编辑 Mana、Recharge、Cast Delay、Capacity、Spread、Multicast、Shuffle，PLAYER 可切换无敌、无限 Mana/Flight 与无碰撞自由飞行。创造模式不修改原始 `.tres`，地图批量绘制走 fallingsand Native circle replacement，避免逐像素 GDScript 绘制。详见 `docs/GAMEPLAY_V4_5_CREATIVE_SANDBOX_WAND_LAB.md`。
+
 > **Gameplay V4.4.3 Wand Visual / Native Refresh：** 修复 `WandGlyph.gd` 在 warnings-as-errors 下的类型推导编译错误；WANDS 快捷栏与展开 Wand 编辑行重新统一读取 `WandDef.visual_texture`，详情图标框固定为正方形并放大 Glyph；所有 Gameplay 版本文档迁入 `docs/`；`bin/fallingsand/` 已替换为最新提供的 Windows x86_64、Android arm64 与 Web wasm 编译产物。详见 `docs/GAMEPLAY_V4_4_3_WAND_VISUAL_NATIVE_REFRESH.md`。
 
 > **Gameplay V4.3 Wand Editor / Inventory / Spell Pickup UI：** Player 身上的临时 HUD 已完全移除，`World.tscn` 现在挂载独立 `GameplayUI` CanvasLayer。新 UI 提供 HP/Mana/Flight/Gold/Status、实时 Wand Deck、Recharge、死亡提示、Spell Pickup toast，以及可暂停 Gameplay 的 Wand Editor + 24 格 Spell Inventory。新增 `PlayerInventory`（4 Wand slots）、Spell 拖拽/点选交换、运行中 Deck 即时重建、638 张 16×16 Spell atlas 图标接入、世界 Spell Pickup 和 Cave Eye 随机法术掉落。`Tab/I` 打开编辑器，`Esc` 关闭。详见 `docs/GAMEPLAY_V4_3_WAND_EDITOR_INVENTORY_UI.md`。
@@ -35,8 +41,9 @@ The runtime terrain generation path now uses 128px **Piece** units instead of
 ## Runtime controls
 
 - `A/D` / arrow keys: move; `W` / Space: jump and levitate; `S`: crouch / dive
-- Mouse: aim; left click: cast; `1`–`4` or mouse wheel: select spell
-- `Tab` / `I`: open the standalone Wand Editor / Spell Inventory; `Esc`: close
+- Mouse: aim; left click: cast; `1`–`4` or mouse wheel: select Wand
+- `Tab` / `I`: Normal mode opens Wand Editor / Spell Inventory; Creative mode collapses/expands the Creative Dock
+- `F8`: toggle Creative Mode (development shortcut)
 - `F` / right click: kick; `+` / `-`: zoom
 - `F1`: toggle HUD
 - `F2`: toggle world debug overlay

@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/gameplay/WandQuickSlot.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shared/WandGlyph.tscn" id="2"]
+
+[node name="WandQuickSlot" type="Button"]
+custom_minimum_size = Vector2(38, 38)
+focus_mode = 0
+script = ExtResource("1")
+
+[node name="WandGlyph" parent="." instance=ExtResource("2")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="KeyLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 2.0
+offset_right = 16.0
+offset_bottom = 12.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.61, 0.57, 0.5, 1)
+theme_override_font_sizes/font_size = 8

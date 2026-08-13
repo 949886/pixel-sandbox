@@ -7,6 +7,10 @@ const SPELL_INVENTORY_COLUMNS := 12
 const WAND_SPELL_COLUMNS := 12
 const SPELL_SLOT_PITCH := 40.0
 const DRAG_OVERLAY_LAYER := 120
+const SPELL_SLOT_SCENE: PackedScene = preload("res://scenes/ui/shared/SpellSlot.tscn")
+const WAND_ROW_SCENE: PackedScene = preload("res://scenes/ui/shared/WandRowUI.tscn")
+const WAND_QUICK_SLOT_SCENE: PackedScene = preload("res://scenes/ui/shared/WandQuickSlot.tscn")
+const STATUS_LABEL_SCENE: PackedScene = preload("res://scenes/ui/shared/StatusLabel.tscn")
 
 var _player: Node
 var _health: HealthComponent
@@ -61,7 +65,7 @@ func _ready() -> void:
 	layer = 40
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_input_actions()
-	_build_ui()
+	_bind_scene_nodes()
 	call_deferred("_bind_player")
 
 func _exit_tree() -> void:
@@ -85,6 +89,10 @@ func _process(_delta: float) -> void:
 			_position_spell_tooltip()
 
 func _input(event: InputEvent) -> void:
+	if _creative_mode_active():
+		if _inventory_open:
+			set_inventory_open(false)
+		return
 	if event.is_action_pressed(&"inventory_toggle"):
 		toggle_inventory()
 		get_viewport().set_input_as_handled()
@@ -148,254 +156,40 @@ func _bind_player() -> void:
 		_inventory.inventory_full.connect(_on_inventory_full)
 	_refresh_all()
 
-func _build_ui() -> void:
-	_root = Control.new()
-	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_root)
-	_build_world_hud()
-	_build_inventory_layer()
-	_build_quick_inventory()
-	_build_spell_tooltip()
-	_build_drag_overlay()
-	_build_toast()
-	_build_death_overlay()
+func _bind_scene_nodes() -> void:
+	_root = %Root
+	_quick_root = %QuickRoot
+	_wand_quick_row = %WandQuickRow
+	_spell_inventory_section = %SpellInventorySection
+	_spell_inventory_grid = %SpellInventoryGrid
+	_inventory_layer = %InventoryLayer
+	_editor_root = %EditorRoot
+	_wand_rows = %WandRows
+	_wand_detail_panel = %WandDetailPanel
+	_wand_detail_title = %WandDetailTitle
+	_wand_detail_body = %WandDetailBody
+	_spell_tooltip = %SpellTooltip
+	_tooltip_icon = %TooltipIcon
+	_tooltip_title = %TooltipTitle
+	_tooltip_kind = %TooltipKind
+	_tooltip_body = %TooltipBody
+	_close_hint = %CloseHint
+	_health_bar = %HealthBar
+	_health_text = %HealthText
+	_mana_bar = %ManaBar
+	_mana_text = %ManaText
+	_fuel_bar = %FuelBar
+	_fuel_text = %FuelText
+	_gold_label = %GoldLabel
+	_status_box = %StatusBox
+	_death_label = %DeathLabel
+	_toast_panel = %ToastPanel
+	_toast_icon = %ToastIcon
+	_toast_label = %ToastLabel
+	_drag_layer = %DragLayer
+	_drag_preview_panel = %DragPreviewPanel
+	_drag_preview_icon = %DragPreviewIcon
 
-# -----------------------------------------------------------------------------
-# Noita-inspired world HUD: quick inventory at top-left, vitals at top-right.
-# No large bottom combat panel; the world stays visually dominant.
-# -----------------------------------------------------------------------------
-func _build_quick_inventory() -> void:
-	_quick_root = Control.new()
-	_quick_root.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	_quick_root.position = Vector2(14, 10)
-	_quick_root.size = Vector2(1030, 72)
-	_quick_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_quick_root.z_index = 20
-	_root.add_child(_quick_root)
-
-	var sections := HBoxContainer.new()
-	sections.add_theme_constant_override("separation", 10)
-	sections.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_quick_root.add_child(sections)
-
-	var wand_section := VBoxContainer.new()
-	wand_section.add_theme_constant_override("separation", 2)
-	sections.add_child(wand_section)
-	wand_section.add_child(NoitaUITheme.section_label("WANDS"))
-	_wand_quick_row = HBoxContainer.new()
-	_wand_quick_row.add_theme_constant_override("separation", 2)
-	wand_section.add_child(_wand_quick_row)
-
-	var item_section := VBoxContainer.new()
-	item_section.add_theme_constant_override("separation", 2)
-	sections.add_child(item_section)
-	item_section.add_child(NoitaUITheme.section_label("ITEMS"))
-	_item_quick_row = HBoxContainer.new()
-	_item_quick_row.add_theme_constant_override("separation", 2)
-	item_section.add_child(_item_quick_row)
-	for index: int in range(4):
-		_item_quick_row.add_child(_make_empty_item_slot(index))
-
-	_spell_inventory_section = VBoxContainer.new()
-	_spell_inventory_section.add_theme_constant_override("separation", 2)
-	_spell_inventory_section.visible = false
-	sections.add_child(_spell_inventory_section)
-	_spell_inventory_section.add_child(NoitaUITheme.section_label("SPELLS"))
-	_spell_inventory_grid = GridContainer.new()
-	_spell_inventory_grid.columns = 12
-	_spell_inventory_grid.add_theme_constant_override("h_separation", 2)
-	_spell_inventory_grid.add_theme_constant_override("v_separation", 2)
-	_spell_inventory_section.add_child(_spell_inventory_grid)
-
-func _build_world_hud() -> void:
-	var hud := VBoxContainer.new()
-	hud.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	hud.position = Vector2(-246, 12)
-	hud.size = Vector2(230, 180)
-	hud.add_theme_constant_override("separation", 3)
-	hud.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_root.add_child(hud)
-
-	var vitals := PanelContainer.new()
-	vitals.add_theme_stylebox_override("panel", NoitaUITheme.box(Color(0.012, 0.012, 0.012, 0.76), Color(0, 0, 0, 0), 0))
-	hud.add_child(vitals)
-	var vitals_box := VBoxContainer.new()
-	vitals_box.add_theme_constant_override("separation", 2)
-	vitals.add_child(vitals_box)
-	_health_bar = _make_thin_bar(NoitaUITheme.HP)
-	_health_text = _make_vital_row(vitals_box, "♥", _health_bar, NoitaUITheme.HP)
-	_mana_bar = _make_thin_bar(NoitaUITheme.MANA)
-	_mana_text = _make_vital_row(vitals_box, "◆", _mana_bar, NoitaUITheme.MANA)
-	_fuel_bar = _make_thin_bar(NoitaUITheme.FUEL)
-	_fuel_text = _make_vital_row(vitals_box, "↑", _fuel_bar, NoitaUITheme.FUEL)
-
-	_gold_label = Label.new()
-	_gold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	NoitaUITheme.label(_gold_label, 12, NoitaUITheme.TEXT)
-	hud.add_child(_gold_label)
-
-	_status_box = VBoxContainer.new()
-	_status_box.alignment = BoxContainer.ALIGNMENT_END
-	_status_box.add_theme_constant_override("separation", 1)
-	hud.add_child(_status_box)
-
-func _build_inventory_layer() -> void:
-	_inventory_layer = ColorRect.new()
-	_inventory_layer.color = Color(0, 0, 0, 0.16)
-	_inventory_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	_inventory_layer.mouse_filter = Control.MOUSE_FILTER_STOP
-	_inventory_layer.visible = false
-	_inventory_layer.z_index = 5
-	_root.add_child(_inventory_layer)
-
-	# Wand editor stack sits directly over the world instead of inside a huge centered modal.
-	_editor_root = Control.new()
-	_editor_root.position = Vector2(14, 92)
-	_editor_root.size = Vector2(770, 520)
-	_inventory_layer.add_child(_editor_root)
-
-	_wand_rows = VBoxContainer.new()
-	_wand_rows.size = Vector2(770, 500)
-	_wand_rows.add_theme_constant_override("separation", 6)
-	_editor_root.add_child(_wand_rows)
-
-	_wand_detail_panel = PanelContainer.new()
-	_wand_detail_panel.position = Vector2(806, 92)
-	_wand_detail_panel.custom_minimum_size = Vector2(300, 0)
-	_wand_detail_panel.size = Vector2(300, 0)
-	_wand_detail_panel.visible = false
-	_wand_detail_panel.add_theme_stylebox_override("panel", NoitaUITheme.box(NoitaUITheme.BG, NoitaUITheme.AMBER, 1))
-	_inventory_layer.add_child(_wand_detail_panel)
-	var detail_margin := MarginContainer.new()
-	_set_margins(detail_margin, 10)
-	_wand_detail_panel.add_child(detail_margin)
-	var detail_box := VBoxContainer.new()
-	detail_box.add_theme_constant_override("separation", 6)
-	detail_margin.add_child(detail_box)
-	_wand_detail_title = Label.new()
-	NoitaUITheme.label(_wand_detail_title, 15, NoitaUITheme.TEXT)
-	detail_box.add_child(_wand_detail_title)
-	_wand_detail_body = Label.new()
-	_wand_detail_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	NoitaUITheme.label(_wand_detail_body, 12, NoitaUITheme.TEXT)
-	detail_box.add_child(_wand_detail_body)
-
-	_close_hint = Label.new()
-	_close_hint.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-	_close_hint.position = Vector2(14, -42)
-	_close_hint.size = Vector2(760, 24)
-	_close_hint.text = "TAB / I  CLOSE INVENTORY     ·     DRAG SPELLS BETWEEN WAND AND SPELL INVENTORY"
-	NoitaUITheme.label(_close_hint, 10, NoitaUITheme.MUTED)
-	_inventory_layer.add_child(_close_hint)
-
-func _build_spell_tooltip() -> void:
-	_spell_tooltip = PanelContainer.new()
-	_spell_tooltip.custom_minimum_size = Vector2(286, 0)
-	_spell_tooltip.size = Vector2(286, 0)
-	_spell_tooltip.z_index = 50
-	_spell_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_spell_tooltip.visible = false
-	_spell_tooltip.add_theme_stylebox_override("panel", NoitaUITheme.box(Color(0.012, 0.010, 0.010, 0.985), NoitaUITheme.AMBER, 1))
-	_root.add_child(_spell_tooltip)
-	var margin := MarginContainer.new()
-	_set_margins(margin, 9)
-	_spell_tooltip.add_child(margin)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 4)
-	margin.add_child(box)
-	var head := HBoxContainer.new()
-	head.add_theme_constant_override("separation", 8)
-	box.add_child(head)
-	_tooltip_icon = TextureRect.new()
-	_tooltip_icon.custom_minimum_size = Vector2(44, 44)
-	_tooltip_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_tooltip_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_tooltip_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	head.add_child(_tooltip_icon)
-	var names := VBoxContainer.new()
-	names.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	head.add_child(names)
-	_tooltip_title = Label.new()
-	NoitaUITheme.label(_tooltip_title, 14, NoitaUITheme.TEXT)
-	names.add_child(_tooltip_title)
-	_tooltip_kind = Label.new()
-	NoitaUITheme.label(_tooltip_kind, 10, NoitaUITheme.MUTED)
-	names.add_child(_tooltip_kind)
-	_tooltip_body = Label.new()
-	_tooltip_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	NoitaUITheme.label(_tooltip_body, 11, NoitaUITheme.TEXT)
-	box.add_child(_tooltip_body)
-
-func _build_drag_overlay() -> void:
-	# Native Control drag previews can be occluded by higher-z inventory controls.
-	# Render the dragged spell in its own CanvasLayer so it is always visible.
-	_drag_layer = CanvasLayer.new()
-	_drag_layer.layer = DRAG_OVERLAY_LAYER
-	_drag_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(_drag_layer)
-	var drag_root := Control.new()
-	drag_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	drag_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_drag_layer.add_child(drag_root)
-	_drag_preview_panel = PanelContainer.new()
-	_drag_preview_panel.size = Vector2(52, 52)
-	_drag_preview_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_drag_preview_panel.visible = false
-	_drag_preview_panel.add_theme_stylebox_override("panel", NoitaUITheme.highlighted_box())
-	drag_root.add_child(_drag_preview_panel)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_drag_preview_panel.add_child(center)
-	_drag_preview_icon = TextureRect.new()
-	_drag_preview_icon.custom_minimum_size = Vector2(40, 40)
-	_drag_preview_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_drag_preview_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_drag_preview_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_drag_preview_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.add_child(_drag_preview_icon)
-
-func _build_toast() -> void:
-	_toast_panel = PanelContainer.new()
-	_toast_panel.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_toast_panel.position = Vector2(-132, 22)
-	_toast_panel.size = Vector2(264, 48)
-	_toast_panel.add_theme_stylebox_override("panel", NoitaUITheme.box(Color(0.018, 0.014, 0.014, 0.96), NoitaUITheme.AMBER, 1))
-	_toast_panel.visible = false
-	_toast_panel.z_index = 60
-	_root.add_child(_toast_panel)
-	var h := HBoxContainer.new()
-	h.add_theme_constant_override("separation", 8)
-	_toast_panel.add_child(h)
-	_toast_icon = TextureRect.new()
-	_toast_icon.custom_minimum_size = Vector2(40, 40)
-	_toast_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_toast_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_toast_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	h.add_child(_toast_icon)
-	_toast_label = Label.new()
-	_toast_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_toast_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	NoitaUITheme.label(_toast_label, 11, NoitaUITheme.TEXT)
-	h.add_child(_toast_label)
-
-func _build_death_overlay() -> void:
-	_death_label = Label.new()
-	_death_label.set_anchors_preset(Control.PRESET_CENTER)
-	_death_label.position = Vector2(-190, -48)
-	_death_label.size = Vector2(380, 96)
-	_death_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_death_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_death_label.text = "YOU DIED"
-	NoitaUITheme.label(_death_label, 30, NoitaUITheme.DANGER)
-	_death_label.visible = false
-	_death_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_root.add_child(_death_label)
-
-# -----------------------------------------------------------------------------
-# Refresh / construction helpers
-# -----------------------------------------------------------------------------
 func _refresh_all() -> void:
 	if _player == null:
 		return
@@ -457,118 +251,40 @@ func _refresh_inventory_editor() -> void:
 	_show_wand_detail(_wand_for_detail())
 
 func _build_wand_row(index: int, wand: WandDef) -> Control:
-	var row := PanelContainer.new()
-	row.custom_minimum_size = Vector2(770, 78)
-	var active := index == _editor_wand_index
-	var equipped := _inventory != null and index == _inventory.equipped_wand_index
-	row.add_theme_stylebox_override("panel", NoitaUITheme.highlighted_box() if active else NoitaUITheme.box(NoitaUITheme.BG, NoitaUITheme.BORDER, 1))
-	row.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	row.gui_input.connect(_on_wand_row_input.bind(index))
-	row.mouse_entered.connect(_on_wand_row_hover.bind(index, true))
-	row.mouse_exited.connect(_on_wand_row_hover.bind(index, false))
-
-	var margin := MarginContainer.new()
-	_set_margins(margin, 6)
-	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(margin)
-	var h := HBoxContainer.new()
-	h.add_theme_constant_override("separation", 8)
-	margin.add_child(h)
-
-	var glyph_frame := PanelContainer.new()
-	glyph_frame.custom_minimum_size = Vector2(56, 56)
-	glyph_frame.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	glyph_frame.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	glyph_frame.add_theme_stylebox_override("panel", NoitaUITheme.box(NoitaUITheme.BG_SLOT, NoitaUITheme.AMBER if equipped else NoitaUITheme.BORDER_DIM, 1))
-	h.add_child(glyph_frame)
-	var glyph_center := CenterContainer.new()
-	glyph_center.custom_minimum_size = Vector2(56, 56)
-	glyph_center.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	glyph_center.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	glyph_frame.add_child(glyph_center)
-	var glyph := WandGlyph.new()
-	glyph.custom_minimum_size = Vector2(48, 48)
-	glyph.setup(wand, equipped)
-	glyph_center.add_child(glyph)
-
-	var summary := VBoxContainer.new()
-	summary.custom_minimum_size.x = 146
-	summary.add_theme_constant_override("separation", 2)
-	h.add_child(summary)
-	var title := Label.new()
-	title.text = ("%d  " % (index + 1)) + (wand.display_name if wand != null else "EMPTY")
-	NoitaUITheme.label(title, 12, NoitaUITheme.TEXT if wand != null else NoitaUITheme.MUTED)
-	summary.add_child(title)
-	var shuffle := Label.new()
-	shuffle.text = "Shuffle       %s" % ("Yes" if wand != null and wand.shuffle else "No")
-	NoitaUITheme.label(shuffle, 10, NoitaUITheme.TEXT)
-	summary.add_child(shuffle)
-	var cast_count := Label.new()
-	cast_count.text = "Spells/Cast   %d" % (maxi(1, wand.multicast) if wand != null else 0)
-	NoitaUITheme.label(cast_count, 10, NoitaUITheme.TEXT)
-	summary.add_child(cast_count)
-
-	# Wand spell slots wrap into additional rows. There is intentionally no
-	# horizontal scrollbar: capacity is visible at a glance, like Noita's editor.
-	var spell_grid := GridContainer.new()
-	spell_grid.columns = WAND_SPELL_COLUMNS
-	spell_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	spell_grid.add_theme_constant_override("h_separation", 2)
-	spell_grid.add_theme_constant_override("v_separation", 2)
-	h.add_child(spell_grid)
-	if wand != null:
-		for slot_index: int in range(_inventory.wand_capacity(index)):
-			var location := {"area": &"wand", "wand": index, "slot": slot_index}
-			_add_spell_slot(spell_grid, location, _inventory.wand_slot_spell(index, slot_index), "", false)
-	else:
-		var empty := Label.new()
-		empty.text = "EMPTY WAND SLOT"
-		NoitaUITheme.label(empty, 10, NoitaUITheme.MUTED)
-		spell_grid.add_child(empty)
+	var row: WandRowUI = WAND_ROW_SCENE.instantiate() as WandRowUI
+	row.setup(
+		index,
+		wand,
+		_inventory,
+		index == _editor_wand_index,
+		_inventory != null and index == _inventory.equipped_wand_index,
+		_selected_location
+	)
+	row.row_pressed.connect(_select_wand_row)
+	row.hover_changed.connect(_on_wand_row_hover)
+	row.slot_pressed.connect(_on_slot_pressed)
+	row.spell_dropped.connect(_on_spell_dropped)
+	row.slot_hover_changed.connect(_on_slot_hover_changed)
+	row.quick_move_requested.connect(_on_quick_move_requested)
+	row.drag_visual_started.connect(_on_drag_visual_started)
 	return row
 
-func _make_wand_quick_slot(index: int, wand: WandDef, equipped: bool) -> Control:
-	var button := Button.new()
-	button.custom_minimum_size = Vector2(SLOT, SLOT)
-	button.focus_mode = Control.FOCUS_NONE
-	button.disabled = wand == null
-	button.add_theme_stylebox_override("normal", NoitaUITheme.highlighted_box() if equipped else NoitaUITheme.box(NoitaUITheme.BG_SLOT, NoitaUITheme.BORDER, 1))
-	button.add_theme_stylebox_override("hover", NoitaUITheme.hover_box())
-	button.add_theme_stylebox_override("pressed", NoitaUITheme.highlighted_box())
-	button.add_theme_stylebox_override("disabled", NoitaUITheme.empty_box())
-	button.pressed.connect(_equip_wand_from_quickbar.bind(index))
-	button.mouse_entered.connect(_on_wand_row_hover.bind(index, true))
-	button.mouse_exited.connect(_on_wand_row_hover.bind(index, false))
-	var glyph := WandGlyph.new()
-	glyph.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	glyph.setup(wand, equipped)
-	button.add_child(glyph)
-	var key := Label.new()
-	key.position = Vector2(2, 0)
-	key.size = Vector2(14, 12)
-	key.text = str(index + 1)
-	NoitaUITheme.label(key, 8, NoitaUITheme.MUTED)
-	key.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(key)
-	return button
+func _select_wand_row(index: int) -> void:
+	_editor_wand_index = index
+	_selected_location.clear()
+	_refresh_inventory_editor()
 
-func _make_empty_item_slot(index: int) -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(SLOT, SLOT)
-	panel.add_theme_stylebox_override("panel", NoitaUITheme.empty_box())
-	panel.tooltip_text = "Item slot %d · item system coming later" % (index + 1)
-	var mark := Label.new()
-	mark.text = "·"
-	mark.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	mark.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	NoitaUITheme.label(mark, 15, NoitaUITheme.BORDER_DIM)
-	panel.add_child(mark)
-	return panel
+func _make_wand_quick_slot(index: int, wand: WandDef, equipped: bool) -> Control:
+	var slot: WandQuickSlot = WAND_QUICK_SLOT_SCENE.instantiate() as WandQuickSlot
+	slot.setup(index, wand, equipped)
+	slot.wand_pressed.connect(_equip_wand_from_quickbar)
+	slot.wand_hover_changed.connect(_on_wand_row_hover)
+	return slot
 
 func _add_spell_slot(parent: Control, location: Dictionary, spell: SpellDef, index_text: String, compact: bool) -> void:
-	var slot := SpellSlot.new()
-	parent.add_child(slot)
+	var slot: SpellSlot = SPELL_SLOT_SCENE.instantiate() as SpellSlot
 	slot.setup(location, spell, index_text, compact)
+	parent.add_child(slot)
 	slot.set_selected(not _selected_location.is_empty() and _same_location(_selected_location, location))
 	slot.slot_pressed.connect(_on_slot_pressed)
 	slot.spell_dropped.connect(_on_spell_dropped)
@@ -660,13 +376,6 @@ func _equip_wand_from_quickbar(index: int) -> void:
 	if _inventory.equip_wand(index):
 		_editor_wand_index = index
 		_refresh_inventory_editor()
-
-func _on_wand_row_input(event: InputEvent, index: int) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_editor_wand_index = index
-		_selected_location.clear()
-		_refresh_inventory_editor()
-		get_viewport().set_input_as_handled()
 
 func _on_wand_row_hover(index: int, hovering: bool) -> void:
 	_hovered_wand_index = index if hovering else -1
@@ -781,10 +490,8 @@ func _on_status_changed(summary: String) -> void:
 	if summary.is_empty():
 		return
 	for part: String in summary.split(","):
-		var label := Label.new()
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		var label: Label = STATUS_LABEL_SCENE.instantiate() as Label
 		label.text = part.strip_edges().to_upper()
-		NoitaUITheme.label(label, 10, Color(0.88, 0.82, 0.66, 1.0))
 		_status_box.add_child(label)
 
 func _on_spell_changed(_index: int, _spell: SpellDef) -> void:
@@ -817,32 +524,6 @@ func _on_inventory_full(spell: SpellDef) -> void:
 # -----------------------------------------------------------------------------
 # Primitive helpers
 # -----------------------------------------------------------------------------
-func _make_vital_row(parent: VBoxContainer, symbol: String, bar: ProgressBar, color: Color) -> Label:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 5)
-	parent.add_child(row)
-	var icon := Label.new()
-	icon.text = symbol
-	icon.custom_minimum_size.x = 14
-	NoitaUITheme.label(icon, 11, color)
-	row.add_child(icon)
-	row.add_child(bar)
-	var value := Label.new()
-	value.custom_minimum_size.x = 72
-	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	NoitaUITheme.label(value, 10, NoitaUITheme.TEXT)
-	row.add_child(value)
-	return value
-
-func _make_thin_bar(fill_color: Color) -> ProgressBar:
-	var bar := ProgressBar.new()
-	bar.custom_minimum_size = Vector2(118, 6)
-	bar.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	bar.show_percentage = false
-	bar.add_theme_stylebox_override("background", NoitaUITheme.box(Color(0.055, 0.045, 0.043, 0.95), Color(0.10, 0.08, 0.07, 1.0), 1))
-	bar.add_theme_stylebox_override("fill", NoitaUITheme.box(fill_color, fill_color, 0))
-	return bar
-
 func _show_toast(spell: SpellDef, text: String) -> void:
 	if _toast_panel == null:
 		return
@@ -883,12 +564,6 @@ func _clear_control_children(parent: Node) -> void:
 func _same_location(a: Dictionary, b: Dictionary) -> bool:
 	return StringName(a.get("area", &"")) == StringName(b.get("area", &"")) and int(a.get("slot", -1)) == int(b.get("slot", -1)) and int(a.get("wand", -1)) == int(b.get("wand", -1))
 
-func _set_margins(container: MarginContainer, value: int) -> void:
-	container.add_theme_constant_override("margin_left", value)
-	container.add_theme_constant_override("margin_top", value)
-	container.add_theme_constant_override("margin_right", value)
-	container.add_theme_constant_override("margin_bottom", value)
-
 func _ensure_input_actions() -> void:
 	_add_key_action(&"inventory_toggle", [KEY_TAB, KEY_I])
 	if not InputMap.has_action(&"ui_cancel"):
@@ -908,3 +583,7 @@ func _add_key_action(action: StringName, keys: Array[int]) -> void:
 			var key_event := InputEventKey.new()
 			key_event.keycode = key
 			InputMap.action_add_event(action, key_event)
+
+func _creative_mode_active() -> bool:
+	var manager: GameModeManager = get_tree().get_first_node_in_group(&"game_mode_manager") as GameModeManager
+	return manager != null and manager.is_creative()

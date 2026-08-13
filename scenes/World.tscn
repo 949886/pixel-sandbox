@@ -15,6 +15,10 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/GameplayUI.tscn" id="13_gameplay_ui"]
 [ext_resource type="PackedScene" path="res://scenes/gameplay/SpellPickup.tscn" id="14_spell_pickup"]
 [ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="15_test_spell"]
+[ext_resource type="Script" path="res://scripts/gameplay/modes/GameModeManager.gd" id="16_game_mode"]
+[ext_resource type="Resource" path="res://resources/gameplay/modes/creative_rules.tres" id="17_creative_rules"]
+[ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeBrushController.gd" id="18_creative_brush"]
+[ext_resource type="PackedScene" path="res://scenes/ui/creative/CreativeUI.tscn" id="19_creative_ui"]
 
 [node name="World" type="Node2D" unique_id=1354663026]
 script = ExtResource("1")
@@ -31,10 +35,20 @@ mobile_runtime_profile = ExtResource("8")
 [node name="GameplayWorld" type="Node" parent="."]
 script = ExtResource("11_gameplay_world")
 
+[node name="GameModeManager" type="Node" parent="."]
+script = ExtResource("16_game_mode")
+creative_rules = ExtResource("17_creative_rules")
+
+[node name="CreativeBrush" type="Node2D" parent="."]
+z_index = 200
+script = ExtResource("18_creative_brush")
+
 [node name="Player" parent="." unique_id=1306727430 instance=ExtResource("2")]
 position = Vector2(256, 256)
 
 [node name="GameplayUI" parent="." instance=ExtResource("13_gameplay_ui")]
+
+[node name="CreativeUI" parent="." instance=ExtResource("19_creative_ui")]
 
 [node name="StarterSpellPickup" parent="." instance=ExtResource("14_spell_pickup")]
 position = Vector2(305, 245)

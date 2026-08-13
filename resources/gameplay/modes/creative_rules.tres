@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="GameRules" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/modes/GameRules.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+invulnerable = true
+infinite_mana = true
+infinite_flight = true
+creative_fly = true
+allow_world_editing = true
+allow_wand_lab = true
+allow_progression = false

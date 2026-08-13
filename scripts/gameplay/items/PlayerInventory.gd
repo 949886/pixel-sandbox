@@ -223,3 +223,74 @@ func _duplicate_wand(source: WandDef) -> WandDef:
 	clone.precast_spells = precast_copy
 	_normalize_wand_slots(clone)
 	return clone
+
+func set_wand_runtime(index: int, wand: WandDef) -> bool:
+	if index < 0 or index >= wands.size():
+		return false
+	wands[index] = wand
+	if wand != null:
+		normalize_wand_runtime(wand)
+	if index == equipped_wand_index and _wand_controller != null:
+		if wand != null:
+			_wand_controller.set_wand_definition(wand, true)
+		else:
+			var fallback: int = _first_available_wand_index()
+			if fallback >= 0:
+				equip_wand(fallback)
+	wand_slots_changed.emit()
+	inventory_changed.emit()
+	return true
+
+func duplicate_wand_to_slot(source_index: int, target_index: int) -> bool:
+	if source_index < 0 or source_index >= wands.size() or target_index < 0 or target_index >= wands.size():
+		return false
+	var source: WandDef = wands[source_index]
+	if source == null:
+		return false
+	return set_wand_runtime(target_index, _duplicate_wand(source))
+
+func remove_wand(index: int) -> bool:
+	if index < 0 or index >= wands.size() or wands[index] == null:
+		return false
+	var occupied: int = 0
+	for wand: WandDef in wands:
+		if wand != null:
+			occupied += 1
+	if occupied <= 1:
+		return false
+	wands[index] = null
+	if equipped_wand_index == index:
+		var fallback: int = _first_available_wand_index()
+		if fallback >= 0:
+			equip_wand(fallback)
+	wand_slots_changed.emit()
+	inventory_changed.emit()
+	return true
+
+func normalize_wand_runtime(wand: WandDef) -> void:
+	_normalize_wand_slots(wand)
+
+func set_wand_spell_runtime(wand_index: int, slot_index: int, spell: SpellDef) -> bool:
+	if wand_index < 0 or wand_index >= wands.size():
+		return false
+	var wand: WandDef = wands[wand_index]
+	if wand == null:
+		return false
+	_normalize_wand_slots(wand)
+	if slot_index < 0 or slot_index >= wand.spells.size():
+		return false
+	wand.spells[slot_index] = spell
+	notify_wand_runtime_changed(wand_index, true)
+	return true
+
+func notify_wand_runtime_changed(index: int, preserve_mana: bool = true) -> void:
+	if index == equipped_wand_index and _wand_controller != null:
+		_wand_controller.refresh_definition(preserve_mana)
+	wand_slots_changed.emit()
+	inventory_changed.emit()
+
+func _first_available_wand_index() -> int:
+	for index: int in range(wands.size()):
+		if wands[index] != null:
+			return index
+	return -1

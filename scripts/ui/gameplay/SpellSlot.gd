@@ -6,6 +6,7 @@ signal spell_dropped(source: Dictionary, target: Dictionary)
 signal hover_changed(spell: SpellDef, location: Dictionary, hovering: bool)
 signal quick_move_requested(location: Dictionary)
 signal drag_visual_started(spell: SpellDef)
+signal creative_spell_dropped(spell: SpellDef, target: Dictionary)
 
 const SLOT_SIZE := Vector2(38, 38)
 const DRAG_PREVIEW_SIZE := Vector2(46, 46)
@@ -15,10 +16,11 @@ var spell: SpellDef
 var selected: bool = false
 var deck_cursor: bool = false
 var compact: bool = false
+var painting_style: bool = false
 
-var _icon: TextureRect
-var _index_label: Label
-var _uses_label: Label
+@onready var _icon: TextureRect = $Center/Icon
+@onready var _index_label: Label = $IndexLabel
+@onready var _uses_label: Label = $UsesLabel
 var _mouse_pressed := false
 var _drag_started := false
 var _drop_hover := false
@@ -26,20 +28,24 @@ var _drag_source_visual := false
 
 func _ready() -> void:
 	custom_minimum_size = SLOT_SIZE
+	if painting_style:
+		custom_minimum_size = Vector2(48, 48)
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	mouse_entered.connect(func(): hover_changed.emit(spell, location, true))
 	mouse_exited.connect(func(): hover_changed.emit(spell, location, false))
 	gui_input.connect(_on_gui_input)
 	set_process(true)
-	_build_contents()
+	_apply_scene_label_style()
 	_refresh()
 
-func setup(new_location: Dictionary, new_spell: SpellDef, index_text: String = "", is_compact: bool = false) -> void:
+func setup(new_location: Dictionary, new_spell: SpellDef, index_text: String = "", is_compact: bool = false, use_painting_style: bool = false) -> void:
 	location = new_location.duplicate(true)
 	spell = new_spell
 	compact = is_compact
+	painting_style = use_painting_style
 	if _index_label != null:
 		_index_label.text = index_text
+		_apply_scene_label_style()
 	_refresh()
 
 func set_selected(value: bool) -> void:
@@ -50,40 +56,22 @@ func set_deck_cursor(value: bool) -> void:
 	deck_cursor = value
 	_refresh_style()
 
-func _build_contents() -> void:
-	var center := CenterContainer.new()
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(center)
-	_icon = TextureRect.new()
-	_icon.custom_minimum_size = Vector2(30, 30)
-	_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.add_child(_icon)
-
-	_index_label = Label.new()
-	_index_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
-	_index_label.position = Vector2(2, 0)
-	_index_label.size = Vector2(14, 12)
-	NoitaUITheme.label(_index_label, 8, NoitaUITheme.MUTED)
-	_index_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_index_label)
-
-	_uses_label = Label.new()
-	_uses_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
-	_uses_label.position = Vector2(-20, -12)
-	_uses_label.size = Vector2(18, 11)
-	_uses_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	NoitaUITheme.label(_uses_label, 8, NoitaUITheme.TEXT)
-	_uses_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_uses_label)
+func _apply_scene_label_style() -> void:
+	if painting_style:
+		PaintingCreativeStyle.label(_index_label, 10, PaintingCreativeStyle.MUTED)
+		PaintingCreativeStyle.label(_uses_label, 10, PaintingCreativeStyle.TEXT)
+	else:
+		NoitaUITheme.label(_index_label, 8, NoitaUITheme.MUTED)
+		NoitaUITheme.label(_uses_label, 8, NoitaUITheme.TEXT)
 
 func _refresh() -> void:
 	if _icon == null:
 		return
 	_icon.texture = SpellIconRegistry.texture_for_spell(spell)
-	_icon.custom_minimum_size = Vector2(28, 28) if compact else Vector2(30, 30)
+	if painting_style:
+		_icon.custom_minimum_size = Vector2(34, 34)
+	else:
+		_icon.custom_minimum_size = Vector2(28, 28) if compact else Vector2(30, 30)
 	_uses_label.text = "" if compact or spell == null or spell.uses <= 0 else str(spell.uses)
 	_refresh_icon_modulate()
 	tooltip_text = "" # Dedicated hover card owns tooltips.
@@ -100,7 +88,13 @@ func _refresh_icon_modulate() -> void:
 		_icon.modulate = Color.WHITE
 
 func _refresh_style() -> void:
-	var style := NoitaUITheme.empty_box()
+	if painting_style:
+		var painting_box: StyleBoxFlat = PaintingCreativeStyle.slot_box(selected or deck_cursor, _drop_hover)
+		if _drag_source_visual:
+			painting_box = PaintingCreativeStyle.surface_box(Color(0.28, 0.28, 0.32, 0.72), 4, 4)
+		add_theme_stylebox_override("panel", painting_box)
+		return
+	var style: StyleBox = NoitaUITheme.empty_box()
 	if spell != null:
 		style = NoitaUITheme.box(NoitaUITheme.BG_SLOT, NoitaUITheme.BORDER, 1)
 	if deck_cursor:
@@ -149,31 +143,6 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	drag_visual_started.emit(spell)
 	return {"spell_slot": true, "source": location.duplicate(true), "spell": spell}
 
-func _make_drag_preview() -> Control:
-	var root := Control.new()
-	root.custom_minimum_size = DRAG_PREVIEW_SIZE
-	root.size = DRAG_PREVIEW_SIZE
-	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var panel := PanelContainer.new()
-	panel.position = -DRAG_PREVIEW_SIZE * 0.5
-	panel.size = DRAG_PREVIEW_SIZE
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", NoitaUITheme.highlighted_box())
-	root.add_child(panel)
-	var center := CenterContainer.new()
-	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	panel.add_child(center)
-	var icon := TextureRect.new()
-	icon.texture = SpellIconRegistry.texture_for_spell(spell)
-	icon.custom_minimum_size = Vector2(36, 36)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	center.add_child(icon)
-	return root
-
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	var valid := _can_drop_payload(data) and StringName(location.get("area", &"")) != &"runtime_deck"
 	if _drop_hover != valid:
@@ -187,6 +156,11 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	if not _can_drop_payload(data):
 		return
 	var payload: Dictionary = data
+	if bool(payload.get("creative_spell", false)):
+		var creative_spell: SpellDef = payload.get("spell", null) as SpellDef
+		if creative_spell != null:
+			creative_spell_dropped.emit(creative_spell, location)
+		return
 	var source_variant: Variant = payload.get("source", {})
 	if source_variant is Dictionary:
 		var source: Dictionary = source_variant
@@ -196,6 +170,8 @@ func _can_drop_payload(data: Variant) -> bool:
 	if not data is Dictionary:
 		return false
 	var payload: Dictionary = data
+	if bool(payload.get("creative_spell", false)):
+		return payload.get("spell", null) is SpellDef
 	return bool(payload.get("spell_slot", false)) and payload.get("source", {}) is Dictionary
 
 func _process(_delta: float) -> void:

@@ -1,0 +1,629 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/creative/CreativeUI.gd" id="1_ui"]
+[ext_resource type="Theme" path="res://painting/ui/_theme/theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://painting/ui/_icons/tap.png" id="3_brush"]
+[ext_resource type="Texture2D" path="res://painting/ui/_icons/eraser.png" id="4_erase"]
+[ext_resource type="Texture2D" path="res://painting/ui/_icons/edit.png" id="5_pick"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_dock"]
+bg_color = Color(0.509804, 0.517647, 0.560784, 1)
+expand_margin_top = 30.0
+anti_aliasing = false
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_drag"]
+bg_color = Color(0.839216, 0.364706, 0.0941176, 1)
+border_width_bottom = 4
+border_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+anti_aliasing = false
+
+[node name="CreativeUI" type="CanvasLayer"]
+layer = 70
+script = ExtResource("1_ui")
+
+[node name="Root" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme = ExtResource("2_theme")
+
+[node name="Badge" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 12.0
+offset_top = 92.0
+offset_right = 190.0
+offset_bottom = 116.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.65098, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+text = "CREATIVE  •  F8 EXIT"
+
+[node name="Dock" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -316.0
+grow_horizontal = 2
+grow_vertical = 0
+mouse_filter = 0
+theme_override_styles/panel = SubResource("StyleBox_dock")
+
+[node name="Margin" type="MarginContainer" parent="Root/Dock"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="Content" type="VBoxContainer" parent="Root/Dock/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Toolbar" type="HBoxContainer" parent="Root/Dock/Margin/Content"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="MaterialsTab" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "MATERIALS"
+
+[node name="SpellsTab" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "SPELLS"
+
+[node name="WandsTab" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "WANDS"
+
+[node name="PlayerTab" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "PLAYER"
+
+[node name="WorldTab" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "WORLD"
+
+[node name="ToolbarSpacer" type="Control" parent="Root/Dock/Margin/Content/Toolbar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LiveLabel" type="Label" parent="Root/Dock/Margin/Content/Toolbar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.65098, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+text = "LIVE SANDBOX"
+vertical_alignment = 1
+
+[node name="CollapseButton" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(34, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "▼"
+
+[node name="PanelHost" type="Control" parent="Root/Dock/Margin/Content"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 228)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MaterialsPanel" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="ToolRow" type="HBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BrushButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "BRUSH"
+icon = ExtResource("3_brush")
+icon_alignment = 0
+
+[node name="EraseButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(92, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "ERASE"
+icon = ExtResource("4_erase")
+icon_alignment = 0
+
+[node name="PickButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(84, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "PICK"
+icon = ExtResource("5_pick")
+icon_alignment = 0
+
+[node name="SizeLabel" type="Label" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 15
+text = "SIZE"
+vertical_alignment = 1
+
+[node name="BrushSize" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 42)
+layout_mode = 2
+min_value = 1.0
+max_value = 64.0
+value = 8.0
+
+[node name="SelectedMaterialLabel" type="Label" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.65098, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+text = "SELECTED: MATERIAL"
+vertical_alignment = 1
+
+[node name="ToolSpacer" type="Control" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PickerHint" type="Label" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/ToolRow"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "MIDDLE MOUSE = PICK"
+vertical_alignment = 1
+
+[node name="MaterialScroll" type="ScrollContainer" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel"]
+custom_minimum_size = Vector2(0, 164)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MaterialGrid" type="GridContainer" parent="Root/Dock/Margin/Content/PanelHost/MaterialsPanel/MaterialScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 12
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 4
+
+[node name="SpellsPanel" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 6
+
+[node name="SpellHeader" type="HBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="SpellSearch" type="LineEdit" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(340, 42)
+layout_mode = 2
+placeholder_text = "Search all creative spells..."
+
+[node name="SpellKind" type="OptionButton" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 42)
+layout_mode = 2
+
+[node name="SpellWand1" type="Button" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+focus_mode = 0
+text = "W1"
+[node name="SpellWand2" type="Button" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+focus_mode = 0
+text = "W2"
+[node name="SpellWand3" type="Button" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+focus_mode = 0
+text = "W3"
+[node name="SpellWand4" type="Button" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellHeader"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+focus_mode = 0
+text = "W4"
+
+[node name="SpellInfo" type="Label" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "CLICK = ADD TO FIRST EMPTY SLOT   •   DRAG = PLACE EXACTLY"
+vertical_alignment = 1
+
+[node name="SpellScroll" type="ScrollContainer" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel"]
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="SpellGrid" type="GridContainer" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel/SpellScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 24
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 3
+
+[node name="TargetWandLabel" type="Label" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.65098, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+text = "TARGET WAND"
+
+[node name="TargetDeckGrid" type="GridContainer" parent="Root/Dock/Margin/Content/PanelHost/SpellsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 24
+theme_override_constants/h_separation = 2
+theme_override_constants/v_separation = 2
+
+[node name="WandsPanel" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 7
+
+[node name="WandSelectorRow" type="HBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Wand1" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(155, 42)
+layout_mode = 2
+focus_mode = 0
+text = "1 EMPTY"
+[node name="Wand2" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(155, 42)
+layout_mode = 2
+focus_mode = 0
+text = "2 EMPTY"
+[node name="Wand3" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(155, 42)
+layout_mode = 2
+focus_mode = 0
+text = "3 EMPTY"
+[node name="Wand4" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(155, 42)
+layout_mode = 2
+focus_mode = 0
+text = "4 EMPTY"
+
+[node name="WandSelectorSpacer" type="Control" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EquipButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(82, 42)
+layout_mode = 2
+focus_mode = 0
+text = "EQUIP"
+[node name="NewButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(76, 42)
+layout_mode = 2
+focus_mode = 0
+text = "NEW"
+[node name="DuplicateButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 42)
+layout_mode = 2
+focus_mode = 0
+text = "DUPLICATE"
+[node name="DeleteButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(82, 42)
+layout_mode = 2
+focus_mode = 0
+text = "DELETE"
+[node name="ClearButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandSelectorRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 42)
+layout_mode = 2
+focus_mode = 0
+text = "CLEAR SPELLS"
+
+[node name="EmptyWandLabel" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 16
+text = "EMPTY WAND SLOT — PRESS NEW TO CREATE A RUNTIME CREATIVE WAND"
+
+[node name="WandStats" type="HBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ManaBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ManaBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "MANA"
+[node name="ManaMax" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ManaBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+max_value = 100000.0
+step = 10.0
+
+[node name="ChargeBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ChargeBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "CHARGE/S"
+[node name="ManaRecharge" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ChargeBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+max_value = 100000.0
+step = 10.0
+
+[node name="CastBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/CastBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "CAST"
+[node name="CastDelay" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/CastBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+max_value = 10.0
+step = 0.01
+
+[node name="ReloadBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ReloadBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "RELOAD"
+[node name="Recharge" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ReloadBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+max_value = 20.0
+step = 0.01
+
+[node name="CapacityBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/CapacityBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "CAPACITY"
+[node name="Capacity" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/CapacityBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+min_value = 1.0
+max_value = 64.0
+value = 12.0
+
+[node name="SpreadBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/SpreadBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "SPREAD"
+[node name="Spread" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/SpreadBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+min_value = -180.0
+max_value = 180.0
+step = 1.0
+
+[node name="CastsBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/CastsBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "CASTS"
+[node name="Multicast" type="SpinBox" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/CastsBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(116, 0)
+layout_mode = 2
+min_value = 1.0
+max_value = 16.0
+value = 1.0
+
+[node name="ShuffleBox" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats"]
+layout_mode = 2
+[node name="Label" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ShuffleBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "SHUFFLE"
+[node name="Shuffle" type="CheckButton" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandStats/ShuffleBox"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="WandDeckLabel" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "SPELL DECK — DRAG FROM SPELLS TAB OR REORDER HERE"
+
+[node name="WandDeckScroll" type="ScrollContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 91)
+layout_mode = 2
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 1
+
+[node name="WandDeckGrid" type="GridContainer" parent="Root/Dock/Margin/Content/PanelHost/WandsPanel/WandDeckScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 12
+theme_override_constants/h_separation = 3
+theme_override_constants/v_separation = 3
+
+[node name="PlayerPanel" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 10
+
+[node name="PlayerRow" type="HBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Invulnerable" type="CheckButton" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel/PlayerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "INVULNERABLE"
+[node name="InfiniteMana" type="CheckButton" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel/PlayerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "INFINITE MANA"
+[node name="InfiniteFlight" type="CheckButton" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel/PlayerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "INFINITE FLIGHT"
+[node name="CreativeFly" type="CheckButton" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel/PlayerRow"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "NO-CLIP FLY"
+[node name="HealButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel/PlayerRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 42)
+layout_mode = 2
+focus_mode = 0
+text = "HEAL"
+[node name="ClearStatusButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel/PlayerRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 42)
+layout_mode = 2
+focus_mode = 0
+text = "CLEAR STATUS"
+
+[node name="PlayerHelp" type="Label" parent="Root/Dock/Margin/Content/PanelHost/PlayerPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 15
+text = "NO-CLIP: WASD / SPACE / S   •   SHIFT = FAST"
+
+[node name="WorldPanel" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="WorldTitle" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "CREATIVE WORLD"
+
+[node name="WorldBody" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "F8 toggles Creative Mode. The world stays live while this dock is open.\nMaterial brush uses native chunk-level circle replacement; entity spawning and simulation stepping are reserved for the next sandbox pass."
+autowrap_mode = 2
+
+[node name="DragPanel" type="PanelContainer" parent="Root"]
+unique_name_in_owner = true
+visible = false
+z_index = 4096
+layout_mode = 0
+offset_right = 52.0
+offset_bottom = 52.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBox_drag")
+
+[node name="Center" type="CenterContainer" parent="Root/DragPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="DragIcon" type="TextureRect" parent="Root/DragPanel/Center"]
+unique_name_in_owner = true
+texture_filter = 1
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5

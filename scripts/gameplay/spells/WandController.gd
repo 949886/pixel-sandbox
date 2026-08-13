@@ -18,6 +18,7 @@ var _pending_recharge: float = 0.0
 var _spell_recharge_accum: float = 0.0
 var _deck: SpellDeckRuntime
 var _rng := RandomNumberGenerator.new()
+var infinite_mana: bool = false
 
 func _ready() -> void:
 	_rng.randomize()
@@ -77,14 +78,15 @@ func try_cast(
 		total_cost += maxf(0.0, card.mana_cost)
 		cast_delay_add += card.cast_delay_add
 		recharge_add += card.recharge_time_add
-	if current_mana + 0.0001 < total_cost:
+	if not infinite_mana and current_mana + 0.0001 < total_cost:
 		# Rewind to the start of this draw so insufficient mana never eats cards.
 		_deck.cursor = maxi(0, _deck.cursor - consumed.size())
 		deck_changed.emit(_deck.cursor, _deck.cards.size())
 		return false
 
-	current_mana = maxf(0.0, current_mana - total_cost)
-	mana_changed.emit(current_mana, maximum_mana())
+	if not infinite_mana:
+		current_mana = maxf(0.0, current_mana - total_cost)
+		mana_changed.emit(current_mana, maximum_mana())
 	_spell_recharge_accum += recharge_add
 	_cast_cooldown = maxf(0.02, wand_def.cast_delay + cast_delay_add)
 
@@ -153,6 +155,13 @@ func current_spell() -> SpellDef:
 		return null
 	return _deck.cards[_deck.cursor]
 
+
+func set_infinite_mana(enabled: bool) -> void:
+	infinite_mana = enabled
+	if infinite_mana:
+		current_mana = maximum_mana()
+		mana_changed.emit(current_mana, maximum_mana())
+
 func set_wand_definition(definition: WandDef, refill_mana: bool = true) -> void:
 	wand_def = definition
 	_cast_cooldown = 0.0
@@ -160,7 +169,7 @@ func set_wand_definition(definition: WandDef, refill_mana: bool = true) -> void:
 	_pending_recharge = 0.0
 	_spell_recharge_accum = 0.0
 	_rebuild_deck()
-	if refill_mana:
+	if refill_mana or infinite_mana:
 		current_mana = maximum_mana()
 	else:
 		current_mana = clampf(current_mana, 0.0, maximum_mana())
@@ -175,7 +184,7 @@ func refresh_definition(preserve_mana: bool = true) -> void:
 	_recharge_remaining = 0.0
 	_pending_recharge = 0.0
 	_spell_recharge_accum = 0.0
-	current_mana = clampf(previous_mana, 0.0, maximum_mana()) if preserve_mana else maximum_mana()
+	current_mana = maximum_mana() if infinite_mana else (clampf(previous_mana, 0.0, maximum_mana()) if preserve_mana else maximum_mana())
 	mana_changed.emit(current_mana, maximum_mana())
 	spell_changed.emit(selected_spell_index, current_spell())
 	wand_changed.emit(wand_def)

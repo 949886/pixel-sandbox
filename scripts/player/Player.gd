@@ -117,13 +117,19 @@ var _virtual_fire_pressed: bool = false
 var _virtual_aim_direction := Vector2.RIGHT
 var _virtual_controls_active: bool = false
 var _rng := RandomNumberGenerator.new()
+var _game_mode_manager: GameModeManager
 var _dead: bool = false
 var _spawn_position := Vector2.ZERO
 var gold: int = 0
+var creative_fly_enabled: bool = false
+var infinite_flight_enabled: bool = false
+@export var creative_fly_speed: float = 260.0
+@export var creative_fly_fast_multiplier: float = 2.5
 
 func _ready() -> void:
 	_ensure_input_actions()
 	world_manager = get_parent()
+	_game_mode_manager = get_tree().get_first_node_in_group(&"game_mode_manager") as GameModeManager
 	world_interface = world_manager.get_node_or_null("GameplayWorld") if world_manager != null else null
 	if world_interface == null:
 		world_interface = world_manager
@@ -201,6 +207,11 @@ func _physics_process(delta: float) -> void:
 		flying = false
 		return
 	_update_aim()
+	if creative_fly_enabled:
+		_handle_creative_action_input()
+		_handle_creative_fly(delta)
+		_update_animation()
+		return
 	_handle_action_input()
 	_handle_movement(delta)
 
@@ -267,6 +278,36 @@ func _handle_action_input() -> void:
 	if Input.is_action_just_pressed(&"kick") and not _kick_active:
 		_start_kick()
 
+func set_creative_fly_enabled(enabled: bool) -> void:
+	creative_fly_enabled = enabled
+	if enabled:
+		_set_crouching(false, true)
+		velocity = Vector2.ZERO
+
+func set_infinite_flight_enabled(enabled: bool) -> void:
+	infinite_flight_enabled = enabled
+	if enabled:
+		_set_flight_fuel(maximum_flight_fuel)
+
+func _handle_creative_action_input() -> void:
+	_handle_wand_selection_input()
+	if (Input.is_action_pressed(&"wand_fire") or _virtual_fire_pressed) and not _kick_active:
+		_fire_wand()
+
+func _handle_creative_fly(delta: float) -> void:
+	var input_vector: Vector2 = Vector2(
+		Input.get_axis(&"move_left", &"move_right"),
+		Input.get_axis(&"jump_fly", &"crouch")
+	)
+	if input_vector.length_squared() > 1.0:
+		input_vector = input_vector.normalized()
+	var speed_scale: float = creative_fly_fast_multiplier if Input.is_action_pressed(&"sprint") else 1.0
+	velocity = input_vector * creative_fly_speed * speed_scale
+	global_position += velocity * delta
+	flying = input_vector.length_squared() > 0.0001
+	if infinite_flight_enabled:
+		_set_flight_fuel(maximum_flight_fuel)
+
 func _handle_movement(delta: float) -> void:
 	var physical_horizontal := Input.get_axis(&"move_left", &"move_right")
 	_horizontal_input = _stronger_axis(physical_horizontal, _virtual_move_input.x)
@@ -303,7 +344,7 @@ func _handle_ground_and_air(delta: float, grounded: bool) -> void:
 
 	flying = false
 	if not grounded:
-		var wants_active_lift := _flight_input_active and flight_fuel > 0.0
+		var wants_active_lift: bool = _flight_input_active and (infinite_flight_enabled or flight_fuel > 0.0)
 		if wants_active_lift:
 			# Keyboard/gamepad and the touch jump/flight zone share full upward thrust.
 			flying = true
@@ -312,7 +353,8 @@ func _handle_ground_and_air(delta: float, grounded: bool) -> void:
 				-max_jetpack_rise_speed,
 				jetpack_acceleration * delta
 			)
-			_set_flight_fuel(flight_fuel - flight_fuel_burn_rate * delta)
+			if not infinite_flight_enabled:
+				_set_flight_fuel(flight_fuel - flight_fuel_burn_rate * delta)
 		else:
 			velocity.y = minf(max_fall_speed, velocity.y + gravity * delta)
 		if _is_crouch_pressed():
@@ -397,10 +439,18 @@ func _on_player_wand_changed(definition: WandDef) -> void:
 	wand_sprite.visible = not _kick_active
 
 func _fire_wand() -> void:
+	if _gameplay_action_blocked(&"wand_fire"):
+		return
 	if world_manager == null or not is_instance_valid(world_manager) or world_manager.is_queued_for_deletion() or wand_controller == null:
 		return
 	if wand_controller.try_cast(muzzle.global_position, aim_direction, self, world_interface, world_manager):
 		wand_fired.emit(muzzle.global_position, aim_direction)
+
+
+func _gameplay_action_blocked(action: StringName) -> bool:
+	if _game_mode_manager == null or not is_instance_valid(_game_mode_manager):
+		_game_mode_manager = get_tree().get_first_node_in_group(&"game_mode_manager") as GameModeManager
+	return _game_mode_manager != null and _game_mode_manager.gameplay_action_blocked(action)
 
 func _handle_wand_selection_input() -> void:
 	if inventory_component == null:
