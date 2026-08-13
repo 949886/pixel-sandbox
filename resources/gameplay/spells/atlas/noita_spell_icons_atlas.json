@@ -1,0 +1,6402 @@
+{
+  "meta": {
+    "source_zip": "gun_actions.zip",
+    "sprite_count": 638,
+    "sprite_size": {
+      "width": 16,
+      "height": 16
+    },
+    "atlas_size": {
+      "width": 576,
+      "height": 360
+    },
+    "layout": {
+      "columns": 32,
+      "rows": 20,
+      "cell_size": 18,
+      "padding": 1
+    }
+  },
+  "sprites": {
+    "2_cards_on_death": {
+      "region": {
+        "x": 1,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 0,
+      "source_file": "gun_actions/2_cards_on_death.png"
+    },
+    "3_cards_on_death": {
+      "region": {
+        "x": 19,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 1,
+      "source_file": "gun_actions/3_cards_on_death.png"
+    },
+    "_unidentified": {
+      "region": {
+        "x": 37,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 2,
+      "source_file": "gun_actions/_unidentified.png"
+    },
+    "accelerating_shot": {
+      "region": {
+        "x": 55,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 3,
+      "source_file": "gun_actions/accelerating_shot.png"
+    },
+    "acid": {
+      "region": {
+        "x": 73,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 4,
+      "source_file": "gun_actions/acid.png"
+    },
+    "acid_trail": {
+      "region": {
+        "x": 91,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 5,
+      "source_file": "gun_actions/acid_trail.png"
+    },
+    "acid_trail_unidentified": {
+      "region": {
+        "x": 109,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 6,
+      "source_file": "gun_actions/acid_trail_unidentified.png"
+    },
+    "acidshot": {
+      "region": {
+        "x": 127,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 7,
+      "source_file": "gun_actions/acidshot.png"
+    },
+    "acidshot_unidentified": {
+      "region": {
+        "x": 145,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 8,
+      "source_file": "gun_actions/acidshot_unidentified.png"
+    },
+    "air_bullet": {
+      "region": {
+        "x": 163,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 9,
+      "source_file": "gun_actions/air_bullet.png"
+    },
+    "air_bullet_unidentified": {
+      "region": {
+        "x": 181,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 10,
+      "source_file": "gun_actions/air_bullet_unidentified.png"
+    },
+    "alcohol_blast": {
+      "region": {
+        "x": 199,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 11,
+      "source_file": "gun_actions/alcohol_blast.png"
+    },
+    "all_acid": {
+      "region": {
+        "x": 217,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 12,
+      "source_file": "gun_actions/all_acid.png"
+    },
+    "all_blackholes": {
+      "region": {
+        "x": 235,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 13,
+      "source_file": "gun_actions/all_blackholes.png"
+    },
+    "all_deathcrosses": {
+      "region": {
+        "x": 253,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 14,
+      "source_file": "gun_actions/all_deathcrosses.png"
+    },
+    "all_discs": {
+      "region": {
+        "x": 271,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 15,
+      "source_file": "gun_actions/all_discs.png"
+    },
+    "all_nukes": {
+      "region": {
+        "x": 289,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 16,
+      "source_file": "gun_actions/all_nukes.png"
+    },
+    "all_rockets": {
+      "region": {
+        "x": 307,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 17,
+      "source_file": "gun_actions/all_rockets.png"
+    },
+    "all_spells": {
+      "region": {
+        "x": 325,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 18,
+      "source_file": "gun_actions/all_spells.png"
+    },
+    "alpha": {
+      "region": {
+        "x": 343,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 19,
+      "source_file": "gun_actions/alpha.png"
+    },
+    "anti_homing": {
+      "region": {
+        "x": 361,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 20,
+      "source_file": "gun_actions/anti_homing.png"
+    },
+    "antiheal": {
+      "region": {
+        "x": 379,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 21,
+      "source_file": "gun_actions/antiheal.png"
+    },
+    "arc_electric": {
+      "region": {
+        "x": 397,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 22,
+      "source_file": "gun_actions/arc_electric.png"
+    },
+    "arc_electric_unidentified": {
+      "region": {
+        "x": 415,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 23,
+      "source_file": "gun_actions/arc_electric_unidentified.png"
+    },
+    "arc_fire": {
+      "region": {
+        "x": 433,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 24,
+      "source_file": "gun_actions/arc_fire.png"
+    },
+    "arc_fire_unidentified": {
+      "region": {
+        "x": 451,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 25,
+      "source_file": "gun_actions/arc_fire_unidentified.png"
+    },
+    "arc_gunpowder": {
+      "region": {
+        "x": 469,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 26,
+      "source_file": "gun_actions/arc_gunpowder.png"
+    },
+    "arc_poison": {
+      "region": {
+        "x": 487,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 27,
+      "source_file": "gun_actions/arc_poison.png"
+    },
+    "area_damage": {
+      "region": {
+        "x": 505,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 28,
+      "source_file": "gun_actions/area_damage.png"
+    },
+    "arrow": {
+      "region": {
+        "x": 523,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 29,
+      "source_file": "gun_actions/arrow.png"
+    },
+    "arrow_unidentified": {
+      "region": {
+        "x": 541,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 30,
+      "source_file": "gun_actions/arrow_unidentified.png"
+    },
+    "autoaim": {
+      "region": {
+        "x": 559,
+        "y": 1,
+        "w": 16,
+        "h": 16
+      },
+      "index": 31,
+      "source_file": "gun_actions/autoaim.png"
+    },
+    "avoiding_arc": {
+      "region": {
+        "x": 1,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 32,
+      "source_file": "gun_actions/avoiding_arc.png"
+    },
+    "baab_all": {
+      "region": {
+        "x": 19,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 33,
+      "source_file": "gun_actions/baab_all.png"
+    },
+    "baab_empty": {
+      "region": {
+        "x": 37,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 34,
+      "source_file": "gun_actions/baab_empty.png"
+    },
+    "baab_is": {
+      "region": {
+        "x": 55,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 35,
+      "source_file": "gun_actions/baab_is.png"
+    },
+    "baab_lava": {
+      "region": {
+        "x": 73,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 36,
+      "source_file": "gun_actions/baab_lava.png"
+    },
+    "baab_love": {
+      "region": {
+        "x": 91,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 37,
+      "source_file": "gun_actions/baab_love.png"
+    },
+    "baab_poop": {
+      "region": {
+        "x": 109,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 38,
+      "source_file": "gun_actions/baab_poop.png"
+    },
+    "baab_water": {
+      "region": {
+        "x": 127,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 39,
+      "source_file": "gun_actions/baab_water.png"
+    },
+    "ball_lightning": {
+      "region": {
+        "x": 145,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 40,
+      "source_file": "gun_actions/ball_lightning.png"
+    },
+    "bee": {
+      "region": {
+        "x": 163,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 41,
+      "source_file": "gun_actions/bee.png"
+    },
+    "berserk": {
+      "region": {
+        "x": 181,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 42,
+      "source_file": "gun_actions/berserk.png"
+    },
+    "berserk_field": {
+      "region": {
+        "x": 199,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 43,
+      "source_file": "gun_actions/berserk_field.png"
+    },
+    "berserk_field_unidentified": {
+      "region": {
+        "x": 217,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 44,
+      "source_file": "gun_actions/berserk_field_unidentified.png"
+    },
+    "big_magic_shield": {
+      "region": {
+        "x": 235,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 45,
+      "source_file": "gun_actions/big_magic_shield.png"
+    },
+    "black_hole": {
+      "region": {
+        "x": 253,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 46,
+      "source_file": "gun_actions/black_hole.png"
+    },
+    "black_hole_big": {
+      "region": {
+        "x": 271,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 47,
+      "source_file": "gun_actions/black_hole_big.png"
+    },
+    "black_hole_big_unidentified": {
+      "region": {
+        "x": 289,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 48,
+      "source_file": "gun_actions/black_hole_big_unidentified.png"
+    },
+    "black_hole_giga": {
+      "region": {
+        "x": 307,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 49,
+      "source_file": "gun_actions/black_hole_giga.png"
+    },
+    "black_hole_timer": {
+      "region": {
+        "x": 325,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 50,
+      "source_file": "gun_actions/black_hole_timer.png"
+    },
+    "black_hole_unidentified": {
+      "region": {
+        "x": 343,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 51,
+      "source_file": "gun_actions/black_hole_unidentified.png"
+    },
+    "blindness": {
+      "region": {
+        "x": 361,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 52,
+      "source_file": "gun_actions/blindness.png"
+    },
+    "blood_magic": {
+      "region": {
+        "x": 379,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 53,
+      "source_file": "gun_actions/blood_magic.png"
+    },
+    "blood_punch": {
+      "region": {
+        "x": 397,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 54,
+      "source_file": "gun_actions/blood_punch.png"
+    },
+    "blood_to_acid": {
+      "region": {
+        "x": 415,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 55,
+      "source_file": "gun_actions/blood_to_acid.png"
+    },
+    "blood_trail": {
+      "region": {
+        "x": 433,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 56,
+      "source_file": "gun_actions/blood_trail.png"
+    },
+    "bloodlust": {
+      "region": {
+        "x": 451,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 57,
+      "source_file": "gun_actions/bloodlust.png"
+    },
+    "bloodtentacle": {
+      "region": {
+        "x": 469,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 58,
+      "source_file": "gun_actions/bloodtentacle.png"
+    },
+    "bloomshot": {
+      "region": {
+        "x": 487,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 59,
+      "source_file": "gun_actions/bloomshot.png"
+    },
+    "bomb": {
+      "region": {
+        "x": 505,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 60,
+      "source_file": "gun_actions/bomb.png"
+    },
+    "bomb_cart": {
+      "region": {
+        "x": 523,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 61,
+      "source_file": "gun_actions/bomb_cart.png"
+    },
+    "bomb_holy": {
+      "region": {
+        "x": 541,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 62,
+      "source_file": "gun_actions/bomb_holy.png"
+    },
+    "bomb_holy_giga": {
+      "region": {
+        "x": 559,
+        "y": 19,
+        "w": 16,
+        "h": 16
+      },
+      "index": 63,
+      "source_file": "gun_actions/bomb_holy_giga.png"
+    },
+    "bomb_trailer": {
+      "region": {
+        "x": 1,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 64,
+      "source_file": "gun_actions/bomb_trailer.png"
+    },
+    "bomb_unidentified": {
+      "region": {
+        "x": 19,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 65,
+      "source_file": "gun_actions/bomb_unidentified.png"
+    },
+    "bounce": {
+      "region": {
+        "x": 37,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 66,
+      "source_file": "gun_actions/bounce.png"
+    },
+    "bounce_explosion": {
+      "region": {
+        "x": 55,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 67,
+      "source_file": "gun_actions/bounce_explosion.png"
+    },
+    "bounce_hole": {
+      "region": {
+        "x": 73,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 68,
+      "source_file": "gun_actions/bounce_hole.png"
+    },
+    "bounce_larpa": {
+      "region": {
+        "x": 91,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 69,
+      "source_file": "gun_actions/bounce_larpa.png"
+    },
+    "bounce_laser": {
+      "region": {
+        "x": 109,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 70,
+      "source_file": "gun_actions/bounce_laser.png"
+    },
+    "bounce_laser_emitter": {
+      "region": {
+        "x": 127,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 71,
+      "source_file": "gun_actions/bounce_laser_emitter.png"
+    },
+    "bounce_lightning": {
+      "region": {
+        "x": 145,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 72,
+      "source_file": "gun_actions/bounce_lightning.png"
+    },
+    "bounce_small_explosion": {
+      "region": {
+        "x": 163,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 73,
+      "source_file": "gun_actions/bounce_small_explosion.png"
+    },
+    "bounce_spark": {
+      "region": {
+        "x": 181,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 74,
+      "source_file": "gun_actions/bounce_spark.png"
+    },
+    "bounce_unidentified": {
+      "region": {
+        "x": 199,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 75,
+      "source_file": "gun_actions/bounce_unidentified.png"
+    },
+    "bouncy_orb": {
+      "region": {
+        "x": 217,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 76,
+      "source_file": "gun_actions/bouncy_orb.png"
+    },
+    "bouncy_orb_timer": {
+      "region": {
+        "x": 235,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 77,
+      "source_file": "gun_actions/bouncy_orb_timer.png"
+    },
+    "bouncy_orb_timer_2": {
+      "region": {
+        "x": 253,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 78,
+      "source_file": "gun_actions/bouncy_orb_timer_2.png"
+    },
+    "broken_spell": {
+      "region": {
+        "x": 271,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 79,
+      "source_file": "gun_actions/broken_spell.png"
+    },
+    "bubbleshot": {
+      "region": {
+        "x": 289,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 80,
+      "source_file": "gun_actions/bubbleshot.png"
+    },
+    "bubbleshot_trigger": {
+      "region": {
+        "x": 307,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 81,
+      "source_file": "gun_actions/bubbleshot_trigger.png"
+    },
+    "bubbleshot_trigger_unidentified": {
+      "region": {
+        "x": 325,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 82,
+      "source_file": "gun_actions/bubbleshot_trigger_unidentified.png"
+    },
+    "bubbleshot_unidentified": {
+      "region": {
+        "x": 343,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 83,
+      "source_file": "gun_actions/bubbleshot_unidentified.png"
+    },
+    "buckshot": {
+      "region": {
+        "x": 361,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 84,
+      "source_file": "gun_actions/buckshot.png"
+    },
+    "building_back_wall_rock": {
+      "region": {
+        "x": 379,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 85,
+      "source_file": "gun_actions/building_back_wall_rock.png"
+    },
+    "building_board_wood": {
+      "region": {
+        "x": 397,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 86,
+      "source_file": "gun_actions/building_board_wood.png"
+    },
+    "building_physics_templedoor": {
+      "region": {
+        "x": 415,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 87,
+      "source_file": "gun_actions/building_physics_templedoor.png"
+    },
+    "building_pressure_plate": {
+      "region": {
+        "x": 433,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 88,
+      "source_file": "gun_actions/building_pressure_plate.png"
+    },
+    "bullet": {
+      "region": {
+        "x": 451,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 89,
+      "source_file": "gun_actions/bullet.png"
+    },
+    "bullet_timer": {
+      "region": {
+        "x": 469,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 90,
+      "source_file": "gun_actions/bullet_timer.png"
+    },
+    "bullet_timer_unidentified": {
+      "region": {
+        "x": 487,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 91,
+      "source_file": "gun_actions/bullet_timer_unidentified.png"
+    },
+    "bullet_trigger": {
+      "region": {
+        "x": 505,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 92,
+      "source_file": "gun_actions/bullet_trigger.png"
+    },
+    "bullet_trigger_unidentified": {
+      "region": {
+        "x": 523,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 93,
+      "source_file": "gun_actions/bullet_trigger_unidentified.png"
+    },
+    "bullet_unidentified": {
+      "region": {
+        "x": 541,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 94,
+      "source_file": "gun_actions/bullet_unidentified.png"
+    },
+    "burn_trail": {
+      "region": {
+        "x": 559,
+        "y": 37,
+        "w": 16,
+        "h": 16
+      },
+      "index": 95,
+      "source_file": "gun_actions/burn_trail.png"
+    },
+    "burn_trail_unidentified": {
+      "region": {
+        "x": 1,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 96,
+      "source_file": "gun_actions/burn_trail_unidentified.png"
+    },
+    "burning_critical": {
+      "region": {
+        "x": 19,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 97,
+      "source_file": "gun_actions/burning_critical.png"
+    },
+    "burst_2": {
+      "region": {
+        "x": 37,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 98,
+      "source_file": "gun_actions/burst_2.png"
+    },
+    "burst_2_unidentified": {
+      "region": {
+        "x": 55,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 99,
+      "source_file": "gun_actions/burst_2_unidentified.png"
+    },
+    "burst_3": {
+      "region": {
+        "x": 73,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 100,
+      "source_file": "gun_actions/burst_3.png"
+    },
+    "burst_3_unidentified": {
+      "region": {
+        "x": 91,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 101,
+      "source_file": "gun_actions/burst_3_unidentified.png"
+    },
+    "burst_4": {
+      "region": {
+        "x": 109,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 102,
+      "source_file": "gun_actions/burst_4.png"
+    },
+    "burst_4_unidentified": {
+      "region": {
+        "x": 127,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 103,
+      "source_file": "gun_actions/burst_4_unidentified.png"
+    },
+    "burst_8": {
+      "region": {
+        "x": 145,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 104,
+      "source_file": "gun_actions/burst_8.png"
+    },
+    "burst_x": {
+      "region": {
+        "x": 163,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 105,
+      "source_file": "gun_actions/burst_x.png"
+    },
+    "caster_cast": {
+      "region": {
+        "x": 181,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 106,
+      "source_file": "gun_actions/caster_cast.png"
+    },
+    "cement": {
+      "region": {
+        "x": 199,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 107,
+      "source_file": "gun_actions/cement.png"
+    },
+    "cessation": {
+      "region": {
+        "x": 217,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 108,
+      "source_file": "gun_actions/cessation.png"
+    },
+    "chain_bolt": {
+      "region": {
+        "x": 235,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 109,
+      "source_file": "gun_actions/chain_bolt.png"
+    },
+    "chain_shot": {
+      "region": {
+        "x": 253,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 110,
+      "source_file": "gun_actions/chain_shot.png"
+    },
+    "chainsaw": {
+      "region": {
+        "x": 271,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 111,
+      "source_file": "gun_actions/chainsaw.png"
+    },
+    "chainsaw_unidentified": {
+      "region": {
+        "x": 289,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 112,
+      "source_file": "gun_actions/chainsaw_unidentified.png"
+    },
+    "chaos_polymorph_field": {
+      "region": {
+        "x": 307,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 113,
+      "source_file": "gun_actions/chaos_polymorph_field.png"
+    },
+    "chaos_polymorph_field_unidentified": {
+      "region": {
+        "x": 325,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 114,
+      "source_file": "gun_actions/chaos_polymorph_field_unidentified.png"
+    },
+    "chaotic_arc": {
+      "region": {
+        "x": 343,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 115,
+      "source_file": "gun_actions/chaotic_arc.png"
+    },
+    "charm": {
+      "region": {
+        "x": 361,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 116,
+      "source_file": "gun_actions/charm.png"
+    },
+    "charm_field": {
+      "region": {
+        "x": 379,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 117,
+      "source_file": "gun_actions/charm_field.png"
+    },
+    "charm_on_burning": {
+      "region": {
+        "x": 397,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 118,
+      "source_file": "gun_actions/charm_on_burning.png"
+    },
+    "charm_on_toxic": {
+      "region": {
+        "x": 415,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 119,
+      "source_file": "gun_actions/charm_on_toxic.png"
+    },
+    "circle_acid": {
+      "region": {
+        "x": 433,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 120,
+      "source_file": "gun_actions/circle_acid.png"
+    },
+    "circle_fire": {
+      "region": {
+        "x": 451,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 121,
+      "source_file": "gun_actions/circle_fire.png"
+    },
+    "circle_oil": {
+      "region": {
+        "x": 469,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 122,
+      "source_file": "gun_actions/circle_oil.png"
+    },
+    "circle_shape": {
+      "region": {
+        "x": 487,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 123,
+      "source_file": "gun_actions/circle_shape.png"
+    },
+    "circle_shape_unidentified": {
+      "region": {
+        "x": 505,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 124,
+      "source_file": "gun_actions/circle_shape_unidentified.png"
+    },
+    "circle_water": {
+      "region": {
+        "x": 523,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 125,
+      "source_file": "gun_actions/circle_water.png"
+    },
+    "cleaning_tool": {
+      "region": {
+        "x": 541,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 126,
+      "source_file": "gun_actions/cleaning_tool.png"
+    },
+    "clipping_shot": {
+      "region": {
+        "x": 559,
+        "y": 55,
+        "w": 16,
+        "h": 16
+      },
+      "index": 127,
+      "source_file": "gun_actions/clipping_shot.png"
+    },
+    "cloud_acid": {
+      "region": {
+        "x": 1,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 128,
+      "source_file": "gun_actions/cloud_acid.png"
+    },
+    "cloud_blood": {
+      "region": {
+        "x": 19,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 129,
+      "source_file": "gun_actions/cloud_blood.png"
+    },
+    "cloud_oil": {
+      "region": {
+        "x": 37,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 130,
+      "source_file": "gun_actions/cloud_oil.png"
+    },
+    "cloud_thunder": {
+      "region": {
+        "x": 55,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 131,
+      "source_file": "gun_actions/cloud_thunder.png"
+    },
+    "cloud_water": {
+      "region": {
+        "x": 73,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 132,
+      "source_file": "gun_actions/cloud_water.png"
+    },
+    "cloud_water_unidentified": {
+      "region": {
+        "x": 91,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 133,
+      "source_file": "gun_actions/cloud_water_unidentified.png"
+    },
+    "clusterbomb": {
+      "region": {
+        "x": 109,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 134,
+      "source_file": "gun_actions/clusterbomb.png"
+    },
+    "colour_blue": {
+      "region": {
+        "x": 127,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 135,
+      "source_file": "gun_actions/colour_blue.png"
+    },
+    "colour_green": {
+      "region": {
+        "x": 145,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 136,
+      "source_file": "gun_actions/colour_green.png"
+    },
+    "colour_invis": {
+      "region": {
+        "x": 163,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 137,
+      "source_file": "gun_actions/colour_invis.png"
+    },
+    "colour_orange": {
+      "region": {
+        "x": 181,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 138,
+      "source_file": "gun_actions/colour_orange.png"
+    },
+    "colour_purple": {
+      "region": {
+        "x": 199,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 139,
+      "source_file": "gun_actions/colour_purple.png"
+    },
+    "colour_rainbow": {
+      "region": {
+        "x": 217,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 140,
+      "source_file": "gun_actions/colour_rainbow.png"
+    },
+    "colour_red": {
+      "region": {
+        "x": 235,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 141,
+      "source_file": "gun_actions/colour_red.png"
+    },
+    "colour_yellow": {
+      "region": {
+        "x": 253,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 142,
+      "source_file": "gun_actions/colour_yellow.png"
+    },
+    "commander_bullet": {
+      "region": {
+        "x": 271,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 143,
+      "source_file": "gun_actions/commander_bullet.png"
+    },
+    "critical_blood": {
+      "region": {
+        "x": 289,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 144,
+      "source_file": "gun_actions/critical_blood.png"
+    },
+    "critical_hit": {
+      "region": {
+        "x": 307,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 145,
+      "source_file": "gun_actions/critical_hit.png"
+    },
+    "critical_oil": {
+      "region": {
+        "x": 325,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 146,
+      "source_file": "gun_actions/critical_oil.png"
+    },
+    "critical_water": {
+      "region": {
+        "x": 343,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 147,
+      "source_file": "gun_actions/critical_water.png"
+    },
+    "critical_wet": {
+      "region": {
+        "x": 361,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 148,
+      "source_file": "gun_actions/critical_wet.png"
+    },
+    "crumbling_earth": {
+      "region": {
+        "x": 379,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 149,
+      "source_file": "gun_actions/crumbling_earth.png"
+    },
+    "crumbling_earth_projectile": {
+      "region": {
+        "x": 397,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 150,
+      "source_file": "gun_actions/crumbling_earth_projectile.png"
+    },
+    "curse": {
+      "region": {
+        "x": 415,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 151,
+      "source_file": "gun_actions/curse.png"
+    },
+    "curse_wither_electricity": {
+      "region": {
+        "x": 433,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 152,
+      "source_file": "gun_actions/curse_wither_electricity.png"
+    },
+    "curse_wither_explosion": {
+      "region": {
+        "x": 451,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 153,
+      "source_file": "gun_actions/curse_wither_explosion.png"
+    },
+    "curse_wither_melee": {
+      "region": {
+        "x": 469,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 154,
+      "source_file": "gun_actions/curse_wither_melee.png"
+    },
+    "curse_wither_projectile": {
+      "region": {
+        "x": 487,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 155,
+      "source_file": "gun_actions/curse_wither_projectile.png"
+    },
+    "cursed_orb": {
+      "region": {
+        "x": 505,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 156,
+      "source_file": "gun_actions/cursed_orb.png"
+    },
+    "damage": {
+      "region": {
+        "x": 523,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 157,
+      "source_file": "gun_actions/damage.png"
+    },
+    "damage_forever": {
+      "region": {
+        "x": 541,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 158,
+      "source_file": "gun_actions/damage_forever.png"
+    },
+    "damage_friendly": {
+      "region": {
+        "x": 559,
+        "y": 73,
+        "w": 16,
+        "h": 16
+      },
+      "index": 159,
+      "source_file": "gun_actions/damage_friendly.png"
+    },
+    "damage_friendly_unidentified": {
+      "region": {
+        "x": 1,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 160,
+      "source_file": "gun_actions/damage_friendly_unidentified.png"
+    },
+    "damage_random": {
+      "region": {
+        "x": 19,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 161,
+      "source_file": "gun_actions/damage_random.png"
+    },
+    "damage_unidentified": {
+      "region": {
+        "x": 37,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 162,
+      "source_file": "gun_actions/damage_unidentified.png"
+    },
+    "damage_x2": {
+      "region": {
+        "x": 55,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 163,
+      "source_file": "gun_actions/damage_x2.png"
+    },
+    "damage_x2_unidentified": {
+      "region": {
+        "x": 73,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 164,
+      "source_file": "gun_actions/damage_x2_unidentified.png"
+    },
+    "damage_x5": {
+      "region": {
+        "x": 91,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 165,
+      "source_file": "gun_actions/damage_x5.png"
+    },
+    "darkflame": {
+      "region": {
+        "x": 109,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 166,
+      "source_file": "gun_actions/darkflame.png"
+    },
+    "darkflame_unidentified": {
+      "region": {
+        "x": 127,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 167,
+      "source_file": "gun_actions/darkflame_unidentified.png"
+    },
+    "death_cross": {
+      "region": {
+        "x": 145,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 168,
+      "source_file": "gun_actions/death_cross.png"
+    },
+    "death_cross_big": {
+      "region": {
+        "x": 163,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 169,
+      "source_file": "gun_actions/death_cross_big.png"
+    },
+    "death_cross_unidentified": {
+      "region": {
+        "x": 181,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 170,
+      "source_file": "gun_actions/death_cross_unidentified.png"
+    },
+    "death_trigger": {
+      "region": {
+        "x": 199,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 171,
+      "source_file": "gun_actions/death_trigger.png"
+    },
+    "decelerating_shot": {
+      "region": {
+        "x": 217,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 172,
+      "source_file": "gun_actions/decelerating_shot.png"
+    },
+    "decoy": {
+      "region": {
+        "x": 235,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 173,
+      "source_file": "gun_actions/decoy.png"
+    },
+    "decoy_trigger": {
+      "region": {
+        "x": 253,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 174,
+      "source_file": "gun_actions/decoy_trigger.png"
+    },
+    "decoy_trigger_unidentified": {
+      "region": {
+        "x": 271,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 175,
+      "source_file": "gun_actions/decoy_trigger_unidentified.png"
+    },
+    "decoy_unidentified": {
+      "region": {
+        "x": 289,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 176,
+      "source_file": "gun_actions/decoy_unidentified.png"
+    },
+    "delayed_spell": {
+      "region": {
+        "x": 307,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 177,
+      "source_file": "gun_actions/delayed_spell.png"
+    },
+    "destruction": {
+      "region": {
+        "x": 325,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 178,
+      "source_file": "gun_actions/destruction.png"
+    },
+    "digger": {
+      "region": {
+        "x": 343,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 179,
+      "source_file": "gun_actions/digger.png"
+    },
+    "digger_unidentified": {
+      "region": {
+        "x": 361,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 180,
+      "source_file": "gun_actions/digger_unidentified.png"
+    },
+    "disc_bullet": {
+      "region": {
+        "x": 379,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 181,
+      "source_file": "gun_actions/disc_bullet.png"
+    },
+    "disc_bullet_big": {
+      "region": {
+        "x": 397,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 182,
+      "source_file": "gun_actions/disc_bullet_big.png"
+    },
+    "disc_bullet_unidentified": {
+      "region": {
+        "x": 415,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 183,
+      "source_file": "gun_actions/disc_bullet_unidentified.png"
+    },
+    "divide_10": {
+      "region": {
+        "x": 433,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 184,
+      "source_file": "gun_actions/divide_10.png"
+    },
+    "divide_2": {
+      "region": {
+        "x": 451,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 185,
+      "source_file": "gun_actions/divide_2.png"
+    },
+    "divide_3": {
+      "region": {
+        "x": 469,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 186,
+      "source_file": "gun_actions/divide_3.png"
+    },
+    "divide_4": {
+      "region": {
+        "x": 487,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 187,
+      "source_file": "gun_actions/divide_4.png"
+    },
+    "draw_3_random": {
+      "region": {
+        "x": 505,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 188,
+      "source_file": "gun_actions/draw_3_random.png"
+    },
+    "draw_random": {
+      "region": {
+        "x": 523,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 189,
+      "source_file": "gun_actions/draw_random.png"
+    },
+    "draw_random_x3": {
+      "region": {
+        "x": 541,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 190,
+      "source_file": "gun_actions/draw_random_x3.png"
+    },
+    "drone": {
+      "region": {
+        "x": 559,
+        "y": 91,
+        "w": 16,
+        "h": 16
+      },
+      "index": 191,
+      "source_file": "gun_actions/drone.png"
+    },
+    "duck": {
+      "region": {
+        "x": 1,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 192,
+      "source_file": "gun_actions/duck.png"
+    },
+    "duck_2": {
+      "region": {
+        "x": 19,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 193,
+      "source_file": "gun_actions/duck_2.png"
+    },
+    "duplicate": {
+      "region": {
+        "x": 37,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 194,
+      "source_file": "gun_actions/duplicate.png"
+    },
+    "duplicate_on_death": {
+      "region": {
+        "x": 55,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 195,
+      "source_file": "gun_actions/duplicate_on_death.png"
+    },
+    "dynamite": {
+      "region": {
+        "x": 73,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 196,
+      "source_file": "gun_actions/dynamite.png"
+    },
+    "dynamite_unidentified": {
+      "region": {
+        "x": 91,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 197,
+      "source_file": "gun_actions/dynamite_unidentified.png"
+    },
+    "electric_charge": {
+      "region": {
+        "x": 109,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 198,
+      "source_file": "gun_actions/electric_charge.png"
+    },
+    "electric_charge_unidentified": {
+      "region": {
+        "x": 127,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 199,
+      "source_file": "gun_actions/electric_charge_unidentified.png"
+    },
+    "electrocution_field": {
+      "region": {
+        "x": 145,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 200,
+      "source_file": "gun_actions/electrocution_field.png"
+    },
+    "electrocution_field_unidentified": {
+      "region": {
+        "x": 163,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 201,
+      "source_file": "gun_actions/electrocution_field_unidentified.png"
+    },
+    "empty": {
+      "region": {
+        "x": 181,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 202,
+      "source_file": "gun_actions/empty.png"
+    },
+    "energy_shield": {
+      "region": {
+        "x": 199,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 203,
+      "source_file": "gun_actions/energy_shield.png"
+    },
+    "energy_shield_sector": {
+      "region": {
+        "x": 217,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 204,
+      "source_file": "gun_actions/energy_shield_sector.png"
+    },
+    "energy_shield_sector_unidentified": {
+      "region": {
+        "x": 235,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 205,
+      "source_file": "gun_actions/energy_shield_sector_unidentified.png"
+    },
+    "energy_shield_shot": {
+      "region": {
+        "x": 253,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 206,
+      "source_file": "gun_actions/energy_shield_shot.png"
+    },
+    "energy_shield_unidentified": {
+      "region": {
+        "x": 271,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 207,
+      "source_file": "gun_actions/energy_shield_unidentified.png"
+    },
+    "enlarge": {
+      "region": {
+        "x": 289,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 208,
+      "source_file": "gun_actions/enlarge.png"
+    },
+    "essence_to_power": {
+      "region": {
+        "x": 307,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 209,
+      "source_file": "gun_actions/essence_to_power.png"
+    },
+    "expanding_orb": {
+      "region": {
+        "x": 325,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 210,
+      "source_file": "gun_actions/expanding_orb.png"
+    },
+    "explode_on_alcohol": {
+      "region": {
+        "x": 343,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 211,
+      "source_file": "gun_actions/explode_on_alcohol.png"
+    },
+    "explode_on_alcohol_giga": {
+      "region": {
+        "x": 361,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 212,
+      "source_file": "gun_actions/explode_on_alcohol_giga.png"
+    },
+    "explode_on_slime": {
+      "region": {
+        "x": 379,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 213,
+      "source_file": "gun_actions/explode_on_slime.png"
+    },
+    "explode_on_slime_giga": {
+      "region": {
+        "x": 397,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 214,
+      "source_file": "gun_actions/explode_on_slime_giga.png"
+    },
+    "exploding_deer": {
+      "region": {
+        "x": 415,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 215,
+      "source_file": "gun_actions/exploding_deer.png"
+    },
+    "exploding_deer_unidentified": {
+      "region": {
+        "x": 433,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 216,
+      "source_file": "gun_actions/exploding_deer_unidentified.png"
+    },
+    "explosion": {
+      "region": {
+        "x": 451,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 217,
+      "source_file": "gun_actions/explosion.png"
+    },
+    "explosion_light": {
+      "region": {
+        "x": 469,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 218,
+      "source_file": "gun_actions/explosion_light.png"
+    },
+    "explosion_remove": {
+      "region": {
+        "x": 487,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 219,
+      "source_file": "gun_actions/explosion_remove.png"
+    },
+    "explosion_tiny": {
+      "region": {
+        "x": 505,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 220,
+      "source_file": "gun_actions/explosion_tiny.png"
+    },
+    "explosion_unidentified": {
+      "region": {
+        "x": 523,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 221,
+      "source_file": "gun_actions/explosion_unidentified.png"
+    },
+    "explosive_projectile": {
+      "region": {
+        "x": 541,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 222,
+      "source_file": "gun_actions/explosive_projectile.png"
+    },
+    "explosive_projectile_unidentified": {
+      "region": {
+        "x": 559,
+        "y": 109,
+        "w": 16,
+        "h": 16
+      },
+      "index": 223,
+      "source_file": "gun_actions/explosive_projectile_unidentified.png"
+    },
+    "fire_blast": {
+      "region": {
+        "x": 1,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 224,
+      "source_file": "gun_actions/fire_blast.png"
+    },
+    "fire_blast_unidentified": {
+      "region": {
+        "x": 19,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 225,
+      "source_file": "gun_actions/fire_blast_unidentified.png"
+    },
+    "fire_trail": {
+      "region": {
+        "x": 37,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 226,
+      "source_file": "gun_actions/fire_trail.png"
+    },
+    "fire_trail_unidentified": {
+      "region": {
+        "x": 55,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 227,
+      "source_file": "gun_actions/fire_trail_unidentified.png"
+    },
+    "fireball": {
+      "region": {
+        "x": 73,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 228,
+      "source_file": "gun_actions/fireball.png"
+    },
+    "fireball_ray": {
+      "region": {
+        "x": 91,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 229,
+      "source_file": "gun_actions/fireball_ray.png"
+    },
+    "fireball_ray_enemy": {
+      "region": {
+        "x": 109,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 230,
+      "source_file": "gun_actions/fireball_ray_enemy.png"
+    },
+    "fireball_ray_line": {
+      "region": {
+        "x": 127,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 231,
+      "source_file": "gun_actions/fireball_ray_line.png"
+    },
+    "fireball_unidentified": {
+      "region": {
+        "x": 145,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 232,
+      "source_file": "gun_actions/fireball_unidentified.png"
+    },
+    "firebomb": {
+      "region": {
+        "x": 163,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 233,
+      "source_file": "gun_actions/firebomb.png"
+    },
+    "firebomb_unidentified": {
+      "region": {
+        "x": 181,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 234,
+      "source_file": "gun_actions/firebomb_unidentified.png"
+    },
+    "fireworks": {
+      "region": {
+        "x": 199,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 235,
+      "source_file": "gun_actions/fireworks.png"
+    },
+    "fish": {
+      "region": {
+        "x": 217,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 236,
+      "source_file": "gun_actions/fish.png"
+    },
+    "fizzle": {
+      "region": {
+        "x": 235,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 237,
+      "source_file": "gun_actions/fizzle.png"
+    },
+    "flamethrower": {
+      "region": {
+        "x": 253,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 238,
+      "source_file": "gun_actions/flamethrower.png"
+    },
+    "flamethrower_unidentified": {
+      "region": {
+        "x": 271,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 239,
+      "source_file": "gun_actions/flamethrower_unidentified.png"
+    },
+    "floating_arc": {
+      "region": {
+        "x": 289,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 240,
+      "source_file": "gun_actions/floating_arc.png"
+    },
+    "flowershot": {
+      "region": {
+        "x": 307,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 241,
+      "source_file": "gun_actions/flowershot.png"
+    },
+    "fly_downwards": {
+      "region": {
+        "x": 325,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 242,
+      "source_file": "gun_actions/fly_downwards.png"
+    },
+    "fly_upwards": {
+      "region": {
+        "x": 343,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 243,
+      "source_file": "gun_actions/fly_upwards.png"
+    },
+    "freeze": {
+      "region": {
+        "x": 361,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 244,
+      "source_file": "gun_actions/freeze.png"
+    },
+    "freeze_alt": {
+      "region": {
+        "x": 379,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 245,
+      "source_file": "gun_actions/freeze_alt.png"
+    },
+    "freeze_field": {
+      "region": {
+        "x": 397,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 246,
+      "source_file": "gun_actions/freeze_field.png"
+    },
+    "freeze_field_unidentified": {
+      "region": {
+        "x": 415,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 247,
+      "source_file": "gun_actions/freeze_field_unidentified.png"
+    },
+    "freeze_unidentified": {
+      "region": {
+        "x": 433,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 248,
+      "source_file": "gun_actions/freeze_unidentified.png"
+    },
+    "freezing_gaze": {
+      "region": {
+        "x": 451,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 249,
+      "source_file": "gun_actions/freezing_gaze.png"
+    },
+    "friend_fly": {
+      "region": {
+        "x": 469,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 250,
+      "source_file": "gun_actions/friend_fly.png"
+    },
+    "gamma": {
+      "region": {
+        "x": 487,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 251,
+      "source_file": "gun_actions/gamma.png"
+    },
+    "generate_random_deck_5": {
+      "region": {
+        "x": 505,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 252,
+      "source_file": "gun_actions/generate_random_deck_5.png"
+    },
+    "glitter_bomb": {
+      "region": {
+        "x": 523,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 253,
+      "source_file": "gun_actions/glitter_bomb.png"
+    },
+    "glowing_bolt": {
+      "region": {
+        "x": 541,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 254,
+      "source_file": "gun_actions/glowing_bolt.png"
+    },
+    "glue_shot": {
+      "region": {
+        "x": 559,
+        "y": 127,
+        "w": 16,
+        "h": 16
+      },
+      "index": 255,
+      "source_file": "gun_actions/glue_shot.png"
+    },
+    "golden_punch": {
+      "region": {
+        "x": 1,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 256,
+      "source_file": "gun_actions/golden_punch.png"
+    },
+    "gore": {
+      "region": {
+        "x": 19,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 257,
+      "source_file": "gun_actions/gore.png"
+    },
+    "gravity": {
+      "region": {
+        "x": 37,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 258,
+      "source_file": "gun_actions/gravity.png"
+    },
+    "gravity_anti": {
+      "region": {
+        "x": 55,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 259,
+      "source_file": "gun_actions/gravity_anti.png"
+    },
+    "gravity_field_enemy": {
+      "region": {
+        "x": 73,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 260,
+      "source_file": "gun_actions/gravity_field_enemy.png"
+    },
+    "grenade": {
+      "region": {
+        "x": 91,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 261,
+      "source_file": "gun_actions/grenade.png"
+    },
+    "grenade_anti": {
+      "region": {
+        "x": 109,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 262,
+      "source_file": "gun_actions/grenade_anti.png"
+    },
+    "grenade_large": {
+      "region": {
+        "x": 127,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 263,
+      "source_file": "gun_actions/grenade_large.png"
+    },
+    "grenade_tier_2": {
+      "region": {
+        "x": 145,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 264,
+      "source_file": "gun_actions/grenade_tier_2.png"
+    },
+    "grenade_tier_3": {
+      "region": {
+        "x": 163,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 265,
+      "source_file": "gun_actions/grenade_tier_3.png"
+    },
+    "grenade_trigger": {
+      "region": {
+        "x": 181,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 266,
+      "source_file": "gun_actions/grenade_trigger.png"
+    },
+    "grenade_trigger_unidentified": {
+      "region": {
+        "x": 199,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 267,
+      "source_file": "gun_actions/grenade_trigger_unidentified.png"
+    },
+    "grenade_unidentified": {
+      "region": {
+        "x": 217,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 268,
+      "source_file": "gun_actions/grenade_unidentified.png"
+    },
+    "gun": {
+      "region": {
+        "x": 235,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 269,
+      "source_file": "gun_actions/gun.png"
+    },
+    "gunpowder_trail": {
+      "region": {
+        "x": 253,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 270,
+      "source_file": "gun_actions/gunpowder_trail.png"
+    },
+    "heal_bullet": {
+      "region": {
+        "x": 271,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 271,
+      "source_file": "gun_actions/heal_bullet.png"
+    },
+    "heal_bullet_unidentified": {
+      "region": {
+        "x": 289,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 272,
+      "source_file": "gun_actions/heal_bullet_unidentified.png"
+    },
+    "heavy_bullet": {
+      "region": {
+        "x": 307,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 273,
+      "source_file": "gun_actions/heavy_bullet.png"
+    },
+    "heavy_bullet_timer": {
+      "region": {
+        "x": 325,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 274,
+      "source_file": "gun_actions/heavy_bullet_timer.png"
+    },
+    "heavy_bullet_timer_unidentified": {
+      "region": {
+        "x": 343,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 275,
+      "source_file": "gun_actions/heavy_bullet_timer_unidentified.png"
+    },
+    "heavy_bullet_trigger": {
+      "region": {
+        "x": 361,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 276,
+      "source_file": "gun_actions/heavy_bullet_trigger.png"
+    },
+    "heavy_bullet_trigger_unidentified": {
+      "region": {
+        "x": 379,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 277,
+      "source_file": "gun_actions/heavy_bullet_trigger_unidentified.png"
+    },
+    "heavy_bullet_unidentified": {
+      "region": {
+        "x": 397,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 278,
+      "source_file": "gun_actions/heavy_bullet_unidentified.png"
+    },
+    "heavy_shot": {
+      "region": {
+        "x": 415,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 279,
+      "source_file": "gun_actions/heavy_shot.png"
+    },
+    "heavy_shot_unidentified": {
+      "region": {
+        "x": 433,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 280,
+      "source_file": "gun_actions/heavy_shot_unidentified.png"
+    },
+    "heavy_spread": {
+      "region": {
+        "x": 451,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 281,
+      "source_file": "gun_actions/heavy_spread.png"
+    },
+    "hexa_shot": {
+      "region": {
+        "x": 469,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 282,
+      "source_file": "gun_actions/hexa_shot.png"
+    },
+    "high_explosive": {
+      "region": {
+        "x": 487,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 283,
+      "source_file": "gun_actions/high_explosive.png"
+    },
+    "homing": {
+      "region": {
+        "x": 505,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 284,
+      "source_file": "gun_actions/homing.png"
+    },
+    "homing_accelerating": {
+      "region": {
+        "x": 523,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 285,
+      "source_file": "gun_actions/homing_accelerating.png"
+    },
+    "homing_area": {
+      "region": {
+        "x": 541,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 286,
+      "source_file": "gun_actions/homing_area.png"
+    },
+    "homing_cursor": {
+      "region": {
+        "x": 559,
+        "y": 145,
+        "w": 16,
+        "h": 16
+      },
+      "index": 287,
+      "source_file": "gun_actions/homing_cursor.png"
+    },
+    "homing_projectile": {
+      "region": {
+        "x": 1,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 288,
+      "source_file": "gun_actions/homing_projectile.png"
+    },
+    "homing_rotate": {
+      "region": {
+        "x": 19,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 289,
+      "source_file": "gun_actions/homing_rotate.png"
+    },
+    "homing_shooter": {
+      "region": {
+        "x": 37,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 290,
+      "source_file": "gun_actions/homing_shooter.png"
+    },
+    "homing_short": {
+      "region": {
+        "x": 55,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 291,
+      "source_file": "gun_actions/homing_short.png"
+    },
+    "homing_unidentified": {
+      "region": {
+        "x": 73,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 292,
+      "source_file": "gun_actions/homing_unidentified.png"
+    },
+    "homing_wand": {
+      "region": {
+        "x": 91,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 293,
+      "source_file": "gun_actions/homing_wand.png"
+    },
+    "hook": {
+      "region": {
+        "x": 109,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 294,
+      "source_file": "gun_actions/hook.png"
+    },
+    "horizontal_arc": {
+      "region": {
+        "x": 127,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 295,
+      "source_file": "gun_actions/horizontal_arc.png"
+    },
+    "i-shape": {
+      "region": {
+        "x": 145,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 296,
+      "source_file": "gun_actions/i-shape.png"
+    },
+    "i_shape": {
+      "region": {
+        "x": 163,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 297,
+      "source_file": "gun_actions/i_shape.png"
+    },
+    "i_shape_unidentified": {
+      "region": {
+        "x": 181,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 298,
+      "source_file": "gun_actions/i_shape_unidentified.png"
+    },
+    "i_shot": {
+      "region": {
+        "x": 199,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 299,
+      "source_file": "gun_actions/i_shot.png"
+    },
+    "iceball": {
+      "region": {
+        "x": 217,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 300,
+      "source_file": "gun_actions/iceball.png"
+    },
+    "icecircle": {
+      "region": {
+        "x": 235,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 301,
+      "source_file": "gun_actions/icecircle.png"
+    },
+    "icethrower": {
+      "region": {
+        "x": 253,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 302,
+      "source_file": "gun_actions/icethrower.png"
+    },
+    "if_else": {
+      "region": {
+        "x": 271,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 303,
+      "source_file": "gun_actions/if_else.png"
+    },
+    "if_end": {
+      "region": {
+        "x": 289,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 304,
+      "source_file": "gun_actions/if_end.png"
+    },
+    "if_enemy": {
+      "region": {
+        "x": 307,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 305,
+      "source_file": "gun_actions/if_enemy.png"
+    },
+    "if_half": {
+      "region": {
+        "x": 325,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 306,
+      "source_file": "gun_actions/if_half.png"
+    },
+    "if_hp": {
+      "region": {
+        "x": 343,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 307,
+      "source_file": "gun_actions/if_hp.png"
+    },
+    "if_projectile": {
+      "region": {
+        "x": 361,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 308,
+      "source_file": "gun_actions/if_projectile.png"
+    },
+    "inebriation": {
+      "region": {
+        "x": 379,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 309,
+      "source_file": "gun_actions/inebriation.png"
+    },
+    "infestation": {
+      "region": {
+        "x": 397,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 310,
+      "source_file": "gun_actions/infestation.png"
+    },
+    "kantele_a": {
+      "region": {
+        "x": 415,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 311,
+      "source_file": "gun_actions/kantele_a.png"
+    },
+    "kantele_a2": {
+      "region": {
+        "x": 433,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 312,
+      "source_file": "gun_actions/kantele_a2.png"
+    },
+    "kantele_b": {
+      "region": {
+        "x": 451,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 313,
+      "source_file": "gun_actions/kantele_b.png"
+    },
+    "kantele_c": {
+      "region": {
+        "x": 469,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 314,
+      "source_file": "gun_actions/kantele_c.png"
+    },
+    "kantele_d": {
+      "region": {
+        "x": 487,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 315,
+      "source_file": "gun_actions/kantele_d.png"
+    },
+    "kantele_dis": {
+      "region": {
+        "x": 505,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 316,
+      "source_file": "gun_actions/kantele_dis.png"
+    },
+    "kantele_e": {
+      "region": {
+        "x": 523,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 317,
+      "source_file": "gun_actions/kantele_e.png"
+    },
+    "kantele_f": {
+      "region": {
+        "x": 541,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 318,
+      "source_file": "gun_actions/kantele_f.png"
+    },
+    "kantele_g": {
+      "region": {
+        "x": 559,
+        "y": 163,
+        "w": 16,
+        "h": 16
+      },
+      "index": 319,
+      "source_file": "gun_actions/kantele_g.png"
+    },
+    "kantele_gsharp": {
+      "region": {
+        "x": 1,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 320,
+      "source_file": "gun_actions/kantele_gsharp.png"
+    },
+    "keyshot": {
+      "region": {
+        "x": 19,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 321,
+      "source_file": "gun_actions/keyshot.png"
+    },
+    "knife": {
+      "region": {
+        "x": 37,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 322,
+      "source_file": "gun_actions/knife.png"
+    },
+    "knockback": {
+      "region": {
+        "x": 55,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 323,
+      "source_file": "gun_actions/knockback.png"
+    },
+    "knockback_unidentified": {
+      "region": {
+        "x": 73,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 324,
+      "source_file": "gun_actions/knockback_unidentified.png"
+    },
+    "lance": {
+      "region": {
+        "x": 91,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 325,
+      "source_file": "gun_actions/lance.png"
+    },
+    "lance_holy": {
+      "region": {
+        "x": 109,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 326,
+      "source_file": "gun_actions/lance_holy.png"
+    },
+    "lance_unidentified": {
+      "region": {
+        "x": 127,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 327,
+      "source_file": "gun_actions/lance_unidentified.png"
+    },
+    "larpa_chaos": {
+      "region": {
+        "x": 145,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 328,
+      "source_file": "gun_actions/larpa_chaos.png"
+    },
+    "larpa_chaos_2": {
+      "region": {
+        "x": 163,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 329,
+      "source_file": "gun_actions/larpa_chaos_2.png"
+    },
+    "larpa_death": {
+      "region": {
+        "x": 181,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 330,
+      "source_file": "gun_actions/larpa_death.png"
+    },
+    "larpa_downwards": {
+      "region": {
+        "x": 199,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 331,
+      "source_file": "gun_actions/larpa_downwards.png"
+    },
+    "larpa_upwards": {
+      "region": {
+        "x": 217,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 332,
+      "source_file": "gun_actions/larpa_upwards.png"
+    },
+    "laser": {
+      "region": {
+        "x": 235,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 333,
+      "source_file": "gun_actions/laser.png"
+    },
+    "laser_emitter": {
+      "region": {
+        "x": 253,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 334,
+      "source_file": "gun_actions/laser_emitter.png"
+    },
+    "laser_emitter_cutter": {
+      "region": {
+        "x": 271,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 335,
+      "source_file": "gun_actions/laser_emitter_cutter.png"
+    },
+    "laser_emitter_four": {
+      "region": {
+        "x": 289,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 336,
+      "source_file": "gun_actions/laser_emitter_four.png"
+    },
+    "laser_emitter_ray": {
+      "region": {
+        "x": 307,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 337,
+      "source_file": "gun_actions/laser_emitter_ray.png"
+    },
+    "laser_emitter_wider": {
+      "region": {
+        "x": 325,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 338,
+      "source_file": "gun_actions/laser_emitter_wider.png"
+    },
+    "laser_unidentified": {
+      "region": {
+        "x": 343,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 339,
+      "source_file": "gun_actions/laser_unidentified.png"
+    },
+    "lava_to_blood": {
+      "region": {
+        "x": 361,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 340,
+      "source_file": "gun_actions/lava_to_blood.png"
+    },
+    "levitation_field": {
+      "region": {
+        "x": 379,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 341,
+      "source_file": "gun_actions/levitation_field.png"
+    },
+    "levitation_field_unidentified": {
+      "region": {
+        "x": 397,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 342,
+      "source_file": "gun_actions/levitation_field_unidentified.png"
+    },
+    "levitation_projectile": {
+      "region": {
+        "x": 415,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 343,
+      "source_file": "gun_actions/levitation_projectile.png"
+    },
+    "lifetime": {
+      "region": {
+        "x": 433,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 344,
+      "source_file": "gun_actions/lifetime.png"
+    },
+    "lifetime_down": {
+      "region": {
+        "x": 451,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 345,
+      "source_file": "gun_actions/lifetime_down.png"
+    },
+    "lifetime_infinite": {
+      "region": {
+        "x": 469,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 346,
+      "source_file": "gun_actions/lifetime_infinite.png"
+    },
+    "light": {
+      "region": {
+        "x": 487,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 347,
+      "source_file": "gun_actions/light.png"
+    },
+    "light_bullet": {
+      "region": {
+        "x": 505,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 348,
+      "source_file": "gun_actions/light_bullet.png"
+    },
+    "light_bullet_timer": {
+      "region": {
+        "x": 523,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 349,
+      "source_file": "gun_actions/light_bullet_timer.png"
+    },
+    "light_bullet_timer_unidentified": {
+      "region": {
+        "x": 541,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 350,
+      "source_file": "gun_actions/light_bullet_timer_unidentified.png"
+    },
+    "light_bullet_trigger": {
+      "region": {
+        "x": 559,
+        "y": 181,
+        "w": 16,
+        "h": 16
+      },
+      "index": 351,
+      "source_file": "gun_actions/light_bullet_trigger.png"
+    },
+    "light_bullet_trigger_2": {
+      "region": {
+        "x": 1,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 352,
+      "source_file": "gun_actions/light_bullet_trigger_2.png"
+    },
+    "light_bullet_trigger_2_unidentified": {
+      "region": {
+        "x": 19,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 353,
+      "source_file": "gun_actions/light_bullet_trigger_2_unidentified.png"
+    },
+    "light_bullet_trigger_timer": {
+      "region": {
+        "x": 37,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 354,
+      "source_file": "gun_actions/light_bullet_trigger_timer.png"
+    },
+    "light_bullet_trigger_unidentified": {
+      "region": {
+        "x": 55,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 355,
+      "source_file": "gun_actions/light_bullet_trigger_unidentified.png"
+    },
+    "light_bullet_unidentified": {
+      "region": {
+        "x": 73,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 356,
+      "source_file": "gun_actions/light_bullet_unidentified.png"
+    },
+    "light_shot": {
+      "region": {
+        "x": 91,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 357,
+      "source_file": "gun_actions/light_shot.png"
+    },
+    "lightning": {
+      "region": {
+        "x": 109,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 358,
+      "source_file": "gun_actions/lightning.png"
+    },
+    "lightning_ray": {
+      "region": {
+        "x": 127,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 359,
+      "source_file": "gun_actions/lightning_ray.png"
+    },
+    "lightning_ray_enemy": {
+      "region": {
+        "x": 145,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 360,
+      "source_file": "gun_actions/lightning_ray_enemy.png"
+    },
+    "lightning_unidentified": {
+      "region": {
+        "x": 163,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 361,
+      "source_file": "gun_actions/lightning_unidentified.png"
+    },
+    "line_arc": {
+      "region": {
+        "x": 181,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 362,
+      "source_file": "gun_actions/line_arc.png"
+    },
+    "liquid_to_explosion": {
+      "region": {
+        "x": 199,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 363,
+      "source_file": "gun_actions/liquid_to_explosion.png"
+    },
+    "long_distance_cast": {
+      "region": {
+        "x": 217,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 364,
+      "source_file": "gun_actions/long_distance_cast.png"
+    },
+    "luminous_drill": {
+      "region": {
+        "x": 235,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 365,
+      "source_file": "gun_actions/luminous_drill.png"
+    },
+    "luminous_drill_timer": {
+      "region": {
+        "x": 253,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 366,
+      "source_file": "gun_actions/luminous_drill_timer.png"
+    },
+    "machinegun_bullet": {
+      "region": {
+        "x": 271,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 367,
+      "source_file": "gun_actions/machinegun_bullet.png"
+    },
+    "magic_shield": {
+      "region": {
+        "x": 289,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 368,
+      "source_file": "gun_actions/magic_shield.png"
+    },
+    "mana": {
+      "region": {
+        "x": 307,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 369,
+      "source_file": "gun_actions/mana.png"
+    },
+    "mana_recharge": {
+      "region": {
+        "x": 325,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 370,
+      "source_file": "gun_actions/mana_recharge.png"
+    },
+    "material_acid": {
+      "region": {
+        "x": 343,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 371,
+      "source_file": "gun_actions/material_acid.png"
+    },
+    "material_acid_unidentified": {
+      "region": {
+        "x": 361,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 372,
+      "source_file": "gun_actions/material_acid_unidentified.png"
+    },
+    "material_blood": {
+      "region": {
+        "x": 379,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 373,
+      "source_file": "gun_actions/material_blood.png"
+    },
+    "material_blood_unidentified": {
+      "region": {
+        "x": 397,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 374,
+      "source_file": "gun_actions/material_blood_unidentified.png"
+    },
+    "material_cement": {
+      "region": {
+        "x": 415,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 375,
+      "source_file": "gun_actions/material_cement.png"
+    },
+    "material_debug": {
+      "region": {
+        "x": 433,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 376,
+      "source_file": "gun_actions/material_debug.png"
+    },
+    "material_dirt": {
+      "region": {
+        "x": 451,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 377,
+      "source_file": "gun_actions/material_dirt.png"
+    },
+    "material_gunpowder_explosive": {
+      "region": {
+        "x": 469,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 378,
+      "source_file": "gun_actions/material_gunpowder_explosive.png"
+    },
+    "material_lava": {
+      "region": {
+        "x": 487,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 379,
+      "source_file": "gun_actions/material_lava.png"
+    },
+    "material_liquid": {
+      "region": {
+        "x": 505,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 380,
+      "source_file": "gun_actions/material_liquid.png"
+    },
+    "material_oil": {
+      "region": {
+        "x": 523,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 381,
+      "source_file": "gun_actions/material_oil.png"
+    },
+    "material_oil_unidentified": {
+      "region": {
+        "x": 541,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 382,
+      "source_file": "gun_actions/material_oil_unidentified.png"
+    },
+    "material_water": {
+      "region": {
+        "x": 559,
+        "y": 199,
+        "w": 16,
+        "h": 16
+      },
+      "index": 383,
+      "source_file": "gun_actions/material_water.png"
+    },
+    "material_water_unidentified": {
+      "region": {
+        "x": 1,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 384,
+      "source_file": "gun_actions/material_water_unidentified.png"
+    },
+    "matter_eater": {
+      "region": {
+        "x": 19,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 385,
+      "source_file": "gun_actions/matter_eater.png"
+    },
+    "megalaser": {
+      "region": {
+        "x": 37,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 386,
+      "source_file": "gun_actions/megalaser.png"
+    },
+    "meteor": {
+      "region": {
+        "x": 55,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 387,
+      "source_file": "gun_actions/meteor.png"
+    },
+    "meteor_rain": {
+      "region": {
+        "x": 73,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 388,
+      "source_file": "gun_actions/meteor_rain.png"
+    },
+    "meteor_unidentified": {
+      "region": {
+        "x": 91,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 389,
+      "source_file": "gun_actions/meteor_unidentified.png"
+    },
+    "midas": {
+      "region": {
+        "x": 109,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 390,
+      "source_file": "gun_actions/midas.png"
+    },
+    "mine": {
+      "region": {
+        "x": 127,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 391,
+      "source_file": "gun_actions/mine.png"
+    },
+    "mine_death_trigger": {
+      "region": {
+        "x": 145,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 392,
+      "source_file": "gun_actions/mine_death_trigger.png"
+    },
+    "mine_death_trigger_unidentified": {
+      "region": {
+        "x": 163,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 393,
+      "source_file": "gun_actions/mine_death_trigger_unidentified.png"
+    },
+    "mine_unidentified": {
+      "region": {
+        "x": 181,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 394,
+      "source_file": "gun_actions/mine_unidentified.png"
+    },
+    "misfire": {
+      "region": {
+        "x": 199,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 395,
+      "source_file": "gun_actions/misfire.png"
+    },
+    "misfire_critical": {
+      "region": {
+        "x": 217,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 396,
+      "source_file": "gun_actions/misfire_critical.png"
+    },
+    "missile": {
+      "region": {
+        "x": 235,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 397,
+      "source_file": "gun_actions/missile.png"
+    },
+    "mist_alcohol": {
+      "region": {
+        "x": 253,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 398,
+      "source_file": "gun_actions/mist_alcohol.png"
+    },
+    "mist_blood": {
+      "region": {
+        "x": 271,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 399,
+      "source_file": "gun_actions/mist_blood.png"
+    },
+    "mist_radioactive": {
+      "region": {
+        "x": 289,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 400,
+      "source_file": "gun_actions/mist_radioactive.png"
+    },
+    "mist_slime": {
+      "region": {
+        "x": 307,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 401,
+      "source_file": "gun_actions/mist_slime.png"
+    },
+    "mu": {
+      "region": {
+        "x": 325,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 402,
+      "source_file": "gun_actions/mu.png"
+    },
+    "necromancy": {
+      "region": {
+        "x": 343,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 403,
+      "source_file": "gun_actions/necromancy.png"
+    },
+    "nolla": {
+      "region": {
+        "x": 361,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 404,
+      "source_file": "gun_actions/nolla.png"
+    },
+    "nuke": {
+      "region": {
+        "x": 379,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 405,
+      "source_file": "gun_actions/nuke.png"
+    },
+    "nuke_giga": {
+      "region": {
+        "x": 397,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 406,
+      "source_file": "gun_actions/nuke_giga.png"
+    },
+    "nuke_unidentified": {
+      "region": {
+        "x": 415,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 407,
+      "source_file": "gun_actions/nuke_unidentified.png"
+    },
+    "ocarina_a": {
+      "region": {
+        "x": 433,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 408,
+      "source_file": "gun_actions/ocarina_a.png"
+    },
+    "ocarina_a2": {
+      "region": {
+        "x": 451,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 409,
+      "source_file": "gun_actions/ocarina_a2.png"
+    },
+    "ocarina_b": {
+      "region": {
+        "x": 469,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 410,
+      "source_file": "gun_actions/ocarina_b.png"
+    },
+    "ocarina_c": {
+      "region": {
+        "x": 487,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 411,
+      "source_file": "gun_actions/ocarina_c.png"
+    },
+    "ocarina_d": {
+      "region": {
+        "x": 505,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 412,
+      "source_file": "gun_actions/ocarina_d.png"
+    },
+    "ocarina_e": {
+      "region": {
+        "x": 523,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 413,
+      "source_file": "gun_actions/ocarina_e.png"
+    },
+    "ocarina_f": {
+      "region": {
+        "x": 541,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 414,
+      "source_file": "gun_actions/ocarina_f.png"
+    },
+    "ocarina_gsharp": {
+      "region": {
+        "x": 559,
+        "y": 217,
+        "w": 16,
+        "h": 16
+      },
+      "index": 415,
+      "source_file": "gun_actions/ocarina_gsharp.png"
+    },
+    "oil_trail": {
+      "region": {
+        "x": 1,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 416,
+      "source_file": "gun_actions/oil_trail.png"
+    },
+    "oil_trail_unindentified": {
+      "region": {
+        "x": 19,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 417,
+      "source_file": "gun_actions/oil_trail_unindentified.png"
+    },
+    "oiled_4x_damage": {
+      "region": {
+        "x": 37,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 418,
+      "source_file": "gun_actions/oiled_4x_damage.png"
+    },
+    "oiled_freeze": {
+      "region": {
+        "x": 55,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 419,
+      "source_file": "gun_actions/oiled_freeze.png"
+    },
+    "omega": {
+      "region": {
+        "x": 73,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 420,
+      "source_file": "gun_actions/omega.png"
+    },
+    "omega_disc_bullet": {
+      "region": {
+        "x": 91,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 421,
+      "source_file": "gun_actions/omega_disc_bullet.png"
+    },
+    "orbit_discs": {
+      "region": {
+        "x": 109,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 422,
+      "source_file": "gun_actions/orbit_discs.png"
+    },
+    "orbit_fireballs": {
+      "region": {
+        "x": 127,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 423,
+      "source_file": "gun_actions/orbit_fireballs.png"
+    },
+    "orbit_larpa": {
+      "region": {
+        "x": 145,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 424,
+      "source_file": "gun_actions/orbit_larpa.png"
+    },
+    "orbit_lasers": {
+      "region": {
+        "x": 163,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 425,
+      "source_file": "gun_actions/orbit_lasers.png"
+    },
+    "orbit_nukes": {
+      "region": {
+        "x": 181,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 426,
+      "source_file": "gun_actions/orbit_nukes.png"
+    },
+    "orbit_shot": {
+      "region": {
+        "x": 199,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 427,
+      "source_file": "gun_actions/orbit_shot.png"
+    },
+    "pebble": {
+      "region": {
+        "x": 217,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 428,
+      "source_file": "gun_actions/pebble.png"
+    },
+    "pebble_unidentified": {
+      "region": {
+        "x": 235,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 429,
+      "source_file": "gun_actions/pebble_unidentified.png"
+    },
+    "penetrate_walls": {
+      "region": {
+        "x": 253,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 430,
+      "source_file": "gun_actions/penetrate_walls.png"
+    },
+    "penta_shot": {
+      "region": {
+        "x": 271,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 431,
+      "source_file": "gun_actions/penta_shot.png"
+    },
+    "pentagram_shape": {
+      "region": {
+        "x": 289,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 432,
+      "source_file": "gun_actions/pentagram_shape.png"
+    },
+    "pentagram_shape_unidentified": {
+      "region": {
+        "x": 307,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 433,
+      "source_file": "gun_actions/pentagram_shape_unidentified.png"
+    },
+    "petrify": {
+      "region": {
+        "x": 325,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 434,
+      "source_file": "gun_actions/petrify.png"
+    },
+    "phantomshot_a": {
+      "region": {
+        "x": 343,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 435,
+      "source_file": "gun_actions/phantomshot_a.png"
+    },
+    "phantomshot_b": {
+      "region": {
+        "x": 361,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 436,
+      "source_file": "gun_actions/phantomshot_b.png"
+    },
+    "phasing_arc": {
+      "region": {
+        "x": 379,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 437,
+      "source_file": "gun_actions/phasing_arc.png"
+    },
+    "phi": {
+      "region": {
+        "x": 397,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 438,
+      "source_file": "gun_actions/phi.png"
+    },
+    "piercing_shot": {
+      "region": {
+        "x": 415,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 439,
+      "source_file": "gun_actions/piercing_shot.png"
+    },
+    "pingpong_path": {
+      "region": {
+        "x": 433,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 440,
+      "source_file": "gun_actions/pingpong_path.png"
+    },
+    "pink_orb": {
+      "region": {
+        "x": 451,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 441,
+      "source_file": "gun_actions/pink_orb.png"
+    },
+    "pipe_bomb": {
+      "region": {
+        "x": 469,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 442,
+      "source_file": "gun_actions/pipe_bomb.png"
+    },
+    "pipe_bomb_death_trigger": {
+      "region": {
+        "x": 487,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 443,
+      "source_file": "gun_actions/pipe_bomb_death_trigger.png"
+    },
+    "pipe_bomb_death_trigger_unidentified": {
+      "region": {
+        "x": 505,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 444,
+      "source_file": "gun_actions/pipe_bomb_death_trigger_unidentified.png"
+    },
+    "pipe_bomb_detonator": {
+      "region": {
+        "x": 523,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 445,
+      "source_file": "gun_actions/pipe_bomb_detonator.png"
+    },
+    "pipe_bomb_detonator_unidentified": {
+      "region": {
+        "x": 541,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 446,
+      "source_file": "gun_actions/pipe_bomb_detonator_unidentified.png"
+    },
+    "pipe_bomb_unidentified": {
+      "region": {
+        "x": 559,
+        "y": 235,
+        "w": 16,
+        "h": 16
+      },
+      "index": 447,
+      "source_file": "gun_actions/pipe_bomb_unidentified.png"
+    },
+    "plasma_flare": {
+      "region": {
+        "x": 1,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 448,
+      "source_file": "gun_actions/plasma_flare.png"
+    },
+    "poison_blast": {
+      "region": {
+        "x": 19,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 449,
+      "source_file": "gun_actions/poison_blast.png"
+    },
+    "poison_blast_unidentified": {
+      "region": {
+        "x": 37,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 450,
+      "source_file": "gun_actions/poison_blast_unidentified.png"
+    },
+    "poison_trail": {
+      "region": {
+        "x": 55,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 451,
+      "source_file": "gun_actions/poison_trail.png"
+    },
+    "poison_trail_unidentified": {
+      "region": {
+        "x": 73,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 452,
+      "source_file": "gun_actions/poison_trail_unidentified.png"
+    },
+    "pollen": {
+      "region": {
+        "x": 91,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 453,
+      "source_file": "gun_actions/pollen.png"
+    },
+    "polymorph": {
+      "region": {
+        "x": 109,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 454,
+      "source_file": "gun_actions/polymorph.png"
+    },
+    "polymorph_field": {
+      "region": {
+        "x": 127,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 455,
+      "source_file": "gun_actions/polymorph_field.png"
+    },
+    "polymorph_field_unidentified": {
+      "region": {
+        "x": 145,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 456,
+      "source_file": "gun_actions/polymorph_field_unidentified.png"
+    },
+    "poo_trail": {
+      "region": {
+        "x": 163,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 457,
+      "source_file": "gun_actions/poo_trail.png"
+    },
+    "powerdigger": {
+      "region": {
+        "x": 181,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 458,
+      "source_file": "gun_actions/powerdigger.png"
+    },
+    "powerdigger_unidentified": {
+      "region": {
+        "x": 199,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 459,
+      "source_file": "gun_actions/powerdigger_unidentified.png"
+    },
+    "projectile_gravity_field": {
+      "region": {
+        "x": 217,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 460,
+      "source_file": "gun_actions/projectile_gravity_field.png"
+    },
+    "projectile_thunder_field": {
+      "region": {
+        "x": 235,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 461,
+      "source_file": "gun_actions/projectile_thunder_field.png"
+    },
+    "projectile_transmutation_field": {
+      "region": {
+        "x": 253,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 462,
+      "source_file": "gun_actions/projectile_transmutation_field.png"
+    },
+    "propane_tank": {
+      "region": {
+        "x": 271,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 463,
+      "source_file": "gun_actions/propane_tank.png"
+    },
+    "purple_explosion_field": {
+      "region": {
+        "x": 289,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 464,
+      "source_file": "gun_actions/purple_explosion_field.png"
+    },
+    "quad_shot": {
+      "region": {
+        "x": 307,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 465,
+      "source_file": "gun_actions/quad_shot.png"
+    },
+    "quantum_split": {
+      "region": {
+        "x": 325,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 466,
+      "source_file": "gun_actions/quantum_split.png"
+    },
+    "rainbow_trail": {
+      "region": {
+        "x": 343,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 467,
+      "source_file": "gun_actions/rainbow_trail.png"
+    },
+    "random_explosion": {
+      "region": {
+        "x": 361,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 468,
+      "source_file": "gun_actions/random_explosion.png"
+    },
+    "random_modifier": {
+      "region": {
+        "x": 379,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 469,
+      "source_file": "gun_actions/random_modifier.png"
+    },
+    "random_projectile": {
+      "region": {
+        "x": 397,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 470,
+      "source_file": "gun_actions/random_projectile.png"
+    },
+    "random_spell": {
+      "region": {
+        "x": 415,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 471,
+      "source_file": "gun_actions/random_spell.png"
+    },
+    "random_static_projectile": {
+      "region": {
+        "x": 433,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 472,
+      "source_file": "gun_actions/random_static_projectile.png"
+    },
+    "recharge": {
+      "region": {
+        "x": 451,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 473,
+      "source_file": "gun_actions/recharge.png"
+    },
+    "recoil": {
+      "region": {
+        "x": 469,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 474,
+      "source_file": "gun_actions/recoil.png"
+    },
+    "recoil_damper": {
+      "region": {
+        "x": 487,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 475,
+      "source_file": "gun_actions/recoil_damper.png"
+    },
+    "recoil_damper_unidentified": {
+      "region": {
+        "x": 505,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 476,
+      "source_file": "gun_actions/recoil_damper_unidentified.png"
+    },
+    "recoil_unidentified": {
+      "region": {
+        "x": 523,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 477,
+      "source_file": "gun_actions/recoil_unidentified.png"
+    },
+    "regeneration_field": {
+      "region": {
+        "x": 541,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 478,
+      "source_file": "gun_actions/regeneration_field.png"
+    },
+    "regeneration_field_unidentified": {
+      "region": {
+        "x": 559,
+        "y": 253,
+        "w": 16,
+        "h": 16
+      },
+      "index": 479,
+      "source_file": "gun_actions/regeneration_field_unidentified.png"
+    },
+    "remove_bounce": {
+      "region": {
+        "x": 1,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 480,
+      "source_file": "gun_actions/remove_bounce.png"
+    },
+    "reset": {
+      "region": {
+        "x": 19,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 481,
+      "source_file": "gun_actions/reset.png"
+    },
+    "rocket": {
+      "region": {
+        "x": 37,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 482,
+      "source_file": "gun_actions/rocket.png"
+    },
+    "rocket_downwards": {
+      "region": {
+        "x": 55,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 483,
+      "source_file": "gun_actions/rocket_downwards.png"
+    },
+    "rocket_octagon": {
+      "region": {
+        "x": 73,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 484,
+      "source_file": "gun_actions/rocket_octagon.png"
+    },
+    "rocket_tier_2": {
+      "region": {
+        "x": 91,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 485,
+      "source_file": "gun_actions/rocket_tier_2.png"
+    },
+    "rocket_tier_3": {
+      "region": {
+        "x": 109,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 486,
+      "source_file": "gun_actions/rocket_tier_3.png"
+    },
+    "rocket_unidentified": {
+      "region": {
+        "x": 127,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 487,
+      "source_file": "gun_actions/rocket_unidentified.png"
+    },
+    "rubber_ball": {
+      "region": {
+        "x": 145,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 488,
+      "source_file": "gun_actions/rubber_ball.png"
+    },
+    "rubber_ball_timer": {
+      "region": {
+        "x": 163,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 489,
+      "source_file": "gun_actions/rubber_ball_timer.png"
+    },
+    "rubber_ball_trigger": {
+      "region": {
+        "x": 181,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 490,
+      "source_file": "gun_actions/rubber_ball_trigger.png"
+    },
+    "rubber_ball_unidentified": {
+      "region": {
+        "x": 199,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 491,
+      "source_file": "gun_actions/rubber_ball_unidentified.png"
+    },
+    "scatter_2": {
+      "region": {
+        "x": 217,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 492,
+      "source_file": "gun_actions/scatter_2.png"
+    },
+    "scatter_2_unidentified": {
+      "region": {
+        "x": 235,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 493,
+      "source_file": "gun_actions/scatter_2_unidentified.png"
+    },
+    "scatter_3": {
+      "region": {
+        "x": 253,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 494,
+      "source_file": "gun_actions/scatter_3.png"
+    },
+    "scatter_3_unidentified": {
+      "region": {
+        "x": 271,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 495,
+      "source_file": "gun_actions/scatter_3_unidentified.png"
+    },
+    "scatter_4": {
+      "region": {
+        "x": 289,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 496,
+      "source_file": "gun_actions/scatter_4.png"
+    },
+    "scatter_4_unidentified": {
+      "region": {
+        "x": 307,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 497,
+      "source_file": "gun_actions/scatter_4_unidentified.png"
+    },
+    "scattershot": {
+      "region": {
+        "x": 325,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 498,
+      "source_file": "gun_actions/scattershot.png"
+    },
+    "sea_acid": {
+      "region": {
+        "x": 343,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 499,
+      "source_file": "gun_actions/sea_acid.png"
+    },
+    "sea_acid_gas": {
+      "region": {
+        "x": 361,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 500,
+      "source_file": "gun_actions/sea_acid_gas.png"
+    },
+    "sea_acid_unidentified": {
+      "region": {
+        "x": 379,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 501,
+      "source_file": "gun_actions/sea_acid_unidentified.png"
+    },
+    "sea_alcohol": {
+      "region": {
+        "x": 397,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 502,
+      "source_file": "gun_actions/sea_alcohol.png"
+    },
+    "sea_lava": {
+      "region": {
+        "x": 415,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 503,
+      "source_file": "gun_actions/sea_lava.png"
+    },
+    "sea_lava_unidentified": {
+      "region": {
+        "x": 433,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 504,
+      "source_file": "gun_actions/sea_lava_unidentified.png"
+    },
+    "sea_mimic": {
+      "region": {
+        "x": 451,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 505,
+      "source_file": "gun_actions/sea_mimic.png"
+    },
+    "sea_oil": {
+      "region": {
+        "x": 469,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 506,
+      "source_file": "gun_actions/sea_oil.png"
+    },
+    "sea_oil_unidentified": {
+      "region": {
+        "x": 487,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 507,
+      "source_file": "gun_actions/sea_oil_unidentified.png"
+    },
+    "sea_swamp": {
+      "region": {
+        "x": 505,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 508,
+      "source_file": "gun_actions/sea_swamp.png"
+    },
+    "sea_water": {
+      "region": {
+        "x": 523,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 509,
+      "source_file": "gun_actions/sea_water.png"
+    },
+    "sea_water_unidentified": {
+      "region": {
+        "x": 541,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 510,
+      "source_file": "gun_actions/sea_water_unidentified.png"
+    },
+    "sheep": {
+      "region": {
+        "x": 559,
+        "y": 271,
+        "w": 16,
+        "h": 16
+      },
+      "index": 511,
+      "source_file": "gun_actions/sheep.png"
+    },
+    "shield_field": {
+      "region": {
+        "x": 1,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 512,
+      "source_file": "gun_actions/shield_field.png"
+    },
+    "shield_field_unidentified": {
+      "region": {
+        "x": 19,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 513,
+      "source_file": "gun_actions/shield_field_unidentified.png"
+    },
+    "shortlived_shot": {
+      "region": {
+        "x": 37,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 514,
+      "source_file": "gun_actions/shortlived_shot.png"
+    },
+    "sigma": {
+      "region": {
+        "x": 55,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 515,
+      "source_file": "gun_actions/sigma.png"
+    },
+    "sinewave": {
+      "region": {
+        "x": 73,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 516,
+      "source_file": "gun_actions/sinewave.png"
+    },
+    "sinewave_unidentified": {
+      "region": {
+        "x": 91,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 517,
+      "source_file": "gun_actions/sinewave_unidentified.png"
+    },
+    "skull": {
+      "region": {
+        "x": 109,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 518,
+      "source_file": "gun_actions/skull.png"
+    },
+    "slimeball": {
+      "region": {
+        "x": 127,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 519,
+      "source_file": "gun_actions/slimeball.png"
+    },
+    "slimeball_unidentified": {
+      "region": {
+        "x": 145,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 520,
+      "source_file": "gun_actions/slimeball_unidentified.png"
+    },
+    "slow_bullet": {
+      "region": {
+        "x": 163,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 521,
+      "source_file": "gun_actions/slow_bullet.png"
+    },
+    "slow_bullet_timer": {
+      "region": {
+        "x": 181,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 522,
+      "source_file": "gun_actions/slow_bullet_timer.png"
+    },
+    "slow_bullet_timer_2": {
+      "region": {
+        "x": 199,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 523,
+      "source_file": "gun_actions/slow_bullet_timer_2.png"
+    },
+    "slow_bullet_timer_unidentified": {
+      "region": {
+        "x": 217,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 524,
+      "source_file": "gun_actions/slow_bullet_timer_unidentified.png"
+    },
+    "slow_bullet_trigger": {
+      "region": {
+        "x": 235,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 525,
+      "source_file": "gun_actions/slow_bullet_trigger.png"
+    },
+    "slow_bullet_trigger_unidentified": {
+      "region": {
+        "x": 253,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 526,
+      "source_file": "gun_actions/slow_bullet_trigger_unidentified.png"
+    },
+    "slow_bullet_unidentified": {
+      "region": {
+        "x": 271,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 527,
+      "source_file": "gun_actions/slow_bullet_unidentified.png"
+    },
+    "slow_but_steady": {
+      "region": {
+        "x": 289,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 528,
+      "source_file": "gun_actions/slow_but_steady.png"
+    },
+    "smg_bullet": {
+      "region": {
+        "x": 307,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 529,
+      "source_file": "gun_actions/smg_bullet.png"
+    },
+    "soil": {
+      "region": {
+        "x": 325,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 530,
+      "source_file": "gun_actions/soil.png"
+    },
+    "speed": {
+      "region": {
+        "x": 343,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 531,
+      "source_file": "gun_actions/speed.png"
+    },
+    "speed_unidentified": {
+      "region": {
+        "x": 361,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 532,
+      "source_file": "gun_actions/speed_unidentified.png"
+    },
+    "spells_to_power": {
+      "region": {
+        "x": 379,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 533,
+      "source_file": "gun_actions/spells_to_power.png"
+    },
+    "spiral_shot": {
+      "region": {
+        "x": 397,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 534,
+      "source_file": "gun_actions/spiral_shot.png"
+    },
+    "spiral_shot_unidentified": {
+      "region": {
+        "x": 415,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 535,
+      "source_file": "gun_actions/spiral_shot_unidentified.png"
+    },
+    "spiraling_shot": {
+      "region": {
+        "x": 433,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 536,
+      "source_file": "gun_actions/spiraling_shot.png"
+    },
+    "spitter": {
+      "region": {
+        "x": 451,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 537,
+      "source_file": "gun_actions/spitter.png"
+    },
+    "spitter_green": {
+      "region": {
+        "x": 469,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 538,
+      "source_file": "gun_actions/spitter_green.png"
+    },
+    "spitter_green_timer": {
+      "region": {
+        "x": 487,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 539,
+      "source_file": "gun_actions/spitter_green_timer.png"
+    },
+    "spitter_purple": {
+      "region": {
+        "x": 505,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 540,
+      "source_file": "gun_actions/spitter_purple.png"
+    },
+    "spitter_purple_timer": {
+      "region": {
+        "x": 523,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 541,
+      "source_file": "gun_actions/spitter_purple_timer.png"
+    },
+    "spitter_timer": {
+      "region": {
+        "x": 541,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 542,
+      "source_file": "gun_actions/spitter_timer.png"
+    },
+    "spitter_timer_unidentified": {
+      "region": {
+        "x": 559,
+        "y": 289,
+        "w": 16,
+        "h": 16
+      },
+      "index": 543,
+      "source_file": "gun_actions/spitter_timer_unidentified.png"
+    },
+    "spitter_unidentified": {
+      "region": {
+        "x": 1,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 544,
+      "source_file": "gun_actions/spitter_unidentified.png"
+    },
+    "spore_pod": {
+      "region": {
+        "x": 19,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 545,
+      "source_file": "gun_actions/spore_pod.png"
+    },
+    "spread_reduce": {
+      "region": {
+        "x": 37,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 546,
+      "source_file": "gun_actions/spread_reduce.png"
+    },
+    "spread_reduce_unidentified": {
+      "region": {
+        "x": 55,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 547,
+      "source_file": "gun_actions/spread_reduce_unidentified.png"
+    },
+    "static_to_sand": {
+      "region": {
+        "x": 73,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 548,
+      "source_file": "gun_actions/static_to_sand.png"
+    },
+    "summon_egg": {
+      "region": {
+        "x": 91,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 549,
+      "source_file": "gun_actions/summon_egg.png"
+    },
+    "summon_hollow_egg": {
+      "region": {
+        "x": 109,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 550,
+      "source_file": "gun_actions/summon_hollow_egg.png"
+    },
+    "summon_portal": {
+      "region": {
+        "x": 127,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 551,
+      "source_file": "gun_actions/summon_portal.png"
+    },
+    "summon_rock": {
+      "region": {
+        "x": 145,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 552,
+      "source_file": "gun_actions/summon_rock.png"
+    },
+    "summon_wandghost": {
+      "region": {
+        "x": 163,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 553,
+      "source_file": "gun_actions/summon_wandghost.png"
+    },
+    "sun": {
+      "region": {
+        "x": 181,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 554,
+      "source_file": "gun_actions/sun.png"
+    },
+    "super_teleport_cast": {
+      "region": {
+        "x": 199,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 555,
+      "source_file": "gun_actions/super_teleport_cast.png"
+    },
+    "swapper_projectile": {
+      "region": {
+        "x": 217,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 556,
+      "source_file": "gun_actions/swapper_projectile.png"
+    },
+    "swarm_firebug": {
+      "region": {
+        "x": 235,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 557,
+      "source_file": "gun_actions/swarm_firebug.png"
+    },
+    "swarm_fly": {
+      "region": {
+        "x": 253,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 558,
+      "source_file": "gun_actions/swarm_fly.png"
+    },
+    "swarm_wasp": {
+      "region": {
+        "x": 271,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 559,
+      "source_file": "gun_actions/swarm_wasp.png"
+    },
+    "t_shape": {
+      "region": {
+        "x": 289,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 560,
+      "source_file": "gun_actions/t_shape.png"
+    },
+    "t_shape_unidentified": {
+      "region": {
+        "x": 307,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 561,
+      "source_file": "gun_actions/t_shape_unidentified.png"
+    },
+    "t_shot": {
+      "region": {
+        "x": 325,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 562,
+      "source_file": "gun_actions/t_shot.png"
+    },
+    "tau": {
+      "region": {
+        "x": 343,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 563,
+      "source_file": "gun_actions/tau.png"
+    },
+    "telepathy": {
+      "region": {
+        "x": 361,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 564,
+      "source_file": "gun_actions/telepathy.png"
+    },
+    "telepathy_field": {
+      "region": {
+        "x": 379,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 565,
+      "source_file": "gun_actions/telepathy_field.png"
+    },
+    "telepathy_field_unidentified": {
+      "region": {
+        "x": 397,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 566,
+      "source_file": "gun_actions/telepathy_field_unidentified.png"
+    },
+    "teleport_cast": {
+      "region": {
+        "x": 415,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 567,
+      "source_file": "gun_actions/teleport_cast.png"
+    },
+    "teleport_home": {
+      "region": {
+        "x": 433,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 568,
+      "source_file": "gun_actions/teleport_home.png"
+    },
+    "teleport_projectile": {
+      "region": {
+        "x": 451,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 569,
+      "source_file": "gun_actions/teleport_projectile.png"
+    },
+    "teleport_projectile_closer": {
+      "region": {
+        "x": 469,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 570,
+      "source_file": "gun_actions/teleport_projectile_closer.png"
+    },
+    "teleport_projectile_short": {
+      "region": {
+        "x": 487,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 571,
+      "source_file": "gun_actions/teleport_projectile_short.png"
+    },
+    "teleport_projectile_static": {
+      "region": {
+        "x": 505,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 572,
+      "source_file": "gun_actions/teleport_projectile_static.png"
+    },
+    "teleport_projectile_unidentified": {
+      "region": {
+        "x": 523,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 573,
+      "source_file": "gun_actions/teleport_projectile_unidentified.png"
+    },
+    "teleportation": {
+      "region": {
+        "x": 541,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 574,
+      "source_file": "gun_actions/teleportation.png"
+    },
+    "teleportation_field": {
+      "region": {
+        "x": 559,
+        "y": 307,
+        "w": 16,
+        "h": 16
+      },
+      "index": 575,
+      "source_file": "gun_actions/teleportation_field.png"
+    },
+    "teleportation_field_unidentified": {
+      "region": {
+        "x": 1,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 576,
+      "source_file": "gun_actions/teleportation_field_unidentified.png"
+    },
+    "temporary_platform": {
+      "region": {
+        "x": 19,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 577,
+      "source_file": "gun_actions/temporary_platform.png"
+    },
+    "temporary_wall": {
+      "region": {
+        "x": 37,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 578,
+      "source_file": "gun_actions/temporary_wall.png"
+    },
+    "tentacle": {
+      "region": {
+        "x": 55,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 579,
+      "source_file": "gun_actions/tentacle.png"
+    },
+    "tentacle_portal": {
+      "region": {
+        "x": 73,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 580,
+      "source_file": "gun_actions/tentacle_portal.png"
+    },
+    "tentacle_ray": {
+      "region": {
+        "x": 91,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 581,
+      "source_file": "gun_actions/tentacle_ray.png"
+    },
+    "tentacle_ray_enemy": {
+      "region": {
+        "x": 109,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 582,
+      "source_file": "gun_actions/tentacle_ray_enemy.png"
+    },
+    "tentacle_timer": {
+      "region": {
+        "x": 127,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 583,
+      "source_file": "gun_actions/tentacle_timer.png"
+    },
+    "tentacle_timer_unidentified": {
+      "region": {
+        "x": 145,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 584,
+      "source_file": "gun_actions/tentacle_timer_unidentified.png"
+    },
+    "tentacle_unidentified": {
+      "region": {
+        "x": 163,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 585,
+      "source_file": "gun_actions/tentacle_unidentified.png"
+    },
+    "thunder_blast": {
+      "region": {
+        "x": 181,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 586,
+      "source_file": "gun_actions/thunder_blast.png"
+    },
+    "thunder_blast_unidentified": {
+      "region": {
+        "x": 199,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 587,
+      "source_file": "gun_actions/thunder_blast_unidentified.png"
+    },
+    "thunderball": {
+      "region": {
+        "x": 217,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 588,
+      "source_file": "gun_actions/thunderball.png"
+    },
+    "thunderball_unidentified": {
+      "region": {
+        "x": 235,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 589,
+      "source_file": "gun_actions/thunderball_unidentified.png"
+    },
+    "timer": {
+      "region": {
+        "x": 253,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 590,
+      "source_file": "gun_actions/timer.png"
+    },
+    "tiny_ghost": {
+      "region": {
+        "x": 271,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 591,
+      "source_file": "gun_actions/tiny_ghost.png"
+    },
+    "tntbox": {
+      "region": {
+        "x": 289,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 592,
+      "source_file": "gun_actions/tntbox.png"
+    },
+    "tntbox_big": {
+      "region": {
+        "x": 307,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 593,
+      "source_file": "gun_actions/tntbox_big.png"
+    },
+    "torch": {
+      "region": {
+        "x": 325,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 594,
+      "source_file": "gun_actions/torch.png"
+    },
+    "torch_electric": {
+      "region": {
+        "x": 343,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 595,
+      "source_file": "gun_actions/torch_electric.png"
+    },
+    "torch_unidentified": {
+      "region": {
+        "x": 361,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 596,
+      "source_file": "gun_actions/torch_unidentified.png"
+    },
+    "touch_alcohol": {
+      "region": {
+        "x": 379,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 597,
+      "source_file": "gun_actions/touch_alcohol.png"
+    },
+    "touch_blood": {
+      "region": {
+        "x": 397,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 598,
+      "source_file": "gun_actions/touch_blood.png"
+    },
+    "touch_gold": {
+      "region": {
+        "x": 415,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 599,
+      "source_file": "gun_actions/touch_gold.png"
+    },
+    "touch_grass": {
+      "region": {
+        "x": 433,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 600,
+      "source_file": "gun_actions/touch_grass.png"
+    },
+    "touch_oil": {
+      "region": {
+        "x": 451,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 601,
+      "source_file": "gun_actions/touch_oil.png"
+    },
+    "touch_piss": {
+      "region": {
+        "x": 469,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 602,
+      "source_file": "gun_actions/touch_piss.png"
+    },
+    "touch_smoke": {
+      "region": {
+        "x": 487,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 603,
+      "source_file": "gun_actions/touch_smoke.png"
+    },
+    "touch_water": {
+      "region": {
+        "x": 505,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 604,
+      "source_file": "gun_actions/touch_water.png"
+    },
+    "toxic_to_acid": {
+      "region": {
+        "x": 523,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 605,
+      "source_file": "gun_actions/toxic_to_acid.png"
+    },
+    "transmutation": {
+      "region": {
+        "x": 541,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 606,
+      "source_file": "gun_actions/transmutation.png"
+    },
+    "trigger": {
+      "region": {
+        "x": 559,
+        "y": 325,
+        "w": 16,
+        "h": 16
+      },
+      "index": 607,
+      "source_file": "gun_actions/trigger.png"
+    },
+    "trigger_hit_entity": {
+      "region": {
+        "x": 1,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 608,
+      "source_file": "gun_actions/trigger_hit_entity.png"
+    },
+    "trigger_hit_world": {
+      "region": {
+        "x": 19,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 609,
+      "source_file": "gun_actions/trigger_hit_world.png"
+    },
+    "trigger_timer_5": {
+      "region": {
+        "x": 37,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 610,
+      "source_file": "gun_actions/trigger_timer_5.png"
+    },
+    "true_orbit": {
+      "region": {
+        "x": 55,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 611,
+      "source_file": "gun_actions/true_orbit.png"
+    },
+    "unidentified": {
+      "region": {
+        "x": 73,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 612,
+      "source_file": "gun_actions/unidentified.png"
+    },
+    "unstable_gunpowder": {
+      "region": {
+        "x": 91,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 613,
+      "source_file": "gun_actions/unstable_gunpowder.png"
+    },
+    "unstable_gunpowder_unidentified": {
+      "region": {
+        "x": 109,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 614,
+      "source_file": "gun_actions/unstable_gunpowder_unidentified.png"
+    },
+    "vacuum_entities": {
+      "region": {
+        "x": 127,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 615,
+      "source_file": "gun_actions/vacuum_entities.png"
+    },
+    "vacuum_liquid": {
+      "region": {
+        "x": 145,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 616,
+      "source_file": "gun_actions/vacuum_liquid.png"
+    },
+    "vacuum_powder": {
+      "region": {
+        "x": 163,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 617,
+      "source_file": "gun_actions/vacuum_powder.png"
+    },
+    "w_shape": {
+      "region": {
+        "x": 181,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 618,
+      "source_file": "gun_actions/w_shape.png"
+    },
+    "w_shape_unidentified": {
+      "region": {
+        "x": 199,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 619,
+      "source_file": "gun_actions/w_shape_unidentified.png"
+    },
+    "w_shot": {
+      "region": {
+        "x": 217,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 620,
+      "source_file": "gun_actions/w_shot.png"
+    },
+    "wall_horizontal": {
+      "region": {
+        "x": 235,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 621,
+      "source_file": "gun_actions/wall_horizontal.png"
+    },
+    "wall_square": {
+      "region": {
+        "x": 253,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 622,
+      "source_file": "gun_actions/wall_square.png"
+    },
+    "wall_vertical": {
+      "region": {
+        "x": 271,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 623,
+      "source_file": "gun_actions/wall_vertical.png"
+    },
+    "water_to_poison": {
+      "region": {
+        "x": 289,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 624,
+      "source_file": "gun_actions/water_to_poison.png"
+    },
+    "water_trail": {
+      "region": {
+        "x": 307,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 625,
+      "source_file": "gun_actions/water_trail.png"
+    },
+    "white_hole": {
+      "region": {
+        "x": 325,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 626,
+      "source_file": "gun_actions/white_hole.png"
+    },
+    "white_hole_big": {
+      "region": {
+        "x": 343,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 627,
+      "source_file": "gun_actions/white_hole_big.png"
+    },
+    "white_hole_giga": {
+      "region": {
+        "x": 361,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 628,
+      "source_file": "gun_actions/white_hole_giga.png"
+    },
+    "worm": {
+      "region": {
+        "x": 379,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 629,
+      "source_file": "gun_actions/worm.png"
+    },
+    "worm_rain": {
+      "region": {
+        "x": 397,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 630,
+      "source_file": "gun_actions/worm_rain.png"
+    },
+    "x_ray": {
+      "region": {
+        "x": 415,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 631,
+      "source_file": "gun_actions/x_ray.png"
+    },
+    "x_ray_unidentified": {
+      "region": {
+        "x": 433,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 632,
+      "source_file": "gun_actions/x_ray_unidentified.png"
+    },
+    "y_shape": {
+      "region": {
+        "x": 451,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 633,
+      "source_file": "gun_actions/y_shape.png"
+    },
+    "y_shape_unidentified": {
+      "region": {
+        "x": 469,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 634,
+      "source_file": "gun_actions/y_shape_unidentified.png"
+    },
+    "y_shot": {
+      "region": {
+        "x": 487,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 635,
+      "source_file": "gun_actions/y_shot.png"
+    },
+    "zero_damage": {
+      "region": {
+        "x": 505,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 636,
+      "source_file": "gun_actions/zero_damage.png"
+    },
+    "zeta": {
+      "region": {
+        "x": 523,
+        "y": 343,
+        "w": 16,
+        "h": 16
+      },
+      "index": 637,
+      "source_file": "gun_actions/zeta.png"
+    }
+  }
+}

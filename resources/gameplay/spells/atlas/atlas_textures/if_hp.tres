@@ -1,0 +1,8 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.png" id="1"]
+
+[resource]
+atlas = ExtResource("1")
+region = Rect2(343, 163, 16, 16)
+filter_clip = true

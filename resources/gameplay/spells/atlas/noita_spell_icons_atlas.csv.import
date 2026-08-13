@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://bbsx7mx7ofjn4"
+
+[deps]
+
+files=["res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.index.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.x.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.y.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.w.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.h.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.source.translation"]
+
+source_file="res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.csv"
+dest_files=["res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.index.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.x.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.y.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.w.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.h.translation", "res://resources/gameplay/spells/atlas/noita_spell_icons_atlas.source.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true
