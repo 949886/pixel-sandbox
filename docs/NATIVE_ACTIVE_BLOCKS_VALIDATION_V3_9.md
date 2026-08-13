@@ -15,8 +15,8 @@
 3. 孤立且无变化的 MOVABLE Block 可以 Sleep；
 4. REACTIVE/MOVABLE 接口持续 Active；
 5. AUTONOMOUS Block 不会 Sleep；
-6. API 9 Native Seam transfer 会唤醒 API 10 目标边缘 Block；
-7. Native API version = 10；
+6. API 9 Native Seam transfer 会唤醒 API 11 目标边缘 Block；
+7. Native API version = 11；
 8. 512×512 全 INERT 地形稳定后 1024 Blocks 全部休眠，中心单像素改动仅唤醒局部最多 3×3 Blocks。
 
 结果：
@@ -48,12 +48,12 @@ validate_active_blocks_v3_9.py
 - API 8 Collision Sector / Conservative Snapshot；
 - V3.7.3 移动端 PC 时间预算；
 - API 9 Native Seam Bridge；
-- API 10 Active Block 声明 / 定义 / binding；
+- API 11 Active Block 声明 / 定义 / binding；
 - GDScript class_name / resource reference / debug format 基础结构。
 
 ## Godot Headless Smoke Test
 
-重新编译 API 10 后：
+重新编译 API 11 后：
 
 ```bat
 godot --headless --path game res://tests/ActiveBlockSmokeTest.tscn
