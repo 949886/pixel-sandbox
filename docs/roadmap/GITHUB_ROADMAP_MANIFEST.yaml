@@ -1,0 +1,1868 @@
+manifest_version: 1
+project: Pixel Piece World
+purpose: GitHub roadmap planning manifest; no GitHub objects have been created.
+rules:
+  title_policy: Issue 标题仅使用任务名称，不包含版本号、type、area 或 priority 前缀。
+  milestone_policy: 版本号只通过 Milestone 表达。
+  label_policy: 任务类型、领域、优先级通过 Labels 表达。
+  max_issue_depth: 4
+  v5_0_scope_guard: 不能明显改善 New Game → Explore → Fight → Loot → Build Wand → Special Room → Boss → End 的任务，默认不属于 V5.0 blocker。
+  creation_policy: 先建 Roadmap/Milestone/System Epic；V5.0 逐步展开 concrete tasks，V5.1+ 接近开发时再展开。
+labels:
+- name: type:roadmap
+  description: 跨多个版本的长期路线图
+- name: type:epic
+  description: 由多个子任务组成的系统级/版本级 Epic
+- name: type:feature
+  description: 独立功能
+- name: type:content
+  description: 敌人、Boss、房间、Biome 等内容
+- name: type:tech
+  description: 架构、性能、Native、平台技术任务
+- name: type:bug
+  description: 缺陷修复
+- name: type:balance
+  description: 数值、掉落、难度、经济、手感
+- name: area:run
+  description: Game 生命周期与进度
+- name: area:world
+  description: 世界、Encounter、房间、Biome
+- name: area:enemy
+  description: 敌人与 AI
+- name: area:combat
+  description: 战斗规则与反馈
+- name: area:loot
+  description: 掉落、奖励、经济、Pickup
+- name: area:wand
+  description: Wand 系统
+- name: area:spell
+  description: Spell/Cast/Modifier
+- name: area:material
+  description: 材质 Gameplay
+- name: area:ui
+  description: Gameplay UI
+- name: area:creative
+  description: Creative Sandbox/开发工具
+- name: area:native
+  description: fallingsand Native
+- name: area:platform
+  description: 平台覆盖与设备 profiling
+- name: priority:P0
+  description: 阻塞当前 Milestone 发布
+- name: priority:P1
+  description: 当前 Milestone 强烈需要
+- name: priority:P2
+  description: 有价值的后续增强
+- name: priority:P3
+  description: 长期 backlog / nice-to-have
+milestones:
+- id: ms-v5.0
+  title: V5.0 — First Playable Game
+  status: current
+  objective: 完成第一条从 New Game 到 Mine Boss / Victory 的完整可玩 Game。
+- id: ms-v5.1
+  title: V5.1 — Wand & Material Gameplay
+  status: planned
+  objective: 深化 Wand 构筑，并让 Spell 更系统地操纵像素环境。
+- id: ms-v5.2
+  title: V5.2 — Snow Biome Gameplay
+  status: planned
+  objective: 把 Snow 做到与 Mine 同等级的第二个完整 Gameplay Biome。
+- id: ms-v5.3
+  title: V5.3 — Creative Developer Toolkit
+  status: planned
+  objective: 把 Creative Mode 提升为高效率 Gameplay 开发与复现工具。
+- id: ms-v5.4
+  title: V5.4 — Engine & Platform Hardening
+  status: planned
+  objective: 在 Gameplay Loop 稳定后系统处理性能、稳定性和平台覆盖。
+- id: ms-v6.0
+  title: V6.0 — World & Progression Expansion
+  status: future
+  objective: 扩展 Deep、多 Biome Run、Elite、更多 Boss 与世界进度。
+- id: ms-v6.1
+  title: V6.1 — Meta Progression
+  status: tentative
+  objective: 仅在基础 Game 已被证明好玩后评估局外成长。
+issues:
+- id: roadmap-alpha
+  title: Gameplay Alpha Roadmap
+  parent: null
+  milestone: null
+  labels:
+  - type:roadmap
+  summary: 把当前像素模拟 + Wand/Spell + Creative + 基础 Combat 原型推进为完整 Gameplay Alpha，并追踪 V5.x–V6.x 主线。
+  children:
+  - first-playable-run
+  - wand-material-gameplay
+  - snow-biome-gameplay
+  - creative-developer-toolkit
+  - engine-platform-hardening
+  - world-progression-expansion
+  - meta-progression
+  blocked_by: []
+  definition_of_done:
+  - V5.0 完成第一条完整 Run
+  - V5.1 完成 Wand/Material 深化
+  - V5.2 完成第二个完整 Biome
+  - 完成 Alpha stabilization / release candidate
+  non_goals: []
+- id: first-playable-run
+  title: First Playable Game
+  parent: roadmap-alpha
+  milestone: ms-v5.0
+  labels:
+  - type:epic
+  - area:run
+  - priority:P0
+  summary: 让玩家从 New Game 开始，在 Mine 中探索、战斗、Loot、构筑 Wand、进入 Special Room、击败 Boss，并以死亡或 Victory 正式结束一局。
+  children:
+  - run-foundation
+  - wand-loot-generation
+  - mine-enemy-set
+  - special-rooms-economy
+  - mine-boss-exit
+  - alpha-balance-pass
+  - basic-dig-resistance
+  blocked_by: []
+  definition_of_done:
+  - New Game → Explore → Fight → Loot → Build Wand → Special Room → Boss → Death/Victory 全链路成立
+  - 死亡真正结束 Normal Run，Restart 创建干净新 Run
+  - 奖励能改变 Build，Gold 有用途
+  - 至少 5 类正式 Mine 敌人
+  - Treasure / Shrine / Shop 可用
+  - 至少 1 个正式 Boss 和 Exit/Victory
+  - Creative 不参与 Normal progression
+  - 完整 Game 不依赖开发者手工摆放关键奖励
+  non_goals:
+  - 完整 Snow Biome
+  - Meta Progression
+  - 高级 Trigger/Timer Spell
+  - Creative Terrain Undo
+  - 所有 Sand Material Gameplay 化
+- id: run-foundation
+  title: Game Foundation
+  parent: first-playable-run
+  milestone: ms-v5.0
+  labels:
+  - type:epic
+  - area:run
+  - priority:P0
+  summary: 建立正式 Game 生命周期、死亡、重启、结算和 Session 清理。
+  children:
+  - run-manager-state
+  - run-death-restart
+  - run-ui-summary
+  - session-reset
+  blocked_by: []
+  definition_of_done:
+  - Game 有明确状态机
+  - 死亡与 Restart 链路完整
+  - 新 Game 不继承上一局 runtime 状态
+  non_goals: []
+- id: run-manager-state
+  title: GameManager and Game State
+  parent: run-foundation
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:run
+  - priority:P0
+  summary: 建立 GameManager 管理 seed、biome、depth、elapsed time、boss/special-room state 与统计。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - 支持 STARTING / PLAYING / TRANSITION / PLAYER_DEAD / VICTORY
+  - Game 有唯一 seed
+  - 状态切换通过 signal 暴露
+  - GameManager 不接管 PlayerInventory/WandController/HealthComponent
+  - Normal 与 Creative Session 分离
+  non_goals: []
+- id: run-death-restart
+  title: Game Death and Restart Flow
+  parent: run-foundation
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:run
+  - area:combat
+  - priority:P0
+  summary: 把 Normal Mode 测试 Respawn 改成真正 Game Death；Creative 保留测试友好行为。
+  children: []
+  blocked_by:
+  - run-manager-state
+  definition_of_done:
+  - HP<=0 后禁用 Gameplay 输入
+  - 进入 PLAYER_DEAD
+  - 有 Restart/Quit 流程
+  - Restart 创建新 Run
+  - Creative 测试流程不受破坏
+  non_goals: []
+- id: run-ui-summary
+  title: Game Start, Death, Victory and Summary UI
+  parent: run-foundation
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:run
+  - area:ui
+  - priority:P1
+  summary: 提供 Game Start、Death、Restart、Victory/Transition 与简洁 Summary UI。
+  children: []
+  blocked_by:
+  - run-manager-state
+  definition_of_done:
+  - 至少显示 Depth、Gold、Elapsed Time、Enemies Killed、Wands/Spells Collected
+  - 固定 UI 在 .tscn，脚本只处理逻辑/绑定
+  non_goals: []
+- id: session-reset
+  title: Clean Session Reset
+  parent: run-foundation
+  milestone: ms-v5.0
+  labels:
+  - type:tech
+  - area:run
+  - area:world
+  - priority:P0
+  summary: 保证 New Game 完整清理上一局 runtime 状态和对象生命周期。
+  children: []
+  blocked_by:
+  - run-manager-state
+  definition_of_done:
+  - 重置 World seed/Chunks/Gold/Inventory/Wands/Status/Boss/Special Rooms
+  - 清理旧 Projectiles/Pickups/Enemies
+  - Creative 临时状态不泄漏到 Normal
+  - 重复 Restart 不产生悬挂引用/重复节点
+  non_goals: []
+- id: wand-loot-generation
+  title: Wand Loot & Generation
+  parent: first-playable-run
+  milestone: ms-v5.0
+  labels:
+  - type:epic
+  - area:wand
+  - area:loot
+  - priority:P0
+  summary: 建立随机 Wand 生成、世界 WandPickup、比较/替换与统一奖励接口。
+  children:
+  - runtime-wand-generator
+  - deterministic-wand-generation
+  - world-wand-pickup
+  - wand-comparison-ui
+  - wand-reward-api
+  blocked_by:
+  - run-manager-state
+  definition_of_done:
+  - 世界中可自然发现随机 Wand
+  - Wand 可拾取/比较/替换
+  - 生成受 biome/depth/rarity 控制
+  - 同 Game seed 下可复现关键 Wand
+  non_goals: []
+- id: runtime-wand-generator
+  title: Runtime Wand Generator
+  parent: wand-loot-generation
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:wand
+  - priority:P0
+  summary: 使用数据驱动 Generation Profile 生成 Runtime WandDef：stats、capacity、shuffle、spell pool、visual。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - 输入支持 biome/depth/rarity/random source
+  - 只生成 runtime data
+  - 范围来自 Resource/Profile
+  - 支持 Common/Rare/Treasure/Shop/Boss profile
+  non_goals: []
+- id: deterministic-wand-generation
+  title: Deterministic Wand Generation
+  parent: wand-loot-generation
+  milestone: ms-v5.0
+  labels:
+  - type:tech
+  - area:wand
+  - area:run
+  - priority:P1
+  summary: 让 Wand 生成与 Game seed / loot id 建立稳定关系。
+  children: []
+  blocked_by:
+  - run-manager-state
+  - runtime-wand-generator
+  definition_of_done:
+  - 同 seed + loot id 生成相同 Wand
+  - 不依赖帧时序/全局随机状态
+  - 可记录重现信息
+  non_goals: []
+- id: world-wand-pickup
+  title: World Wand Pickup
+  parent: wand-loot-generation
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:wand
+  - area:loot
+  - priority:P0
+  summary: 新增持有 Runtime WandDef 的世界 WandPickup，并显示一致 visual。
+  children: []
+  blocked_by:
+  - runtime-wand-generator
+  definition_of_done:
+  - 空 Wand Slot 可直接拾取
+  - 满槽进入比较/替换
+  - Pickup 生命周期与 Streaming/删除安全
+  non_goals: []
+- id: wand-comparison-ui
+  title: Wand Comparison UI
+  parent: wand-loot-generation
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:wand
+  - area:ui
+  - priority:P0
+  summary: 比较当前 Wand 与发现 Wand 的 stats/spells，并允许 Swap / Leave。
+  children: []
+  blocked_by:
+  - world-wand-pickup
+  definition_of_done:
+  - 复用 WandGlyph/SpellSlot/Wand stats
+  - 显示核心属性差异
+  - 固定 UI 在 .tscn
+  - Swap 不破坏 runtime ownership
+  non_goals: []
+- id: wand-reward-api
+  title: Unified Wand Reward API
+  parent: wand-loot-generation
+  milestone: ms-v5.0
+  labels:
+  - type:tech
+  - area:wand
+  - area:loot
+  - priority:P1
+  summary: 建立 Chest/Shop/Boss/World Spawn 共用的 Wand 奖励入口。
+  children: []
+  blocked_by:
+  - runtime-wand-generator
+  definition_of_done:
+  - 可按 profile/depth/rarity 请求 Wand
+  - 调用方不需知道生成细节
+  - 支持 deterministic random source
+  non_goals: []
+- id: basic-dig-resistance
+  title: Basic Dig Power and Terrain Hardness
+  parent: first-playable-run
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:material
+  - area:spell
+  - priority:P1
+  summary: 提供 V5.0 最小挖掘强度/地形硬度，避免低级 Spell 无成本穿透所有结构。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - 区分普通可挖和高硬度/不可轻易挖材质
+  - Dig/Bomb 等 Spell 有基本 dig_power
+  - 不要求完整 hardness hierarchy
+  non_goals:
+  - 复杂部分破坏
+  - 完整 resistance matrix
+  - 电导/湿润耦合
+- id: mine-enemy-set
+  title: Mine Enemy Set
+  parent: first-playable-run
+  milestone: ms-v5.0
+  labels:
+  - type:epic
+  - area:enemy
+  - area:combat
+  - priority:P0
+  summary: 完成 Mine 第一套正式敌人生态，并建立数据驱动 Encounter 与 Spawn Anchor。
+  children:
+  - enemy-architecture
+  - cave-eye-production
+  - crawler-enemy
+  - bomber-enemy
+  - fire-slime
+  - oil-slime
+  - enemy-loot-tables
+  - encounter-spawner
+  - piece-spawn-anchors
+  blocked_by: []
+  definition_of_done:
+  - 至少 5 类正式敌人有明显战术差异
+  - 至少两类敌人主动改变像素环境
+  - Enemy loot 数据驱动
+  - 深度提升主要靠组合而非纯 HP 膨胀
+  non_goals: []
+- id: enemy-architecture
+  title: Unified Enemy Architecture
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:tech
+  - area:enemy
+  - area:combat
+  - priority:P0
+  summary: 统一 Health/Status/Faction/Loot/Environment/Brain 架构，减少敌人重复逻辑。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - 公共 death/damage/status/loot 行为复用
+  - 差异主要放在 Brain/Movement/Attack/DeathEffect
+  - 不要求所有敌人共享单一大脚本
+  non_goals: []
+- id: cave-eye-production
+  title: Cave Eye Production Pass
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:enemy
+  - priority:P1
+  summary: 把 Cave Eye 从验证敌人整理为 Mine 正式基础远程飞行敌人。
+  children: []
+  blocked_by:
+  - enemy-architecture
+  - enemy-loot-tables
+  definition_of_done:
+  - 正式 Spawn profile
+  - 正式 LootTable
+  - Damage/Fire Rate/HP 可配置
+  - 保留 ranged flying 身份
+  non_goals: []
+- id: crawler-enemy
+  title: Crawler
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:enemy
+  - priority:P0
+  summary: 地面近战追击敌人，用于验证动态地形中的局部移动与近战压力。
+  children: []
+  blocked_by:
+  - enemy-architecture
+  definition_of_done:
+  - 能在常见 Mine 地形追击玩家
+  - 不依赖重型全局 A*
+  - 有近战/受击/死亡反馈
+  - 使用 ground anchor
+  non_goals: []
+- id: bomber-enemy
+  title: Bomber
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:enemy
+  - area:material
+  - priority:P0
+  summary: 远程爆炸敌人，使敌人正式拥有破坏地形的能力。
+  children: []
+  blocked_by:
+  - enemy-architecture
+  definition_of_done:
+  - 投射爆炸物攻击
+  - 爆炸走正式 WorldGameplayService/Native terrain path
+  - 能改变可破坏地形
+  - 限制高频地形破坏
+  non_goals: []
+- id: fire-slime
+  title: Fire Slime
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:enemy
+  - area:material
+  - priority:P0
+  summary: 与 Burning/Fire Material 交互的环境型敌人。
+  children: []
+  blocked_by:
+  - enemy-architecture
+  definition_of_done:
+  - 攻击或死亡至少一种行为产生真实 Fire
+  - 与 Oiled/Burning 状态系统互动
+  - 不是普通敌人换色
+  non_goals: []
+- id: oil-slime
+  title: Oil Slime
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:enemy
+  - area:material
+  - priority:P0
+  summary: 产生 Oil 的环境型敌人，与 Fire 敌人/Spell 形成组合危险。
+  children: []
+  blocked_by:
+  - enemy-architecture
+  definition_of_done:
+  - 攻击或死亡产生真实 Oil
+  - Oil 使用正式 Material API
+  - 和 Fire 同场产生可观察系统互动
+  non_goals: []
+- id: enemy-loot-tables
+  title: Enemy Loot Tables
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:enemy
+  - area:loot
+  - priority:P0
+  summary: 将敌人掉落改为数据驱动 LootTable。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - 支持 Gold/Health/rare Spell 等 entry
+  - 普通敌人 Spell Drop 默认很低
+  - LootTable 可复用
+  - 兼容 Game seed/random source
+  non_goals: []
+- id: piece-spawn-anchors
+  title: Piece Spawn Anchors
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:tech
+  - area:world
+  - area:enemy
+  - priority:P0
+  summary: 给 Piece/World content 提供 ground/air/ceiling/wall/guard Spawn Anchor/Tag。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - Spawner 可按 tag 请求合法位置
+  - Anchor 数据属于 Piece/世界内容
+  - 不依赖运行时全地图随机找点
+  non_goals: []
+- id: encounter-spawner
+  title: Encounter Spawner and Difficulty Budget
+  parent: mine-enemy-set
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:world
+  - area:enemy
+  - priority:P0
+  summary: 按 biome/depth/piece metadata/spawn anchors/difficulty budget 生成敌人组合。
+  children: []
+  blocked_by:
+  - enemy-architecture
+  - piece-spawn-anchors
+  definition_of_done:
+  - 支持 deterministic random source
+  - 深度提升主要改变组合/预算
+  - 避免 enemy HP × depth
+  - 兼容 Streaming 生命周期
+  - Creative 可复现 encounter profile
+  non_goals: []
+- id: special-rooms-economy
+  title: Special Rooms & Economy
+  parent: first-playable-run
+  milestone: ms-v5.0
+  labels:
+  - type:epic
+  - area:world
+  - area:loot
+  - priority:P0
+  summary: 把特殊地形转成 Gameplay Room，让 Gold/Wand/Spell 形成经济闭环。
+  children:
+  - chest-system
+  - treasure-room
+  - run-modifiers
+  - shrine-system
+  - shop-system
+  - gold-economy
+  blocked_by:
+  - wand-loot-generation
+  - enemy-loot-tables
+  definition_of_done:
+  - Treasure/Shrine/Shop 都能自然出现
+  - Gold 可消费
+  - Room reward 能改变 Build
+  non_goals: []
+- id: chest-system
+  title: Chest System
+  parent: special-rooms-economy
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:loot
+  - area:world
+  - priority:P0
+  summary: 建立可复用 Chest：RewardProfile/LootTable、opened state、交互和视觉状态。
+  children: []
+  blocked_by:
+  - wand-reward-api
+  definition_of_done:
+  - 可生成 Wand/Spell/Gold/Health
+  - opened state 不重复领奖
+  - 可被 Treasure/Boss/Secret Room 复用
+  non_goals: []
+- id: treasure-room
+  title: Treasure Room Gameplay
+  parent: special-rooms-economy
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:world
+  - area:loot
+  - priority:P0
+  summary: 把 Mine Treasure 特殊结构转成明确探索奖励空间。
+  children: []
+  blocked_by:
+  - chest-system
+  definition_of_done:
+  - 至少一个高价值 Chest
+  - V5.0 阶段高概率或必定提供 Wand
+  - 由世界生成自然出现
+  non_goals: []
+- id: run-modifiers
+  title: Game Modifiers / Perks v1
+  parent: special-rooms-economy
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:run
+  - priority:P1
+  summary: 建立仅当前 Game 生效的轻量 Modifier/Perk，为 Shrine 提供 Buff 表达。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - Modifier 有 id/display/icon/apply 语义
+  - 支持 Max HP/Flight/Fire Resist/Explosion Resist/Move Speed
+  - 不引入永久 Meta Progression
+  non_goals: []
+- id: shrine-system
+  title: Shrine System
+  parent: special-rooms-economy
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:world
+  - area:run
+  - priority:P1
+  summary: 提供 Shrine 的 Game Buff 选择与应用。
+  children: []
+  blocked_by:
+  - run-modifiers
+  definition_of_done:
+  - 玩家从有限候选中获得一个 Game Modifier
+  - Buff 清晰显示且仅持续当前 Run
+  - 不直接硬改资源文件
+  non_goals: []
+- id: gold-economy
+  title: Gold Economy v1
+  parent: special-rooms-economy
+  milestone: ms-v5.0
+  labels:
+  - type:balance
+  - area:loot
+  - priority:P1
+  summary: 确定敌人 Gold、Wand/Spell/Heal 价格与一局内基础消费节奏。
+  children: []
+  blocked_by:
+  - enemy-loot-tables
+  definition_of_done:
+  - 普通 Game 至少有数次有意义消费选择
+  - Gold 不因过量掉落失去意义
+  - 价格/掉落数据可配置
+  non_goals: []
+- id: shop-system
+  title: Shop System
+  parent: special-rooms-economy
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:world
+  - area:loot
+  - area:wand
+  - area:spell
+  - priority:P1
+  summary: 第一版 Shop 出售 Spell、Wand 和 Heal，让 Gold 形成消费端。
+  children: []
+  blocked_by:
+  - wand-reward-api
+  - gold-economy
+  definition_of_done:
+  - 支持 Spell/Wand/Heal
+  - 价格数据驱动
+  - 正确扣 Gold
+  - 兼容 WandPickup/SpellDef
+  non_goals: []
+- id: mine-boss-exit
+  title: Mine Boss & Exit
+  parent: first-playable-run
+  milestone: ms-v5.0
+  labels:
+  - type:epic
+  - area:combat
+  - area:world
+  - priority:P0
+  summary: 建立 Boss framework、Mine Boss、Arena、Major Reward 与 Game Exit/Victory。
+  children:
+  - boss-framework
+  - boss-arena
+  - mine-boss
+  - boss-major-reward
+  - exit-victory
+  blocked_by:
+  - run-foundation
+  - mine-enemy-set
+  - wand-reward-api
+  definition_of_done:
+  - Boss 战完整可重复
+  - 至少一种攻击改变像素世界
+  - 击败后产生重大奖励
+  - 可进入 Exit/Victory
+  non_goals: []
+- id: boss-framework
+  title: Boss Framework
+  parent: mine-boss-exit
+  milestone: ms-v5.0
+  labels:
+  - type:tech
+  - area:combat
+  - area:enemy
+  - priority:P0
+  summary: 建立 Boss HP、Phase、Attack State、Death、Boss HUD 与 Arena 协作基础。
+  children: []
+  blocked_by:
+  - run-manager-state
+  - enemy-architecture
+  definition_of_done:
+  - 支持多 Phase
+  - Boss HUD 数据/逻辑分离
+  - 不强行复用普通敌人大脚本
+  - 死亡事件能驱动 Reward/Exit
+  non_goals: []
+- id: boss-arena
+  title: Boss Arena Special Chunk
+  parent: mine-boss-exit
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:world
+  - priority:P0
+  summary: 建立 Mine Boss Arena 的世界结构、入口、Boss spawn 与胜利后 Exit activation。
+  children: []
+  blocked_by:
+  - boss-framework
+  definition_of_done:
+  - Arena 稳定生成
+  - Boss 正确生成一次
+  - 兼容 Streaming 生命周期
+  - 胜利后出口状态正确
+  non_goals: []
+- id: mine-boss
+  title: Mine Boss
+  parent: mine-boss-exit
+  milestone: ms-v5.0
+  labels:
+  - type:content
+  - area:enemy
+  - area:combat
+  - area:material
+  - priority:P0
+  summary: 实现第一只正式 Mine Boss，核心机制至少一项操纵像素环境。
+  children: []
+  blocked_by:
+  - boss-framework
+  - boss-arena
+  definition_of_done:
+  - 至少两个明显战斗阶段/攻击状态
+  - 至少一种攻击生成/破坏/改变 Material
+  - 不是纯 HP sponge
+  - 死亡与胜利反馈清晰
+  non_goals: []
+- id: boss-major-reward
+  title: Boss Major Reward
+  parent: mine-boss-exit
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:loot
+  - area:wand
+  - priority:P1
+  summary: Boss 死亡后提供明显高于普通 Encounter 的重大 Game 奖励。
+  children: []
+  blocked_by:
+  - wand-reward-api
+  - mine-boss
+  definition_of_done:
+  - 支持 Rare Wand / Rare Spell / Game Modifier 至少一种
+  - Reward profile 可配置
+  - 奖励领取状态可靠
+  non_goals: []
+- id: exit-victory
+  title: Exit / Victory Flow
+  parent: mine-boss-exit
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:run
+  - area:world
+  - area:ui
+  - priority:P0
+  summary: Boss 完成后激活 Portal/Exit，并进入 TRANSITION 或 V5.0 Victory。
+  children: []
+  blocked_by:
+  - run-manager-state
+  - mine-boss
+  definition_of_done:
+  - Exit 只在条件满足后激活
+  - 进入后切换 RunState
+  - V5.0 可直接 Victory，不被 Snow 阻塞
+  - 未来可扩 Mine→Snow
+  non_goals: []
+- id: alpha-balance-pass
+  title: Alpha Balance Pass
+  parent: first-playable-run
+  milestone: ms-v5.0
+  labels:
+  - type:epic
+  - area:combat
+  - priority:P0
+  summary: 完整 Game 可玩后做第一轮数值、掉落、难度与战斗反馈收敛。
+  children:
+  - player-balance
+  - enemy-balance
+  - wand-generation-balance
+  - loot-economy-balance
+  - spell-baseline
+  - combat-feedback
+  blocked_by:
+  - run-foundation
+  - wand-loot-generation
+  - mine-enemy-set
+  - special-rooms-economy
+  - mine-boss-exit
+  definition_of_done:
+  - 完整 Game 难度曲线可接受
+  - 有数次构筑/消费决策
+  - 基础 Spell 各有用途
+  - Boss 前后成长可感知
+  non_goals: []
+- id: player-balance
+  title: Player Survivability Balance
+  parent: alpha-balance-pass
+  milestone: ms-v5.0
+  labels:
+  - type:balance
+  - area:combat
+  - priority:P0
+  summary: 调整 HP、Damage、Flight、Movement、Healing。
+  children: []
+  blocked_by:
+  - mine-boss
+  definition_of_done:
+  - 基础敌人不瞬间秒杀新玩家
+  - 恢复资源不无限
+  - Flight/Movement 不破坏主要关卡约束
+  non_goals: []
+- id: enemy-balance
+  title: Enemy Composition and Damage Balance
+  parent: alpha-balance-pass
+  milestone: ms-v5.0
+  labels:
+  - type:balance
+  - area:enemy
+  - priority:P0
+  summary: 调整 Enemy density、budget、attack rate、damage 与组合。
+  children: []
+  blocked_by:
+  - encounter-spawner
+  - mine-boss
+  definition_of_done:
+  - 深度提升可感知且不依赖数值膨胀
+  - 组合形成战术变化
+  - 性能压力处于目标范围
+  non_goals: []
+- id: wand-generation-balance
+  title: Wand Generation Balance
+  parent: alpha-balance-pass
+  milestone: ms-v5.0
+  labels:
+  - type:balance
+  - area:wand
+  - priority:P0
+  summary: 调整 capacity、mana、recharge、shuffle chance、spell quality 与 rarity progression。
+  children: []
+  blocked_by:
+  - runtime-wand-generator
+  - world-wand-pickup
+  definition_of_done:
+  - 早期 Wand 不轻易压倒所有内容
+  - 深度/稀有度有真实提升
+  - Bad roll 与 OP roll 有边界
+  non_goals: []
+- id: loot-economy-balance
+  title: Loot and Economy Balance
+  parent: alpha-balance-pass
+  milestone: ms-v5.0
+  labels:
+  - type:balance
+  - area:loot
+  - priority:P0
+  summary: 统一 Gold、Wand、Spell、Chest、Shop 的奖励节奏。
+  children: []
+  blocked_by:
+  - gold-economy
+  - treasure-room
+  - shop-system
+  definition_of_done:
+  - 探索和战斗都有意义奖励
+  - 普通敌人不会淹没世界于 Spell Pickup
+  - Treasure/Shop/Boss 层级清晰
+  non_goals: []
+- id: spell-baseline
+  title: Core Spell Baseline
+  parent: alpha-balance-pass
+  milestone: ms-v5.0
+  labels:
+  - type:balance
+  - area:spell
+  - priority:P1
+  summary: 确保 Spark/Dig/Fire/Bomb 等基础 Spell 有明确 Combat/Dig/Environment 定位。
+  children: []
+  blocked_by:
+  - basic-dig-resistance
+  definition_of_done:
+  - 不只是 damage 数字不同
+  - 至少 Combat/Dig/Environment 三种用途明确
+  - Mana/Delay/Damage 在 Wand 生成范围内可用
+  non_goals: []
+- id: combat-feedback
+  title: Combat Feedback Pass
+  parent: alpha-balance-pass
+  milestone: ms-v5.0
+  labels:
+  - type:feature
+  - area:combat
+  - area:ui
+  - priority:P1
+  summary: 补齐 hit/death/damage feedback，达到 Alpha 可玩标准。
+  children: []
+  blocked_by:
+  - mine-enemy-set
+  definition_of_done:
+  - 命中/受伤/死亡反馈可读
+  - 不依赖高成本后处理
+  - 保持像素视觉语言
+  non_goals: []
+- id: wand-material-gameplay
+  title: Wand & Material Gameplay
+  parent: roadmap-alpha
+  milestone: ms-v5.1
+  labels:
+  - type:epic
+  - area:wand
+  - area:material
+  - priority:P1
+  summary: 在 First Playable Game 成立后深化 Wand 构筑和 Material Gameplay。
+  children:
+  - wand-system-expansion
+  - material-gameplay-expansion
+  blocked_by:
+  - first-playable-run
+  definition_of_done:
+  - 支持嵌套/延迟/条件 Cast
+  - 地形硬度与导电/湿润交互进入正式 Gameplay
+  non_goals: []
+- id: wand-system-expansion
+  title: Wand System Expansion
+  parent: wand-material-gameplay
+  milestone: ms-v5.1
+  labels:
+  - type:epic
+  - area:wand
+  - area:spell
+  - priority:P1
+  summary: 扩展真正影响 Cast Graph 的高级 Wand/Spell 机制。
+  children:
+  - trigger-cast-architecture
+  - trigger-spells
+  - timer-spells
+  - conditional-casts
+  - homing-modifier
+  - orbit-modifier
+  - trail-modifier
+  blocked_by:
+  - first-playable-run
+  definition_of_done: []
+  non_goals: []
+- id: trigger-cast-architecture
+  title: Trigger Cast Architecture
+  parent: wand-system-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:tech
+  - area:wand
+  - area:spell
+  - priority:P1
+  summary: 扩展 SpellCastState/CastContext 支持 impact/death 等事件触发嵌套 cast。
+  children: []
+  blocked_by: []
+  definition_of_done:
+  - 支持 nested cast
+  - 有 recursion limit
+  - source/caster lifetime 安全
+  - mana/extra draw/multicast 语义清晰
+  non_goals: []
+- id: trigger-spells
+  title: Trigger Spells
+  parent: wand-system-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:spell
+  - priority:P1
+  summary: 实现 On Hit / Trigger 类 Spell。
+  children: []
+  blocked_by:
+  - trigger-cast-architecture
+  definition_of_done: []
+  non_goals: []
+- id: timer-spells
+  title: Timer Spells
+  parent: wand-system-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:spell
+  - priority:P1
+  summary: 实现延迟后触发后续 Cast 的 Timer Spell。
+  children: []
+  blocked_by:
+  - trigger-cast-architecture
+  definition_of_done: []
+  non_goals: []
+- id: conditional-casts
+  title: Conditional Casts
+  parent: wand-system-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:spell
+  - priority:P2
+  summary: 实现基于命中、状态或环境条件的后续 Cast。
+  children: []
+  blocked_by:
+  - trigger-cast-architecture
+  definition_of_done: []
+  non_goals: []
+- id: homing-modifier
+  title: Homing Modifier
+  parent: wand-system-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:spell
+  - priority:P2
+  summary: 增加 Homing projectile modifier。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: orbit-modifier
+  title: Orbit Modifier
+  parent: wand-system-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:spell
+  - priority:P2
+  summary: 增加 Orbit cast/projectile modifier。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: trail-modifier
+  title: Trail Modifier
+  parent: wand-system-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:spell
+  - area:material
+  - priority:P2
+  summary: 增加 Trail modifier，并允许受控 Material/VFX trail。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: material-gameplay-expansion
+  title: Material Gameplay Expansion
+  parent: wand-material-gameplay
+  milestone: ms-v5.1
+  labels:
+  - type:epic
+  - area:material
+  - priority:P1
+  summary: 把 Sand Material 从模拟底座进一步提升为正式战斗/探索规则。
+  children:
+  - material-gameplay-metadata
+  - full-dig-hardness
+  - conductivity-system
+  - wet-electricity
+  - advanced-material-reactions
+  blocked_by:
+  - first-playable-run
+  definition_of_done: []
+  non_goals: []
+- id: material-gameplay-metadata
+  title: Material Gameplay Metadata
+  parent: material-gameplay-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:tech
+  - area:material
+  - priority:P1
+  summary: 统一 hardness/contact damage/flammability/conductivity/toxicity 等 Gameplay metadata。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: full-dig-hardness
+  title: Full Dig Power and Hardness
+  parent: material-gameplay-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:material
+  - area:spell
+  - priority:P1
+  summary: 在 V5.0 基础版上建立完整 hardness hierarchy、Spell digging profile 和特殊材质 resistance。
+  children: []
+  blocked_by:
+  - basic-dig-resistance
+  - material-gameplay-metadata
+  definition_of_done: []
+  non_goals: []
+- id: conductivity-system
+  title: Material Conductivity
+  parent: material-gameplay-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:material
+  - priority:P1
+  summary: 让 Water/Metal 等材质具备统一 conductivity 规则。
+  children: []
+  blocked_by:
+  - material-gameplay-metadata
+  definition_of_done: []
+  non_goals: []
+- id: wet-electricity
+  title: Wet and Electricity Interaction
+  parent: material-gameplay-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:material
+  - area:combat
+  - area:spell
+  - priority:P1
+  summary: Lightning 与 Water/Wet actor 产生系统性导电/伤害互动。
+  children: []
+  blocked_by:
+  - conductivity-system
+  definition_of_done: []
+  non_goals: []
+- id: advanced-material-reactions
+  title: Advanced Material Reactions
+  parent: material-gameplay-expansion
+  milestone: ms-v5.1
+  labels:
+  - type:feature
+  - area:material
+  - priority:P2
+  summary: 扩展 Fire/Oil/Water/Acid/Crystal 等更深入 Gameplay reaction。
+  children: []
+  blocked_by:
+  - material-gameplay-metadata
+  definition_of_done: []
+  non_goals: []
+- id: snow-biome-gameplay
+  title: Snow Biome Gameplay
+  parent: roadmap-alpha
+  milestone: ms-v5.2
+  labels:
+  - type:epic
+  - area:world
+  - priority:P1
+  summary: 把 Snow 做到与 Mine 同等级的完整 Gameplay Biome。
+  children:
+  - snow-enemy-set
+  - snow-encounters
+  - snow-hazards
+  - snow-loot-profile
+  - snow-special-rooms
+  - snow-boss
+  - mine-snow-progression
+  blocked_by:
+  - first-playable-run
+  definition_of_done:
+  - Snow 有独立敌人/Encounter/危险/奖励/Boss
+  - 不是 Mine 内容换色
+  - Mine→Snow Progression 成立
+  non_goals: []
+- id: snow-enemy-set
+  title: Snow Enemy Set
+  parent: snow-biome-gameplay
+  milestone: ms-v5.2
+  labels:
+  - type:epic
+  - area:enemy
+  - area:world
+  - priority:P1
+  summary: 设计并实现 Snow 正式敌人生态。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: snow-encounters
+  title: Snow Encounter Profile
+  parent: snow-biome-gameplay
+  milestone: ms-v5.2
+  labels:
+  - type:feature
+  - area:enemy
+  - area:world
+  - priority:P1
+  summary: 建立 Snow difficulty budget 与 encounter composition。
+  children: []
+  blocked_by:
+  - snow-enemy-set
+  definition_of_done: []
+  non_goals: []
+- id: snow-hazards
+  title: Snow Environmental Hazards
+  parent: snow-biome-gameplay
+  milestone: ms-v5.2
+  labels:
+  - type:content
+  - area:material
+  - area:world
+  - priority:P1
+  summary: 建立 Snow 独特环境危险与 Material interaction。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: snow-loot-profile
+  title: Snow Loot Profile
+  parent: snow-biome-gameplay
+  milestone: ms-v5.2
+  labels:
+  - type:feature
+  - area:loot
+  - area:wand
+  - priority:P1
+  summary: 定义 Snow depth/rarity 对 Wand/Spell/Loot 的影响。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: snow-special-rooms
+  title: Snow Special Rooms
+  parent: snow-biome-gameplay
+  milestone: ms-v5.2
+  labels:
+  - type:content
+  - area:world
+  - area:loot
+  - priority:P1
+  summary: 实现 Snow Treasure/Shrine/Shop variation。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: snow-boss
+  title: Snow Boss
+  parent: snow-biome-gameplay
+  milestone: ms-v5.2
+  labels:
+  - type:content
+  - area:enemy
+  - area:combat
+  - priority:P1
+  summary: 实现 Snow Boss 与 Arena。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: mine-snow-progression
+  title: Mine to Snow Progression
+  parent: snow-biome-gameplay
+  milestone: ms-v5.2
+  labels:
+  - type:feature
+  - area:run
+  - area:world
+  - priority:P1
+  summary: 把 V5.0 Exit 从 Victory 扩展为 Mine→Snow Transition。
+  children: []
+  blocked_by:
+  - snow-boss
+  definition_of_done: []
+  non_goals: []
+- id: creative-developer-toolkit
+  title: Creative Developer Toolkit
+  parent: roadmap-alpha
+  milestone: ms-v5.3
+  labels:
+  - type:epic
+  - area:creative
+  - priority:P2
+  summary: 把 Creative Mode 提升为可快速搭建、复现和保存 Gameplay 测试场景的开发工具。
+  children:
+  - scenario-presets
+  - wand-presets
+  - entity-spawn-sets
+  - simulation-debugging
+  - terrain-editing-history
+  blocked_by:
+  - first-playable-run
+  definition_of_done: []
+  non_goals: []
+- id: scenario-presets
+  title: Scenario Presets
+  parent: creative-developer-toolkit
+  milestone: ms-v5.3
+  labels:
+  - type:feature
+  - area:creative
+  - priority:P1
+  summary: 提供 Fire/Oil、Water/Electricity、Enemy Composition、Wand DPS、Boss Arena 等一键测试场景。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: wand-presets
+  title: Creative Wand Presets
+  parent: creative-developer-toolkit
+  milestone: ms-v5.3
+  labels:
+  - type:feature
+  - area:creative
+  - area:wand
+  - priority:P2
+  summary: 保存/加载可复现测试 Wand。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: entity-spawn-sets
+  title: Entity Spawn Sets
+  parent: creative-developer-toolkit
+  milestone: ms-v5.3
+  labels:
+  - type:feature
+  - area:creative
+  - area:enemy
+  - priority:P2
+  summary: 一次生成 encounter profile / enemy group / loot scenario。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: simulation-debugging
+  title: Simulation Debugging Tools
+  parent: creative-developer-toolkit
+  milestone: ms-v5.3
+  labels:
+  - type:feature
+  - area:creative
+  - area:native
+  - priority:P2
+  summary: 扩展 active-block/material inspector/simulation visualization 等工具。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: terrain-editing-history
+  title: Terrain Editing History
+  parent: creative-developer-toolkit
+  milestone: ms-v5.3
+  labels:
+  - type:epic
+  - area:creative
+  - area:native
+  - priority:P2
+  summary: 在 Native snapshot/restore 基础上实现高性能 Terrain Undo/Redo 与 World Snapshot。
+  children:
+  - native-region-snapshot
+  - native-region-restore
+  - terrain-edit-command
+  - terrain-undo-redo
+  - world-snapshot
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: native-region-snapshot
+  title: Native Region Snapshot
+  parent: terrain-editing-history
+  milestone: ms-v5.3
+  labels:
+  - type:tech
+  - area:native
+  - priority:P1
+  summary: 为 fallingsand 增加批量 capture_region，避免 GDScript 逐像素读取。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: native-region-restore
+  title: Native Region Restore
+  parent: terrain-editing-history
+  milestone: ms-v5.3
+  labels:
+  - type:tech
+  - area:native
+  - priority:P1
+  summary: 为 fallingsand 增加批量 restore_region，并正确传播 simulation/visual/collision dirty。
+  children: []
+  blocked_by:
+  - native-region-snapshot
+  definition_of_done: []
+  non_goals: []
+- id: terrain-edit-command
+  title: Terrain Edit Command Model
+  parent: terrain-editing-history
+  milestone: ms-v5.3
+  labels:
+  - type:tech
+  - area:creative
+  - priority:P2
+  summary: 用 region + before/after snapshot 表达一次编辑命令，并设置内存预算。
+  children: []
+  blocked_by:
+  - native-region-restore
+  definition_of_done: []
+  non_goals: []
+- id: terrain-undo-redo
+  title: Creative Terrain Undo and Redo
+  parent: terrain-editing-history
+  milestone: ms-v5.3
+  labels:
+  - type:feature
+  - area:creative
+  - priority:P2
+  summary: 实现 Ctrl+Z / Ctrl+Y、跨 Chunk restore 和历史栈预算。
+  children: []
+  blocked_by:
+  - terrain-edit-command
+  definition_of_done: []
+  non_goals: []
+- id: world-snapshot
+  title: Creative World Snapshot
+  parent: terrain-editing-history
+  milestone: ms-v5.3
+  labels:
+  - type:feature
+  - area:creative
+  - area:world
+  - priority:P3
+  summary: 保存/恢复用于开发测试的有限世界区域快照。
+  children: []
+  blocked_by:
+  - native-region-restore
+  definition_of_done: []
+  non_goals: []
+- id: engine-platform-hardening
+  title: Engine & Platform Hardening
+  parent: roadmap-alpha
+  milestone: ms-v5.4
+  labels:
+  - type:epic
+  - area:native
+  - area:platform
+  - priority:P2
+  summary: 在 Gameplay 主循环稳定后系统做性能、长期稳定性和平台覆盖。
+  children:
+  - engine-performance-hardening
+  - platform-coverage
+  blocked_by:
+  - first-playable-run
+  definition_of_done: []
+  non_goals: []
+- id: engine-performance-hardening
+  title: Engine Performance Hardening
+  parent: engine-platform-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:epic
+  - area:native
+  - area:world
+  - priority:P2
+  summary: 集中处理 Ghost Halo、Sector/Streaming/Native Sand、内存和长期运行性能。
+  children:
+  - ghost-halo
+  - visual-sector-profiling
+  - collision-sector-profiling
+  - streaming-profiling
+  - native-sand-profiling
+  - memory-longrun-stability
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: ghost-halo
+  title: Ghost Halo
+  parent: engine-performance-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:native
+  - area:world
+  - priority:P3
+  summary: 评估并实现跨 Chunk ghost halo / seam 优化。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: visual-sector-profiling
+  title: Visual Sector Profiling
+  parent: engine-performance-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:world
+  - priority:P2
+  summary: 系统 profiling Visual Sector partial updates 与 GPU copy path。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: collision-sector-profiling
+  title: Collision Sector Profiling
+  parent: engine-performance-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:world
+  - priority:P2
+  summary: 系统 profiling 动态 Collision Sector rebuild。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: streaming-profiling
+  title: Streaming Profiling
+  parent: engine-performance-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:world
+  - priority:P2
+  summary: 分析 Streaming worker、Chunk 生命周期和卡顿峰值。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: native-sand-profiling
+  title: Native Sand Profiling
+  parent: engine-performance-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:native
+  - priority:P2
+  summary: 分析 fallingsand step、active blocks、跨 Chunk flow 等热点。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: memory-longrun-stability
+  title: Memory and Long-run Stability
+  parent: engine-performance-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:native
+  - area:world
+  - priority:P2
+  summary: 进行长时间 Game 的内存增长、资源生命周期与稳定性测试。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: platform-coverage
+  title: Platform Coverage
+  parent: engine-platform-hardening
+  milestone: ms-v5.4
+  labels:
+  - type:epic
+  - area:platform
+  - priority:P2
+  summary: 补齐 Native binary 与真实设备 profiling。
+  children:
+  - linux-native-binary
+  - macos-native-binary
+  - android-platform-coverage
+  - web-platform-profiling
+  - mobile-hardware-profiling
+  - desktop-hardware-profiling
+  - runtime-profile-tuning
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: linux-native-binary
+  title: Linux Native Binary
+  parent: platform-coverage
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:platform
+  - area:native
+  - priority:P2
+  summary: 补齐 Linux fallingsand native build / validation。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: macos-native-binary
+  title: macOS Native Binary
+  parent: platform-coverage
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:platform
+  - area:native
+  - priority:P2
+  summary: 补齐 macOS fallingsand native build / validation。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: android-platform-coverage
+  title: Android Platform Coverage
+  parent: platform-coverage
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:platform
+  - priority:P2
+  summary: 评估 Android ABI 覆盖与真实设备兼容。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: web-platform-profiling
+  title: Web Platform Profiling
+  parent: platform-coverage
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:platform
+  - priority:P2
+  summary: 验证 Web/WASM 下 Sand/Streaming/Gameplay 性能。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: mobile-hardware-profiling
+  title: Mobile Hardware Profiling
+  parent: platform-coverage
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:platform
+  - priority:P2
+  summary: 在真实移动设备验证 Runtime Profile。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: desktop-hardware-profiling
+  title: Desktop Hardware Profiling
+  parent: platform-coverage
+  milestone: ms-v5.4
+  labels:
+  - type:tech
+  - area:platform
+  - priority:P2
+  summary: 在不同桌面硬件档位验证 CPU/GPU/内存表现。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: runtime-profile-tuning
+  title: Runtime Profile Tuning
+  parent: platform-coverage
+  milestone: ms-v5.4
+  labels:
+  - type:balance
+  - area:platform
+  - area:world
+  - priority:P2
+  summary: 基于真实 profiling 调整 PC/Mobile Runtime Profile。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: world-progression-expansion
+  title: World & Progression Expansion
+  parent: roadmap-alpha
+  milestone: ms-v6.0
+  labels:
+  - type:epic
+  - area:world
+  - area:run
+  - priority:P3
+  summary: 扩展多 Biome Run、Deep、Elite、Boss archetypes、Discovery 与特殊房间。
+  children:
+  - deep-biome
+  - multi-biome-run
+  - elite-modifiers
+  - boss-archetypes
+  - discovery-collection
+  - expanded-special-rooms
+  blocked_by:
+  - snow-biome-gameplay
+  definition_of_done: []
+  non_goals: []
+- id: deep-biome
+  title: Deep Biome Gameplay
+  parent: world-progression-expansion
+  milestone: ms-v6.0
+  labels:
+  - type:epic
+  - area:world
+  - priority:P3
+  summary: 把 Deep 做成完整 Gameplay Biome。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: multi-biome-run
+  title: Multi-biome Complete Run
+  parent: world-progression-expansion
+  milestone: ms-v6.0
+  labels:
+  - type:feature
+  - area:run
+  - area:world
+  - priority:P3
+  summary: 形成跨多个完整 Biome 的正式长 Game。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: elite-modifiers
+  title: Elite Enemy Modifiers
+  parent: world-progression-expansion
+  milestone: ms-v6.0
+  labels:
+  - type:feature
+  - area:enemy
+  - priority:P3
+  summary: 增加 Burning/Shielded/Fast/Explosive/Regenerating 等 Elite modifier。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: boss-archetypes
+  title: Additional Boss Archetypes
+  parent: world-progression-expansion
+  milestone: ms-v6.0
+  labels:
+  - type:content
+  - area:enemy
+  - area:combat
+  - priority:P3
+  summary: 扩展更多利用 Material/世界规则的 Boss archetype。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: discovery-collection
+  title: Discovery and Collection
+  parent: world-progression-expansion
+  milestone: ms-v6.0
+  labels:
+  - type:feature
+  - area:run
+  - area:ui
+  - priority:P3
+  summary: 记录 Spell/Enemy/Biome discovery，不直接提供永久数值成长。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: expanded-special-rooms
+  title: Expanded Special Rooms
+  parent: world-progression-expansion
+  milestone: ms-v6.0
+  labels:
+  - type:content
+  - area:world
+  - area:loot
+  - priority:P3
+  summary: 增加更多复杂特殊房间和选择事件。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: meta-progression
+  title: Meta Progression
+  parent: roadmap-alpha
+  milestone: ms-v6.1
+  labels:
+  - type:epic
+  - area:run
+  - priority:P3
+  summary: 仅在确认基础 Game 本身足够好玩后评估局外成长；当前保持 tentative。
+  children:
+  - meta-progression-framework
+  - persistent-unlocks
+  - meta-balance-guard
+  blocked_by:
+  - world-progression-expansion
+  definition_of_done: []
+  non_goals:
+  - 用永久 +HP/+Damage 掩盖基础 Game 平衡问题
+- id: meta-progression-framework
+  title: Meta Progression Framework
+  parent: meta-progression
+  milestone: ms-v6.1
+  labels:
+  - type:tech
+  - area:run
+  - priority:P3
+  summary: 建立可撤销/可配置的局外成长框架。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: persistent-unlocks
+  title: Persistent Unlocks
+  parent: meta-progression
+  milestone: ms-v6.1
+  labels:
+  - type:feature
+  - area:run
+  - priority:P3
+  summary: 评估并实现非破坏性 Unlock/Discovery progression。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
+- id: meta-balance-guard
+  title: Meta Progression Balance Guard
+  parent: meta-progression
+  milestone: ms-v6.1
+  labels:
+  - type:balance
+  - area:run
+  - priority:P3
+  summary: 确保局外成长不替代核心 Wand/Environment skill progression。
+  children: []
+  blocked_by: []
+  definition_of_done: []
+  non_goals: []
