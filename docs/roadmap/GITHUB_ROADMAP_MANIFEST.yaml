@@ -1,0 +1,120 @@
+manifest_version: 2
+project: Pixel Piece World
+terminology: {manager: GameManager, state: GameState, session: Game, area: 'area:gameplay', preserve: [Runtime, Long-run]}
+schema: {gh: github_issue, p: parent, m: milestone, l: labels, b: blocked_by}
+rules: {title: 'plain task name', version: milestone, metadata: labels, max_depth: 4, v5_scope: 'New Game → Explore → Fight → Loot → Build Wand → Special Room → Boss → End'}
+labels: ['type:roadmap', 'type:epic', 'type:feature', 'type:content', 'type:tech', 'type:bug', 'type:balance', 'area:gameplay', 'area:world', 'area:enemy', 'area:combat', 'area:loot', 'area:wand', 'area:spell', 'area:material', 'area:ui', 'area:creative', 'area:native', 'area:platform', 'priority:P0', 'priority:P1', 'priority:P2', 'priority:P3']
+milestones:
+  ms-v5.0: {title: 'V5.0 — First Playable Game', status: current}
+  ms-v5.1: {title: 'V5.1 — Wand & Material Gameplay', status: planned}
+  ms-v5.2: {title: 'V5.2 — Snow Biome Gameplay', status: planned}
+  ms-v5.3: {title: 'V5.3 — Creative Developer Toolkit', status: planned}
+  ms-v5.4: {title: 'V5.4 — Engine & Platform Hardening', status: planned}
+  ms-v6.0: {title: 'V6.0 — World & Progression Expansion', status: future}
+  ms-v6.1: {title: 'V6.1 — Meta Progression', status: tentative}
+issues:
+  roadmap-alpha: {title: 'Gameplay Alpha Roadmap', gh: 24, l: [type:roadmap]}
+  first-playable-game: {title: 'First Playable Game', gh: 17, p: roadmap-alpha, m: ms-v5.0, l: [type:epic, area:gameplay, priority:P0]}
+  game-foundation: {title: 'Game Foundation', gh: 5, p: first-playable-game, m: ms-v5.0, l: [type:epic, area:gameplay, priority:P0]}
+  game-manager-state: {title: 'GameManager and Game State', gh: 1, p: game-foundation, m: ms-v5.0, l: [type:feature, area:gameplay, priority:P0]}
+  game-death-restart: {title: 'Game Death and Restart Flow', gh: 2, p: game-foundation, m: ms-v5.0, l: [type:feature, area:gameplay, area:combat, priority:P0], b: [game-manager-state]}
+  game-ui-summary: {title: 'Game Start, Death, Victory and Summary UI', gh: 3, p: game-foundation, m: ms-v5.0, l: [type:feature, area:gameplay, area:ui, priority:P1], b: [game-manager-state]}
+  session-reset: {title: 'Clean Session Reset', gh: 4, p: game-foundation, m: ms-v5.0, l: [type:tech, area:gameplay, area:world, priority:P0], b: [game-manager-state]}
+  wand-loot-generation: {title: 'Wand Loot & Generation', gh: 11, p: first-playable-game, m: ms-v5.0, l: [type:epic, area:wand, area:loot, priority:P0], b: [game-manager-state]}
+  runtime-wand-generator: {title: 'Runtime Wand Generator', gh: 6, p: wand-loot-generation, m: ms-v5.0, l: [type:feature, area:wand, priority:P0]}
+  deterministic-wand-generation: {title: 'Deterministic Wand Generation', gh: 7, p: wand-loot-generation, m: ms-v5.0, l: [type:tech, area:wand, area:gameplay, priority:P1], b: [game-manager-state, runtime-wand-generator]}
+  world-wand-pickup: {title: 'World Wand Pickup', gh: 8, p: wand-loot-generation, m: ms-v5.0, l: [type:feature, area:wand, area:loot, priority:P0], b: [runtime-wand-generator]}
+  wand-comparison-ui: {title: 'Wand Comparison UI', gh: 9, p: wand-loot-generation, m: ms-v5.0, l: [type:feature, area:wand, area:ui, priority:P0], b: [world-wand-pickup]}
+  wand-reward-api: {title: 'Unified Wand Reward API', gh: 10, p: wand-loot-generation, m: ms-v5.0, l: [type:tech, area:wand, area:loot, priority:P1], b: [runtime-wand-generator]}
+  basic-dig-resistance: {title: 'Basic Dig Power and Terrain Hardness', gh: 16, p: first-playable-game, m: ms-v5.0, l: [type:feature, area:material, area:spell, priority:P1]}
+  mine-enemy-set: {title: 'Mine Enemy Set', gh: 12, p: first-playable-game, m: ms-v5.0, l: [type:epic, area:enemy, area:combat, priority:P0]}
+  enemy-architecture: {title: 'Unified Enemy Architecture', p: mine-enemy-set, m: ms-v5.0, l: [type:tech, area:enemy, area:combat, priority:P0]}
+  cave-eye-production: {title: 'Cave Eye Production Pass', p: mine-enemy-set, m: ms-v5.0, l: [type:content, area:enemy, priority:P1], b: [enemy-architecture, enemy-loot-tables]}
+  crawler-enemy: {title: 'Crawler', p: mine-enemy-set, m: ms-v5.0, l: [type:content, area:enemy, priority:P0], b: [enemy-architecture]}
+  bomber-enemy: {title: 'Bomber', p: mine-enemy-set, m: ms-v5.0, l: [type:content, area:enemy, area:material, priority:P0], b: [enemy-architecture]}
+  fire-slime: {title: 'Fire Slime', p: mine-enemy-set, m: ms-v5.0, l: [type:content, area:enemy, area:material, priority:P0], b: [enemy-architecture]}
+  oil-slime: {title: 'Oil Slime', p: mine-enemy-set, m: ms-v5.0, l: [type:content, area:enemy, area:material, priority:P0], b: [enemy-architecture]}
+  enemy-loot-tables: {title: 'Enemy Loot Tables', p: mine-enemy-set, m: ms-v5.0, l: [type:feature, area:enemy, area:loot, priority:P0]}
+  piece-spawn-anchors: {title: 'Piece Spawn Anchors', p: mine-enemy-set, m: ms-v5.0, l: [type:tech, area:world, area:enemy, priority:P0]}
+  encounter-spawner: {title: 'Encounter Spawner and Difficulty Budget', p: mine-enemy-set, m: ms-v5.0, l: [type:feature, area:world, area:enemy, priority:P0], b: [enemy-architecture, piece-spawn-anchors]}
+  special-rooms-economy: {title: 'Special Rooms & Economy', gh: 13, p: first-playable-game, m: ms-v5.0, l: [type:epic, area:world, area:loot, priority:P0], b: [wand-loot-generation, enemy-loot-tables]}
+  chest-system: {title: 'Chest System', p: special-rooms-economy, m: ms-v5.0, l: [type:feature, area:loot, area:world, priority:P0], b: [wand-reward-api]}
+  treasure-room: {title: 'Treasure Room Gameplay', p: special-rooms-economy, m: ms-v5.0, l: [type:content, area:world, area:loot, priority:P0], b: [chest-system]}
+  game-modifiers: {title: 'Game Modifiers / Perks v1', p: special-rooms-economy, m: ms-v5.0, l: [type:feature, area:gameplay, priority:P1]}
+  shrine-system: {title: 'Shrine System', p: special-rooms-economy, m: ms-v5.0, l: [type:feature, area:world, area:gameplay, priority:P1], b: [game-modifiers]}
+  gold-economy: {title: 'Gold Economy v1', p: special-rooms-economy, m: ms-v5.0, l: [type:balance, area:loot, priority:P1], b: [enemy-loot-tables]}
+  shop-system: {title: 'Shop System', p: special-rooms-economy, m: ms-v5.0, l: [type:feature, area:world, area:loot, area:wand, area:spell, priority:P1], b: [wand-reward-api, gold-economy]}
+  mine-boss-exit: {title: 'Mine Boss & Exit', gh: 14, p: first-playable-game, m: ms-v5.0, l: [type:epic, area:combat, area:world, priority:P0], b: [game-foundation, mine-enemy-set, wand-reward-api]}
+  boss-framework: {title: 'Boss Framework', p: mine-boss-exit, m: ms-v5.0, l: [type:tech, area:combat, area:enemy, priority:P0], b: [game-manager-state, enemy-architecture]}
+  boss-arena: {title: 'Boss Arena Special Chunk', p: mine-boss-exit, m: ms-v5.0, l: [type:content, area:world, priority:P0], b: [boss-framework]}
+  mine-boss: {title: 'Mine Boss', p: mine-boss-exit, m: ms-v5.0, l: [type:content, area:enemy, area:combat, area:material, priority:P0], b: [boss-framework, boss-arena]}
+  boss-major-reward: {title: 'Boss Major Reward', p: mine-boss-exit, m: ms-v5.0, l: [type:feature, area:loot, area:wand, priority:P1], b: [wand-reward-api, mine-boss]}
+  exit-victory: {title: 'Exit / Victory Flow', p: mine-boss-exit, m: ms-v5.0, l: [type:feature, area:gameplay, area:world, area:ui, priority:P0], b: [game-manager-state, mine-boss]}
+  alpha-balance-pass: {title: 'Alpha Balance Pass', gh: 15, p: first-playable-game, m: ms-v5.0, l: [type:epic, area:combat, priority:P0], b: [game-foundation, wand-loot-generation, mine-enemy-set, special-rooms-economy, mine-boss-exit]}
+  player-balance: {title: 'Player Survivability Balance', p: alpha-balance-pass, m: ms-v5.0, l: [type:balance, area:combat, priority:P0], b: [mine-boss]}
+  enemy-balance: {title: 'Enemy Composition and Damage Balance', p: alpha-balance-pass, m: ms-v5.0, l: [type:balance, area:enemy, priority:P0], b: [encounter-spawner, mine-boss]}
+  wand-generation-balance: {title: 'Wand Generation Balance', p: alpha-balance-pass, m: ms-v5.0, l: [type:balance, area:wand, priority:P0], b: [runtime-wand-generator, world-wand-pickup]}
+  loot-economy-balance: {title: 'Loot and Economy Balance', p: alpha-balance-pass, m: ms-v5.0, l: [type:balance, area:loot, priority:P0], b: [gold-economy, treasure-room, shop-system]}
+  spell-baseline: {title: 'Core Spell Baseline', p: alpha-balance-pass, m: ms-v5.0, l: [type:balance, area:spell, priority:P1], b: [basic-dig-resistance]}
+  combat-feedback: {title: 'Combat Feedback Pass', p: alpha-balance-pass, m: ms-v5.0, l: [type:feature, area:combat, area:ui, priority:P1], b: [mine-enemy-set]}
+  wand-material-gameplay: {title: 'Wand & Material Gameplay', gh: 18, p: roadmap-alpha, m: ms-v5.1, l: [type:epic, area:wand, area:material, priority:P1], b: [first-playable-game]}
+  wand-system-expansion: {title: 'Wand System Expansion', p: wand-material-gameplay, m: ms-v5.1, l: [type:epic, area:wand, area:spell, priority:P1], b: [first-playable-game]}
+  trigger-cast-architecture: {title: 'Trigger Cast Architecture', p: wand-system-expansion, m: ms-v5.1, l: [type:tech, area:wand, area:spell, priority:P1]}
+  trigger-spells: {title: 'Trigger Spells', p: wand-system-expansion, m: ms-v5.1, l: [type:feature, area:spell, priority:P1], b: [trigger-cast-architecture]}
+  timer-spells: {title: 'Timer Spells', p: wand-system-expansion, m: ms-v5.1, l: [type:feature, area:spell, priority:P1], b: [trigger-cast-architecture]}
+  conditional-casts: {title: 'Conditional Casts', p: wand-system-expansion, m: ms-v5.1, l: [type:feature, area:spell, priority:P2], b: [trigger-cast-architecture]}
+  homing-modifier: {title: 'Homing Modifier', p: wand-system-expansion, m: ms-v5.1, l: [type:feature, area:spell, priority:P2]}
+  orbit-modifier: {title: 'Orbit Modifier', p: wand-system-expansion, m: ms-v5.1, l: [type:feature, area:spell, priority:P2]}
+  trail-modifier: {title: 'Trail Modifier', p: wand-system-expansion, m: ms-v5.1, l: [type:feature, area:spell, area:material, priority:P2]}
+  material-gameplay-expansion: {title: 'Material Gameplay Expansion', p: wand-material-gameplay, m: ms-v5.1, l: [type:epic, area:material, priority:P1], b: [first-playable-game]}
+  material-gameplay-metadata: {title: 'Material Gameplay Metadata', p: material-gameplay-expansion, m: ms-v5.1, l: [type:tech, area:material, priority:P1]}
+  full-dig-hardness: {title: 'Full Dig Power and Hardness', p: material-gameplay-expansion, m: ms-v5.1, l: [type:feature, area:material, area:spell, priority:P1], b: [basic-dig-resistance, material-gameplay-metadata]}
+  conductivity-system: {title: 'Material Conductivity', p: material-gameplay-expansion, m: ms-v5.1, l: [type:feature, area:material, priority:P1], b: [material-gameplay-metadata]}
+  wet-electricity: {title: 'Wet and Electricity Interaction', p: material-gameplay-expansion, m: ms-v5.1, l: [type:feature, area:material, area:combat, area:spell, priority:P1], b: [conductivity-system]}
+  advanced-material-reactions: {title: 'Advanced Material Reactions', p: material-gameplay-expansion, m: ms-v5.1, l: [type:feature, area:material, priority:P2], b: [material-gameplay-metadata]}
+  snow-biome-gameplay: {title: 'Snow Biome Gameplay', gh: 19, p: roadmap-alpha, m: ms-v5.2, l: [type:epic, area:world, priority:P1], b: [first-playable-game]}
+  snow-enemy-set: {title: 'Snow Enemy Set', p: snow-biome-gameplay, m: ms-v5.2, l: [type:epic, area:enemy, area:world, priority:P1]}
+  snow-encounters: {title: 'Snow Encounter Profile', p: snow-biome-gameplay, m: ms-v5.2, l: [type:feature, area:enemy, area:world, priority:P1], b: [snow-enemy-set]}
+  snow-hazards: {title: 'Snow Environmental Hazards', p: snow-biome-gameplay, m: ms-v5.2, l: [type:content, area:material, area:world, priority:P1]}
+  snow-loot-profile: {title: 'Snow Loot Profile', p: snow-biome-gameplay, m: ms-v5.2, l: [type:feature, area:loot, area:wand, priority:P1]}
+  snow-special-rooms: {title: 'Snow Special Rooms', p: snow-biome-gameplay, m: ms-v5.2, l: [type:content, area:world, area:loot, priority:P1]}
+  snow-boss: {title: 'Snow Boss', p: snow-biome-gameplay, m: ms-v5.2, l: [type:content, area:enemy, area:combat, priority:P1]}
+  mine-snow-progression: {title: 'Mine to Snow Progression', p: snow-biome-gameplay, m: ms-v5.2, l: [type:feature, area:gameplay, area:world, priority:P1], b: [snow-boss]}
+  creative-developer-toolkit: {title: 'Creative Developer Toolkit', gh: 20, p: roadmap-alpha, m: ms-v5.3, l: [type:epic, area:creative, priority:P2], b: [first-playable-game]}
+  scenario-presets: {title: 'Scenario Presets', p: creative-developer-toolkit, m: ms-v5.3, l: [type:feature, area:creative, priority:P1]}
+  wand-presets: {title: 'Creative Wand Presets', p: creative-developer-toolkit, m: ms-v5.3, l: [type:feature, area:creative, area:wand, priority:P2]}
+  entity-spawn-sets: {title: 'Entity Spawn Sets', p: creative-developer-toolkit, m: ms-v5.3, l: [type:feature, area:creative, area:enemy, priority:P2]}
+  simulation-debugging: {title: 'Simulation Debugging Tools', p: creative-developer-toolkit, m: ms-v5.3, l: [type:feature, area:creative, area:native, priority:P2]}
+  terrain-editing-history: {title: 'Terrain Editing History', p: creative-developer-toolkit, m: ms-v5.3, l: [type:epic, area:creative, area:native, priority:P2]}
+  native-region-snapshot: {title: 'Native Region Snapshot', p: terrain-editing-history, m: ms-v5.3, l: [type:tech, area:native, priority:P1]}
+  native-region-restore: {title: 'Native Region Restore', p: terrain-editing-history, m: ms-v5.3, l: [type:tech, area:native, priority:P1], b: [native-region-snapshot]}
+  terrain-edit-command: {title: 'Terrain Edit Command Model', p: terrain-editing-history, m: ms-v5.3, l: [type:tech, area:creative, priority:P2], b: [native-region-restore]}
+  terrain-undo-redo: {title: 'Creative Terrain Undo and Redo', p: terrain-editing-history, m: ms-v5.3, l: [type:feature, area:creative, priority:P2], b: [terrain-edit-command]}
+  world-snapshot: {title: 'Creative World Snapshot', p: terrain-editing-history, m: ms-v5.3, l: [type:feature, area:creative, area:world, priority:P3], b: [native-region-restore]}
+  engine-platform-hardening: {title: 'Engine & Platform Hardening', gh: 21, p: roadmap-alpha, m: ms-v5.4, l: [type:epic, area:native, area:platform, priority:P2], b: [first-playable-game]}
+  engine-performance-hardening: {title: 'Engine Performance Hardening', p: engine-platform-hardening, m: ms-v5.4, l: [type:epic, area:native, area:world, priority:P2]}
+  ghost-halo: {title: 'Ghost Halo', p: engine-performance-hardening, m: ms-v5.4, l: [type:tech, area:native, area:world, priority:P3]}
+  visual-sector-profiling: {title: 'Visual Sector Profiling', p: engine-performance-hardening, m: ms-v5.4, l: [type:tech, area:world, priority:P2]}
+  collision-sector-profiling: {title: 'Collision Sector Profiling', p: engine-performance-hardening, m: ms-v5.4, l: [type:tech, area:world, priority:P2]}
+  streaming-profiling: {title: 'Streaming Profiling', p: engine-performance-hardening, m: ms-v5.4, l: [type:tech, area:world, priority:P2]}
+  native-sand-profiling: {title: 'Native Sand Profiling', p: engine-performance-hardening, m: ms-v5.4, l: [type:tech, area:native, priority:P2]}
+  memory-longrun-stability: {title: 'Memory and Long-run Stability', p: engine-performance-hardening, m: ms-v5.4, l: [type:tech, area:native, area:world, priority:P2]}
+  platform-coverage: {title: 'Platform Coverage', p: engine-platform-hardening, m: ms-v5.4, l: [type:epic, area:platform, priority:P2]}
+  linux-native-binary: {title: 'Linux Native Binary', p: platform-coverage, m: ms-v5.4, l: [type:tech, area:platform, area:native, priority:P2]}
+  macos-native-binary: {title: 'macOS Native Binary', p: platform-coverage, m: ms-v5.4, l: [type:tech, area:platform, area:native, priority:P2]}
+  android-platform-coverage: {title: 'Android Platform Coverage', p: platform-coverage, m: ms-v5.4, l: [type:tech, area:platform, priority:P2]}
+  web-platform-profiling: {title: 'Web Platform Profiling', p: platform-coverage, m: ms-v5.4, l: [type:tech, area:platform, priority:P2]}
+  mobile-hardware-profiling: {title: 'Mobile Hardware Profiling', p: platform-coverage, m: ms-v5.4, l: [type:tech, area:platform, priority:P2]}
+  desktop-hardware-profiling: {title: 'Desktop Hardware Profiling', p: platform-coverage, m: ms-v5.4, l: [type:tech, area:platform, priority:P2]}
+  runtime-profile-tuning: {title: 'Runtime Profile Tuning', p: platform-coverage, m: ms-v5.4, l: [type:balance, area:platform, area:world, priority:P2]}
+  world-progression-expansion: {title: 'World & Progression Expansion', gh: 22, p: roadmap-alpha, m: ms-v6.0, l: [type:epic, area:world, area:gameplay, priority:P3], b: [snow-biome-gameplay]}
+  deep-biome: {title: 'Deep Biome Gameplay', p: world-progression-expansion, m: ms-v6.0, l: [type:epic, area:world, priority:P3]}
+  multi-biome-game: {title: 'Multi-biome Complete Game', p: world-progression-expansion, m: ms-v6.0, l: [type:feature, area:gameplay, area:world, priority:P3]}
+  elite-modifiers: {title: 'Elite Enemy Modifiers', p: world-progression-expansion, m: ms-v6.0, l: [type:feature, area:enemy, priority:P3]}
+  boss-archetypes: {title: 'Additional Boss Archetypes', p: world-progression-expansion, m: ms-v6.0, l: [type:content, area:enemy, area:combat, priority:P3]}
+  discovery-collection: {title: 'Discovery and Collection', p: world-progression-expansion, m: ms-v6.0, l: [type:feature, area:gameplay, area:ui, priority:P3]}
+  expanded-special-rooms: {title: 'Expanded Special Rooms', p: world-progression-expansion, m: ms-v6.0, l: [type:content, area:world, area:loot, priority:P3]}
+  meta-progression: {title: 'Meta Progression', gh: 23, p: roadmap-alpha, m: ms-v6.1, l: [type:epic, area:gameplay, priority:P3], b: [world-progression-expansion]}
+  meta-progression-framework: {title: 'Meta Progression Framework', p: meta-progression, m: ms-v6.1, l: [type:tech, area:gameplay, priority:P3]}
+  persistent-unlocks: {title: 'Persistent Unlocks', p: meta-progression, m: ms-v6.1, l: [type:feature, area:gameplay, priority:P3]}
+  meta-balance-guard: {title: 'Meta Progression Balance Guard', p: meta-progression, m: ms-v6.1, l: [type:balance, area:gameplay, priority:P3]}
