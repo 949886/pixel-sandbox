@@ -13,7 +13,7 @@ func _ready() -> void:
 	assert(world.get_node_or_null("CreativeEntities") == null)
 	assert(world.get_node_or_null("CreativeUI") == null)
 	assert(world.get_node_or_null("StarterSpellPickup") == null)
-	assert(world.get_node_or_null("CaveEyeA") == null)
+	assert(world.get_node_or_null("Enemies/CaveEyeA") == null)
 	world.free()
 
 	var normal_scene: PackedScene = load("res://scenes/sessions/NormalGameSession.tscn") as PackedScene
