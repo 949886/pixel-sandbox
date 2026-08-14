@@ -10,6 +10,7 @@ enum Mode {
 }
 
 @export var start_in_creative: bool = false
+@export var allow_input_mode_toggle: bool = true
 @export var creative_rules: GameRules
 
 var current_mode: int = Mode.NORMAL
@@ -23,6 +24,8 @@ func _ready() -> void:
 	call_deferred("_apply_mode")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if not allow_input_mode_toggle:
+		return
 	if event.is_action_pressed(&"toggle_creative"):
 		toggle_mode()
 		get_viewport().set_input_as_handled()
@@ -41,7 +44,6 @@ func set_mode(mode: int) -> void:
 
 func is_creative() -> bool:
 	return current_mode == Mode.CREATIVE
-
 
 func register_input_capture(node: Node) -> void:
 	if node == null:

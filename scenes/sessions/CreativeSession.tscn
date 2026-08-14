@@ -1,0 +1,31 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/World.tscn" id="1_world"]
+[ext_resource type="Script" path="res://scripts/gameplay/modes/GameModeManager.gd" id="2_mode"]
+[ext_resource type="Resource" path="res://resources/gameplay/modes/creative_rules.tres" id="3_rules"]
+[ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeBrushController.gd" id="4_brush"]
+[ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeEntityController.gd" id="5_entities"]
+[ext_resource type="PackedScene" path="res://scenes/ui/creative/CreativeUI.tscn" id="6_ui"]
+[ext_resource type="PackedScene" path="res://scenes/debug/GameplaySandboxFixtures.tscn" id="7_fixtures"]
+
+[node name="CreativeSession" type="Node2D"]
+
+[node name="World" parent="." instance=ExtResource("1_world")]
+
+[node name="GameModeManager" type="Node" parent="World"]
+script = ExtResource("2_mode")
+start_in_creative = true
+allow_input_mode_toggle = false
+creative_rules = ExtResource("3_rules")
+
+[node name="CreativeBrush" type="Node2D" parent="World"]
+z_index = 200
+script = ExtResource("4_brush")
+
+[node name="CreativeEntities" type="Node2D" parent="World"]
+z_index = 201
+script = ExtResource("5_entities")
+
+[node name="CreativeUI" parent="World" instance=ExtResource("6_ui")]
+
+[node name="SandboxFixtures" parent="World" instance=ExtResource("7_fixtures")]

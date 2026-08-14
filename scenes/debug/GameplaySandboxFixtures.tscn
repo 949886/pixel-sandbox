@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/gameplay/CaveEye.tscn" id="1_cave_eye"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/SpellPickup.tscn" id="2_spell_pickup"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="3_test_spell"]
+
+[node name="GameplaySandboxFixtures" type="Node2D"]
+
+[node name="StarterSpellPickup" parent="." instance=ExtResource("2_spell_pickup")]
+position = Vector2(305, 245)
+spell = ExtResource("3_test_spell")
+
+[node name="Enemies" type="Node2D" parent="."]
+
+[node name="CaveEyeA" parent="Enemies" instance=ExtResource("1_cave_eye")]
+position = Vector2(390, 210)
+
+[node name="CaveEyeB" parent="Enemies" instance=ExtResource("1_cave_eye")]
+position = Vector2(500, 300)
+
+[node name="CaveEyeC" parent="Enemies" instance=ExtResource("1_cave_eye")]
+position = Vector2(190, 360)

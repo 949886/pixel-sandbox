@@ -1,0 +1,12 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/sessions/GameSessionHost.gd" id="1_host"]
+[ext_resource type="PackedScene" path="res://scenes/sessions/NormalGameSession.tscn" id="2_normal"]
+[ext_resource type="PackedScene" path="res://scenes/sessions/CreativeSession.tscn" id="3_creative"]
+
+[node name="Main" type="Node"]
+
+[node name="GameSessionHost" type="Node" parent="."]
+script = ExtResource("1_host")
+normal_session_scene = ExtResource("2_normal")
+creative_session_scene = ExtResource("3_creative")
