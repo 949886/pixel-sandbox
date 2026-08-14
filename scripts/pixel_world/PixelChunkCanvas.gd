@@ -570,10 +570,13 @@ func simulation_due(now_usec: int) -> bool:
 	return is_simulation_active() and now_usec >= next_simulation_due_usec
 
 
-func run_simulation_tick(now_usec: int) -> void:
-	if not is_simulation_active():
+func run_simulation_tick(now_usec: int, force: bool = false, iteration_scale: int = 1) -> void:
+	if not force and not is_simulation_active():
 		return
-	simulation.step(simulation_iterations)
+	if simulation == null or warm_state != WarmState.READY:
+		return
+	var scaled_iterations: int = maxi(1, simulation_iterations * maxi(1, iteration_scale))
+	simulation.step(scaled_iterations)
 	var changed: bool = bool(simulation.call("is_dirty")) if _native_dirty_supported else true
 	if changed and is_flow_awake(now_usec):
 		_flow_wake_until_usec = maxi(_flow_wake_until_usec, now_usec + _flow_wake_hold_usec)

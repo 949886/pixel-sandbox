@@ -8,6 +8,7 @@ var world_manager: Node
 
 func _ready() -> void:
 	world_manager = get_parent()
+	add_to_group(&"world_gameplay_service")
 
 func is_world_position_loaded(world_position: Vector2) -> bool:
 	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("is_world_position_loaded"):
@@ -58,3 +59,30 @@ func material_palette() -> MaterialPalette:
 	if world_manager == null or not is_instance_valid(world_manager):
 		return null
 	return world_manager.get("material_palette") as MaterialPalette
+
+func set_simulation_paused(paused: bool) -> void:
+	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("set_creative_simulation_paused"):
+		world_manager.call("set_creative_simulation_paused", paused)
+
+func is_simulation_paused() -> bool:
+	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("is_creative_simulation_paused"):
+		return bool(world_manager.call("is_creative_simulation_paused"))
+	return false
+
+func set_simulation_speed(multiplier: float) -> void:
+	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("set_creative_simulation_speed"):
+		world_manager.call("set_creative_simulation_speed", multiplier)
+
+func simulation_speed() -> float:
+	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("get_creative_simulation_speed"):
+		return float(world_manager.call("get_creative_simulation_speed"))
+	return 1.0
+
+func step_simulation() -> int:
+	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("creative_step_simulation"):
+		return int(world_manager.call("creative_step_simulation"))
+	return 0
+
+func reset_creative_simulation_controls() -> void:
+	if world_manager != null and is_instance_valid(world_manager) and world_manager.has_method("reset_creative_simulation_controls"):
+		world_manager.call("reset_creative_simulation_controls")

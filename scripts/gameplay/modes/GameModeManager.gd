@@ -92,6 +92,10 @@ func set_rule(property_name: StringName, enabled: bool) -> void:
 
 func _apply_mode() -> void:
 	_apply_rules_to_player()
+	if not is_creative():
+		var world_service: Node = get_tree().get_first_node_in_group(&"world_gameplay_service")
+		if world_service != null and is_instance_valid(world_service) and world_service.has_method("reset_creative_simulation_controls"):
+			world_service.call("reset_creative_simulation_controls")
 	for node: Node in get_tree().get_nodes_in_group(&"creative_ui"):
 		if node != null and is_instance_valid(node) and node.has_method("set_creative_active"):
 			node.call("set_creative_active", is_creative())

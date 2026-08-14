@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="CreativeEntityDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeEntityDef.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/GoldPickup.tscn" id="2"]
+
+[resource]
+script = ExtResource("1")
+entity_id = &"gold_pickup"
+display_name = "Gold Pickup"
+category = &"PICKUP"
+scene = ExtResource("2")
+description = "A small gold pickup for testing collection and HUD behavior."

@@ -52,6 +52,9 @@ var simulation_hz: float = 60.0
 var background_simulation_hz: float = 12.0
 var legacy_background_simulation_hz: float = 12.0
 var simulation_repaint_hz: float = 60.0
+var creative_simulation_paused: bool = false
+var creative_simulation_speed: float = 1.0
+var _creative_pause_previous_enabled: bool = true
 var generate_static_collision: bool = true
 var maximum_collision_triangles: int = 6000
 var exchange_dynamic_materials_across_borders: bool = true
@@ -916,8 +919,9 @@ func _update_simulation_activity() -> void:
 		var renderer: PieceChunkRenderer = chunk_renderers.get(coord, null) as PieceChunkRenderer
 		if renderer != null:
 			var distance: int = _chunk_distance(coord, current_player_chunk)
-			var active_nearby: bool = simulation_enabled and distance <= simulation_radius
-			var target_hz: float = simulation_hz if distance == 0 else _background_hz_for_canvas(renderer.pixel_canvas)
+			var active_nearby: bool = simulation_enabled and not creative_simulation_paused and distance <= simulation_radius
+			var base_target_hz: float = simulation_hz if distance == 0 else _background_hz_for_canvas(renderer.pixel_canvas)
+			var target_hz: float = _creative_effective_hz(base_target_hz)
 			renderer.set_simulation_timing(target_hz, minf(simulation_repaint_hz, target_hz))
 			renderer.set_simulation_active(active_nearby)
 			var flow_warm: bool = _is_flow_warm_coord(coord)
@@ -926,7 +930,8 @@ func _update_simulation_activity() -> void:
 	if special_chunk_manager != null:
 		special_chunk_manager.set_simulation_activity(
 			current_player_chunk, simulation_radius, simulation_enabled,
-			simulation_hz, background_simulation_hz, simulation_repaint_hz, legacy_background_simulation_hz
+			_creative_effective_hz(simulation_hz), _creative_effective_hz(background_simulation_hz),
+			_creative_effective_hz(simulation_repaint_hz), _creative_effective_hz(legacy_background_simulation_hz)
 		)
 		special_chunk_manager.set_warmup_activity(
 			current_player_chunk, simulation_radius, simulation_enabled, predictive_coords
@@ -1070,7 +1075,7 @@ func _process_collision_budget(deadline_usec: int) -> void:
 func _process_simulation_budget() -> void:
 	_last_simulation_tick_count = 0
 	_simulated_coords_this_frame.clear()
-	if not simulation_enabled or Time.get_ticks_usec() >= _pipeline_deadline_usec:
+	if not simulation_enabled or creative_simulation_paused or Time.get_ticks_usec() >= _pipeline_deadline_usec:
 		return
 	# Scan the loaded radius so dynamically flow-awake chunks outside the permanent
 	# warm cross can continue stepping. `simulation_due()` cheaply rejects cold or
@@ -1087,7 +1092,7 @@ func _process_simulation_budget() -> void:
 	var foreground: PixelChunkCanvas = _canvas_for_chunk(current_player_chunk)
 	var now_usec: int = Time.get_ticks_usec()
 	if foreground != null and foreground.simulation_due(now_usec):
-		foreground.run_simulation_tick(now_usec)
+		foreground.run_simulation_tick(now_usec, false, _creative_iteration_scale())
 		_simulated_coords_this_frame[current_player_chunk] = true
 		_last_simulation_tick_count += 1
 	if Time.get_ticks_usec() >= deadline_usec:
@@ -1106,13 +1111,82 @@ func _process_simulation_budget() -> void:
 		var canvas: PixelChunkCanvas = _canvas_for_chunk(background_coords[index])
 		now_usec = Time.get_ticks_usec()
 		if canvas != null and canvas.simulation_due(now_usec):
-			canvas.run_simulation_tick(now_usec)
+			canvas.run_simulation_tick(now_usec, false, _creative_iteration_scale())
 			_simulated_coords_this_frame[background_coords[index]] = true
 			_last_simulation_tick_count += 1
 			_simulation_round_robin_cursor = (index + 1) % background_coords.size()
 			if Time.get_ticks_usec() >= deadline_usec:
 				break
 		scanned += 1
+
+func set_creative_simulation_paused(paused: bool) -> void:
+	if creative_simulation_paused == paused:
+		return
+	creative_simulation_paused = paused
+	if paused:
+		_creative_pause_previous_enabled = simulation_enabled
+		simulation_enabled = false
+	else:
+		simulation_enabled = _creative_pause_previous_enabled
+	_activity_dirty = true
+
+func is_creative_simulation_paused() -> bool:
+	return creative_simulation_paused
+
+func set_creative_simulation_speed(multiplier: float) -> void:
+	var allowed: Array[float] = [0.25, 0.5, 1.0, 2.0, 4.0]
+	var best: float = 1.0
+	var best_distance: float = INF
+	for candidate: float in allowed:
+		var distance: float = absf(candidate - multiplier)
+		if distance < best_distance:
+			best_distance = distance
+			best = candidate
+	creative_simulation_speed = best
+	_activity_dirty = true
+
+func get_creative_simulation_speed() -> float:
+	return creative_simulation_speed
+
+func creative_step_simulation() -> int:
+	if not creative_simulation_paused:
+		return 0
+	var now_usec: int = Time.get_ticks_usec()
+	_simulated_coords_this_frame.clear()
+	var stepped: int = 0
+	for coord: Vector2i in _ordered_canvas_coords(simulation_radius):
+		var canvas: PixelChunkCanvas = _canvas_for_chunk(coord)
+		if canvas == null:
+			continue
+		canvas.run_simulation_tick(now_usec, true, 1)
+		_simulated_coords_this_frame[coord] = true
+		stepped += 1
+	if stepped > 0 and exchange_dynamic_materials_across_borders:
+		var previous_enabled: bool = simulation_enabled
+		var previous_paused: bool = creative_simulation_paused
+		simulation_enabled = true
+		creative_simulation_paused = false
+		_process_native_border_flow()
+		creative_simulation_paused = previous_paused
+		simulation_enabled = previous_enabled
+	return stepped
+
+func reset_creative_simulation_controls() -> void:
+	if creative_simulation_paused:
+		creative_simulation_paused = false
+		simulation_enabled = _creative_pause_previous_enabled
+	creative_simulation_speed = 1.0
+	_activity_dirty = true
+
+func _creative_effective_hz(base_hz: float) -> float:
+	if creative_simulation_speed >= 1.0:
+		return base_hz
+	return maxf(1.0, base_hz * creative_simulation_speed)
+
+func _creative_iteration_scale() -> int:
+	if creative_simulation_speed <= 1.0:
+		return 1
+	return clampi(int(round(creative_simulation_speed)), 1, 4)
 
 func _ordered_canvas_coords(max_radius: int) -> Array[Vector2i]:
 	var coords: Array[Vector2i] = []
@@ -1202,7 +1276,7 @@ func is_motion_collision_ready(
 func _process_native_border_flow() -> void:
 	_last_border_flow_seams = 0
 	_last_border_flow_moved = 0
-	if not exchange_dynamic_materials_across_borders or not simulation_enabled:
+	if not exchange_dynamic_materials_across_borders or not simulation_enabled or creative_simulation_paused:
 		return
 	if _simulated_coords_this_frame.is_empty():
 		return

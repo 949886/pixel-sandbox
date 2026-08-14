@@ -7,6 +7,7 @@ extends Area2D
 
 var _age: float = 0.0
 var _base_y: float = 0.0
+var _base_y_initialized: bool = false
 var _pickup_enabled: bool = false
 var _collected: bool = false
 var _retry_elapsed: float = 0.0
@@ -18,7 +19,6 @@ func _ready() -> void:
 	monitoring = true
 	monitorable = false
 	z_index = 17
-	_base_y = global_position.y
 	var shape_node := CollisionShape2D.new()
 	var shape := RectangleShape2D.new()
 	shape.size = Vector2(18.0, 18.0)
@@ -33,6 +33,9 @@ func _ready() -> void:
 	queue_redraw()
 
 func _physics_process(delta: float) -> void:
+	if not _base_y_initialized:
+		_base_y = global_position.y
+		_base_y_initialized = true
 	_age += delta
 	global_position.y = _base_y + sin(_age * 3.0) * float_amplitude
 	rotation = sin(_age * 1.7) * 0.06

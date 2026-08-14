@@ -10,4 +10,5 @@ infinite_flight = true
 creative_fly = true
 allow_world_editing = true
 allow_wand_lab = true
+allow_entity_spawning = true
 allow_progression = false

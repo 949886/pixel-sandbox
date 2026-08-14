@@ -99,6 +99,14 @@ focus_mode = 0
 theme_override_font_sizes/font_size = 15
 text = "WANDS"
 
+[node name="EntitiesTab" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(108, 42)
+layout_mode = 2
+focus_mode = 0
+theme_override_font_sizes/font_size = 15
+text = "ENTITIES"
+
 [node name="PlayerTab" type="Button" parent="Root/Dock/Margin/Content/Toolbar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(108, 42)
@@ -528,6 +536,64 @@ columns = 12
 theme_override_constants/h_separation = 3
 theme_override_constants/v_separation = 3
 
+[node name="EntitiesPanel" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+
+[node name="EntityTools" type="HBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/EntitiesPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EntitySpawnButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/EntitiesPanel/EntityTools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 42)
+layout_mode = 2
+focus_mode = 0
+text = "SPAWN"
+
+[node name="EntityDeleteButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/EntitiesPanel/EntityTools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 42)
+layout_mode = 2
+focus_mode = 0
+text = "DELETE"
+
+[node name="ClearSpawnedButton" type="Button" parent="Root/Dock/Margin/Content/PanelHost/EntitiesPanel/EntityTools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 42)
+layout_mode = 2
+focus_mode = 0
+text = "CLEAR SPAWNED"
+
+[node name="SelectedEntityLabel" type="Label" parent="Root/Dock/Margin/Content/PanelHost/EntitiesPanel/EntityTools"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.65098, 0.25098, 1)
+theme_override_font_sizes/font_size = 15
+text = "SELECTED: CAVE EYE"
+vertical_alignment = 1
+
+[node name="EntityHelp" type="Label" parent="Root/Dock/Margin/Content/PanelHost/EntitiesPanel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 13
+text = "SPAWNED ENTITIES ONLY can be removed by DELETE. World click is reserved while this tab is active."
+
+[node name="EntityGrid" type="GridContainer" parent="Root/Dock/Margin/Content/PanelHost/EntitiesPanel"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 8
+theme_override_constants/h_separation = 5
+theme_override_constants/v_separation = 5
+
 [node name="PlayerPanel" type="VBoxContainer" parent="Root/Dock/Margin/Content/PanelHost"]
 unique_name_in_owner = true
 visible = false
@@ -587,17 +653,63 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme_override_constants/separation = 10
 
 [node name="WorldTitle" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
-text = "CREATIVE WORLD"
+text = "SIMULATION LAB"
 
-[node name="WorldBody" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel"]
+[node name="SimulationRow" type="HBoxContainer" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PauseSimulation" type="CheckButton" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel/SimulationRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 42)
+layout_mode = 2
+text = "PAUSE SAND"
+
+[node name="StepSimulation" type="Button" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel/SimulationRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 42)
+layout_mode = 2
+focus_mode = 0
+text = "STEP 1"
+
+[node name="SpeedLabel" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel/SimulationRow"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "SPEED"
+vertical_alignment = 1
+
+[node name="SimulationSpeed" type="OptionButton" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel/SimulationRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 42)
+layout_mode = 2
+
+[node name="SimulationStatus" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel/SimulationRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_colors/font_color = Color(1, 0.65098, 0.25098, 1)
 theme_override_font_sizes/font_size = 15
-text = "F8 toggles Creative Mode. The world stays live while this dock is open.\nMaterial brush uses native chunk-level circle replacement; entity spawning and simulation stepping are reserved for the next sandbox pass."
+text = "LIVE • 1.00x"
+vertical_alignment = 1
+
+[node name="UndoInfo" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.88, 0.88, 0.92, 1)
+theme_override_font_sizes/font_size = 14
+text = "Terrain Undo/Redo is intentionally disabled until fallingsand exposes native region snapshot/restore. A GDScript per-pixel history would make large creative brushes expensive."
+autowrap_mode = 2
+
+[node name="WorldHelp" type="Label" parent="Root/Dock/Margin/Content/PanelHost/WorldPanel"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 13
+text = "PAUSE keeps rendering/collision updates alive. STEP advances loaded simulation chunks by one tick. 2x/4x use additional native simulation iterations instead of extra scene-tree loops."
 autowrap_mode = 2
 
 [node name="DragPanel" type="PanelContainer" parent="Root"]

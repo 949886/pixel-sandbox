@@ -1,3 +1,5 @@
+> **Gameplay V4.5.3 Creative Sandbox Tools：** 创造模式补齐 Entity Sandbox 与 Simulation Lab。新增 ENTITIES 页，可生成 Cave Eye、Gold Pickup、Fireball Pickup，并使用 DELETE/CLEAR SPAWNED 只清理创造模式生成实体；WORLD 页新增 Sand Simulation 暂停、单 Tick 步进与 0.25x/0.5x/1x/2x/4x 速度。Entity 工具沿用 Gameplay Input Arbitration，不会在放置/删除实体时误发 Wand。Terrain Undo/Redo 暂不使用 GDScript 逐像素快照的低性能方案，等待 fallingsand 增加 Native region snapshot/restore。详见 `docs/GAMEPLAY_V4_5_3_CREATIVE_SANDBOX_TOOLS.md`。
+
 > **Gameplay V4.5.2 Scene UI + Creative Input Arbitration：** 修复 Creative MATERIALS 绘制时仍会同时发射 Wand 的输入冲突；`GameModeManager` 现在负责 Gameplay/Creative primary-action 仲裁，Material Brush 选中时独占左键。与此同时，GameplayUI 与 CreativeUI 的固定界面已迁移到 `.tscn`，SpellSlot、WandGlyph、Wand Row、Wand Quick Slot、Material Tile、Creative Spell Tile 都改为可复用 PackedScene；UI 脚本只负责数据绑定、显隐、信号与拖拽逻辑，不再通过 `Button.new()/PanelContainer.new()/Label.new()` 构建界面。详见 `docs/GAMEPLAY_V4_5_2_SCENE_UI_INPUT_ARBITRATION.md`。
 
 > **Gameplay V4.5.1 Painting Creative UI：** Creative Mode 的视觉层已完全切换到项目 `painting` 模块的 UI 家族：直接复用 `painting/ui/_theme/theme.tres`、Poppins、灰紫面板、4px 圆角、Painting 按钮/Toggle/ScrollBar，以及橙色选中反馈；Brush / Erase / Pick 复用 Painting 图标。MATERIALS、SPELLS、WANDS、PLAYER、WORLD 的功能仍沿用 V4.5 的 Native Brush / 无限 Spell Library / Runtime Wand Lab 架构，Normal Gameplay UI 继续保持原 Noita-like 风格。详见 `docs/GAMEPLAY_V4_5_1_PAINTING_CREATIVE_UI.md`。
@@ -71,7 +73,7 @@ The old `ROOM` and `SHAFT` socket variants were removed because no piece or spec
 
 ## Debug guide
 
-See [`DEBUG_OVERLAY_GUIDE.md`](DEBUG_OVERLAY_GUIDE.md) for a detailed explanation of the F1 HUD, F2 world debug drawer, socket marker shapes, and color meanings.
+See [`docs/DEBUG_OVERLAY_GUIDE.md`](docs/DEBUG_OVERLAY_GUIDE.md) for a detailed explanation of the F1 HUD, F2 world debug drawer, socket marker shapes, and color meanings.
 
 ## Piece generation sequence demo
 

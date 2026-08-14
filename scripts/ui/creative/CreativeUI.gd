@@ -6,6 +6,7 @@ const COLLAPSED_HEIGHT: float = 64.0
 const MATERIAL_TILE_SCENE: PackedScene = preload("res://scenes/ui/creative/CreativeMaterialTile.tscn")
 const SPELL_TILE_SCENE: PackedScene = preload("res://scenes/ui/creative/CreativeSpellTile.tscn")
 const SPELL_SLOT_SCENE: PackedScene = preload("res://scenes/ui/shared/SpellSlot.tscn")
+const ENTITY_TILE_SCENE: PackedScene = preload("res://scenes/ui/creative/CreativeEntityTile.tscn")
 
 var _active: bool = false
 var _collapsed: bool = false
@@ -20,6 +21,7 @@ var _inventory: PlayerInventory
 var _wand_controller: WandController
 var _brush: CreativeBrushController
 var _world_service: WorldGameplayService
+var _entity_controller: CreativeEntityController
 var _wand_service: CreativeWandService = CreativeWandService.new()
 
 @onready var _dock: PanelContainer = %Dock
@@ -27,12 +29,14 @@ var _wand_service: CreativeWandService = CreativeWandService.new()
 @onready var _materials_panel: Control = %MaterialsPanel
 @onready var _spells_panel: Control = %SpellsPanel
 @onready var _wands_panel: Control = %WandsPanel
+@onready var _entities_panel: Control = %EntitiesPanel
 @onready var _player_panel: Control = %PlayerPanel
 @onready var _world_panel: Control = %WorldPanel
 
 @onready var _materials_tab: Button = %MaterialsTab
 @onready var _spells_tab: Button = %SpellsTab
 @onready var _wands_tab: Button = %WandsTab
+@onready var _entities_tab: Button = %EntitiesTab
 @onready var _player_tab: Button = %PlayerTab
 @onready var _world_tab: Button = %WorldTab
 
@@ -70,6 +74,18 @@ var _wand_service: CreativeWandService = CreativeWandService.new()
 @onready var _wand_deck_scroll: ScrollContainer = %WandDeckScroll
 @onready var _wand_deck_grid: GridContainer = %WandDeckGrid
 
+
+@onready var _entity_spawn_button: Button = %EntitySpawnButton
+@onready var _entity_delete_button: Button = %EntityDeleteButton
+@onready var _clear_spawned_button: Button = %ClearSpawnedButton
+@onready var _selected_entity_label: Label = %SelectedEntityLabel
+@onready var _entity_grid: GridContainer = %EntityGrid
+
+@onready var _pause_simulation: CheckButton = %PauseSimulation
+@onready var _step_simulation: Button = %StepSimulation
+@onready var _simulation_speed: OptionButton = %SimulationSpeed
+@onready var _simulation_status: Label = %SimulationStatus
+
 @onready var _invulnerable_toggle: CheckButton = %Invulnerable
 @onready var _infinite_mana_toggle: CheckButton = %InfiniteMana
 @onready var _infinite_flight_toggle: CheckButton = %InfiniteFlight
@@ -83,6 +99,7 @@ var _wand_service: CreativeWandService = CreativeWandService.new()
 var _tab_buttons: Dictionary = {}
 var _material_tiles: Dictionary = {}
 var _tool_buttons: Dictionary = {}
+var _entity_tiles: Dictionary = {}
 
 func _ready() -> void:
 	layer = 70
@@ -98,6 +115,7 @@ func _register_scene_controls() -> void:
 		&"materials": _materials_tab,
 		&"spells": _spells_tab,
 		&"wands": _wands_tab,
+		&"entities": _entities_tab,
 		&"player": _player_tab,
 		&"world": _world_tab,
 	}
@@ -113,6 +131,12 @@ func _register_scene_controls() -> void:
 	_spell_kind.add_item("UTILITY", SpellDef.Kind.UTILITY)
 	_spell_kind.add_item("MODIFIER", SpellDef.Kind.MODIFIER)
 	_spell_kind.add_item("MULTICAST", SpellDef.Kind.MULTICAST)
+	_simulation_speed.clear()
+	for multiplier: float in [0.25, 0.5, 1.0, 2.0, 4.0]:
+		var speed_index: int = _simulation_speed.item_count
+		_simulation_speed.add_item("%.2fx" % multiplier)
+		_simulation_speed.set_item_metadata(speed_index, multiplier)
+	_simulation_speed.select(2)
 	for spin: SpinBox in [_brush_size, _mana_max_spin, _mana_recharge_spin, _cast_delay_spin, _recharge_spin, _capacity_spin, _spread_spin, _multicast_spin]:
 		PaintingCreativeStyle.style_spin_box(spin, spin.custom_minimum_size.x)
 	PaintingCreativeStyle.style_line_edit(_spell_search, 15)
@@ -122,6 +146,7 @@ func _connect_scene_signals() -> void:
 	_materials_tab.pressed.connect(_select_tab.bind(&"materials"))
 	_spells_tab.pressed.connect(_select_tab.bind(&"spells"))
 	_wands_tab.pressed.connect(_select_tab.bind(&"wands"))
+	_entities_tab.pressed.connect(_select_tab.bind(&"entities"))
 	_player_tab.pressed.connect(_select_tab.bind(&"player"))
 	_world_tab.pressed.connect(_select_tab.bind(&"world"))
 	_collapse_button.pressed.connect(_toggle_collapsed)
@@ -155,6 +180,12 @@ func _connect_scene_signals() -> void:
 	_creative_fly_toggle.toggled.connect(_toggle_rule.bind(&"creative_fly"))
 	_heal_button.pressed.connect(_heal_player)
 	_clear_status_button.pressed.connect(_clear_player_status)
+	_entity_spawn_button.pressed.connect(_select_entity_tool.bind(CreativeEntityController.Tool.SPAWN))
+	_entity_delete_button.pressed.connect(_select_entity_tool.bind(CreativeEntityController.Tool.DELETE))
+	_clear_spawned_button.pressed.connect(_clear_spawned_entities)
+	_pause_simulation.toggled.connect(_on_simulation_paused_changed)
+	_step_simulation.pressed.connect(_step_world_simulation)
+	_simulation_speed.item_selected.connect(_on_simulation_speed_selected)
 
 func _input(event: InputEvent) -> void:
 	if not _active:
@@ -176,7 +207,7 @@ func set_creative_active(enabled: bool) -> void:
 	_active = enabled
 	visible = enabled
 	set_process(enabled)
-	_update_brush_interaction_state()
+	_update_creative_interaction_state()
 	if enabled:
 		_refresh_active_panel()
 
@@ -190,6 +221,7 @@ func _bind_dependencies() -> void:
 	var world: Node = get_parent()
 	_world_service = world.get_node_or_null("GameplayWorld") as WorldGameplayService if world != null else null
 	_brush = world.get_node_or_null("CreativeBrush") as CreativeBrushController if world != null else null
+	_entity_controller = world.get_node_or_null("CreativeEntities") as CreativeEntityController if world != null else null
 	if _brush != null:
 		if not _brush.material_picked.is_connected(_on_material_picked):
 			_brush.material_picked.connect(_on_material_picked)
@@ -197,6 +229,7 @@ func _bind_dependencies() -> void:
 	if _mode_manager != null:
 		set_creative_active(_mode_manager.is_creative())
 	_refresh_material_grid()
+	_refresh_entity_grid()
 	_refresh_active_panel()
 
 func _select_tab(tab_name: StringName) -> void:
@@ -206,7 +239,7 @@ func _select_tab(tab_name: StringName) -> void:
 		_apply_collapsed_state()
 	_refresh_tab_styles()
 	_refresh_active_panel()
-	_update_brush_interaction_state()
+	_update_creative_interaction_state()
 
 func _refresh_tab_styles() -> void:
 	for key: Variant in _tab_buttons.keys():
@@ -223,12 +256,13 @@ func _apply_collapsed_state() -> void:
 	%PanelHost.visible = not _collapsed
 	_dock.offset_top = -COLLAPSED_HEIGHT if _collapsed else -EXPANDED_HEIGHT
 	_collapse_button.text = "▲" if _collapsed else "▼"
-	_update_brush_interaction_state()
+	_update_creative_interaction_state()
 
 func _refresh_active_panel() -> void:
 	_materials_panel.visible = _active_tab == &"materials"
 	_spells_panel.visible = _active_tab == &"spells"
 	_wands_panel.visible = _active_tab == &"wands"
+	_entities_panel.visible = _active_tab == &"entities"
 	_player_panel.visible = _active_tab == &"player"
 	_world_panel.visible = _active_tab == &"world"
 	match _active_tab:
@@ -238,14 +272,20 @@ func _refresh_active_panel() -> void:
 			_refresh_spell_panel()
 		&"wands":
 			_refresh_wand_panel()
+		&"entities":
+			_refresh_entity_panel()
 		&"player":
 			_refresh_player_panel()
+		&"world":
+			_refresh_world_panel()
 
-func _update_brush_interaction_state() -> void:
+func _update_creative_interaction_state() -> void:
 	if _brush != null:
 		# The material tool owns primary pointer input only while its workspace is
 		# selected. This is also the central gate that prevents wand firing.
 		_brush.set_interaction_enabled(_active and _active_tab == &"materials")
+	if _entity_controller != null:
+		_entity_controller.set_interaction_enabled(_active and _active_tab == &"entities")
 
 func _select_brush_tool(tool: int) -> void:
 	if _brush == null:
@@ -499,6 +539,81 @@ func _on_creative_spell_dropped(spell: SpellDef, target: Dictionary) -> void:
 	if _wand_service.set_spell(wand_index, slot_index, spell):
 		call_deferred("_refresh_wand_deck")
 		call_deferred("_refresh_target_deck")
+
+func _refresh_entity_grid() -> void:
+	_clear_children(_entity_grid)
+	_entity_tiles.clear()
+	for definition: CreativeEntityDef in CreativeEntityCatalog.all_entities():
+		if definition == null:
+			continue
+		var tile: CreativeEntityTile = ENTITY_TILE_SCENE.instantiate() as CreativeEntityTile
+		tile.setup(definition)
+		tile.entity_activated.connect(_select_entity_definition)
+		_entity_grid.add_child(tile)
+		_entity_tiles[definition.entity_id] = tile
+	_refresh_entity_panel()
+
+func _refresh_entity_panel() -> void:
+	if _entity_controller == null:
+		return
+	var definition: CreativeEntityDef = _entity_controller.selected_entity
+	_selected_entity_label.text = "SELECTED: %s" % (definition.display_name.to_upper() if definition != null else "NONE")
+	PaintingCreativeStyle.style_tab_button(_entity_spawn_button, _entity_controller.selected_tool == CreativeEntityController.Tool.SPAWN)
+	PaintingCreativeStyle.style_tab_button(_entity_delete_button, _entity_controller.selected_tool == CreativeEntityController.Tool.DELETE)
+	for key: Variant in _entity_tiles.keys():
+		var tile: CreativeEntityTile = _entity_tiles.get(key, null) as CreativeEntityTile
+		if tile != null:
+			tile.set_selected_state(definition != null and StringName(key) == definition.entity_id and _entity_controller.selected_tool == CreativeEntityController.Tool.SPAWN)
+
+func _select_entity_tool(tool: int) -> void:
+	if _entity_controller == null:
+		return
+	_entity_controller.set_tool(tool)
+	_refresh_entity_panel()
+
+func _select_entity_definition(definition: CreativeEntityDef) -> void:
+	if _entity_controller == null:
+		return
+	_entity_controller.set_selected_entity(definition)
+	_refresh_entity_panel()
+
+func _clear_spawned_entities() -> void:
+	if _entity_controller != null:
+		_entity_controller.clear_spawned_entities()
+
+func _refresh_world_panel() -> void:
+	if _world_service == null:
+		return
+	var paused: bool = _world_service.is_simulation_paused()
+	var speed: float = _world_service.simulation_speed()
+	_pause_simulation.set_pressed_no_signal(paused)
+	_step_simulation.disabled = not paused
+	for index: int in range(_simulation_speed.item_count):
+		var metadata: Variant = _simulation_speed.get_item_metadata(index)
+		if metadata is float and is_equal_approx(float(metadata), speed):
+			_simulation_speed.select(index)
+			break
+	_simulation_status.text = "%s • %.2fx" % ["PAUSED" if paused else "LIVE", speed]
+
+func _on_simulation_paused_changed(paused: bool) -> void:
+	if _world_service == null:
+		return
+	_world_service.set_simulation_paused(paused)
+	_refresh_world_panel()
+
+func _step_world_simulation() -> void:
+	if _world_service == null:
+		return
+	_world_service.step_simulation()
+	_refresh_world_panel()
+
+func _on_simulation_speed_selected(index: int) -> void:
+	if _world_service == null or index < 0 or index >= _simulation_speed.item_count:
+		return
+	var metadata: Variant = _simulation_speed.get_item_metadata(index)
+	if metadata is float:
+		_world_service.set_simulation_speed(float(metadata))
+	_refresh_world_panel()
 
 func _refresh_player_panel() -> void:
 	var rules: GameRules = _mode_manager.active_rules() if _mode_manager != null else null
