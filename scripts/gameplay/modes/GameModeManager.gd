@@ -5,8 +5,8 @@ signal mode_changed(mode: int)
 signal creative_rules_changed(rules: GameRules)
 
 enum Mode {
-	NORMAL = GameState.RuntimeMode.NORMAL,
-	CREATIVE = GameState.RuntimeMode.CREATIVE,
+	NORMAL,
+	CREATIVE,
 }
 
 @export var creative_rules: GameRules
@@ -28,7 +28,7 @@ func _ready() -> void:
 	_ensure_toggle_action()
 	_game_manager = get_tree().get_first_node_in_group(&"game_manager") as GameManager
 	_bind_game_state()
-	_apply_mode()
+	call_deferred(&"_apply_mode")
 
 
 func _unhandled_input(event: InputEvent) -> void:
