@@ -224,7 +224,10 @@ func deck_size() -> int:
 	return _deck.cards.size() if _deck != null else 0
 
 func _rebuild_deck() -> void:
-	_deck = SpellDeckRuntime.new(wand_def.spells if wand_def != null else [], wand_def.shuffle if wand_def != null else false)
+	if wand_def == null:
+		_deck = SpellDeckRuntime.new()
+	else:
+		_deck = SpellDeckRuntime.new(wand_def.spells, wand_def.shuffle)
 	selected_spell_index = 0
 	deck_changed.emit(0, _deck.cards.size())
 
