@@ -5,6 +5,7 @@ signal game_starting(game_id: int)
 signal game_started(game_id: int)
 signal game_stopping(game_id: int)
 signal game_stopped(game_id: int)
+signal restart_ready(config: GameConfig)
 
 enum LifecycleState {
 	IDLE,
@@ -19,6 +20,7 @@ const LOCAL_PLAYER_ID: int = 1
 
 var lifecycle_state: int = LifecycleState.IDLE
 var current_game_id: int = INVALID_GAME_ID
+var current_config: GameConfig = null
 
 var game_state: GameState = null
 var game_flow: GameFlow = null
@@ -27,6 +29,8 @@ var runtime_root: Node = null
 var _next_game_id: int = 1
 var _player_states: Dictionary = {}
 var _player_runtimes: Dictionary = {}
+var _restart_pending: bool = false
+var _restart_config: GameConfig = null
 
 
 func _ready() -> void:
@@ -44,11 +48,16 @@ func is_game_authority() -> bool:
 	return true
 
 
-func start_game(_config: Variant = null) -> int:
+func start_game(config: Variant = null) -> int:
 	if lifecycle_state != LifecycleState.IDLE:
+		return INVALID_GAME_ID
+	if config != null and not config is GameConfig:
+		return INVALID_GAME_ID
+	if config is GameConfig and not (config as GameConfig).is_valid():
 		return INVALID_GAME_ID
 
 	_clear_framework_references()
+	current_config = (config as GameConfig).duplicate_config() if config is GameConfig else null
 	current_game_id = _allocate_game_id()
 	lifecycle_state = LifecycleState.STARTING
 	game_starting.emit(current_game_id)
@@ -196,6 +205,10 @@ func bind_player_runtime(player_id: int, player: Node) -> bool:
 		return _player_runtimes[player_id] == player
 
 	_player_runtimes[player_id] = player
+	if player.has_signal(&"player_died"):
+		var death_callback := Callable(self, "_on_player_runtime_died")
+		if not player.is_connected(&"player_died", death_callback):
+			player.connect(&"player_died", death_callback)
 	return true
 
 
@@ -263,6 +276,23 @@ func notify_player_died(player_id: int, context: Variant = null) -> bool:
 	return game_flow.on_player_died(player_state, context)
 
 
+func recover_player(player_id: int) -> bool:
+	if lifecycle_state != LifecycleState.ACTIVE or not is_game_authority():
+		return false
+	if game_state == null or game_state.phase == GameState.GamePhase.ENDED:
+		return false
+	var player_state := get_player_state(player_id)
+	var player := get_player_runtime(player_id)
+	if player_state == null or player_state.alive or player == null:
+		return false
+	if not player.has_method(&"respawn_at") or not player.has_method(&"get_spawn_position"):
+		return false
+	var spawn_position: Vector2 = player.call(&"get_spawn_position")
+	if not bool(player.call(&"respawn_at", spawn_position)):
+		return false
+	return player_state.set_alive(true)
+
+
 func notify_boss_defeated(boss_id: StringName) -> bool:
 	if not _can_dispatch_active_game_event():
 		return false
@@ -285,6 +315,33 @@ func can_change_runtime_mode(player_id: int, target_mode: int) -> bool:
 	if player_state == null:
 		return false
 	return game_flow.can_change_runtime_mode(player_state, target_mode)
+
+
+func request_runtime_mode(player_id: int, target_mode: int) -> bool:
+	if not can_change_runtime_mode(player_id, target_mode):
+		return false
+	return game_state.set_runtime_mode(target_mode)
+
+
+func request_restart(player_id: int, reuse_seed: bool = false) -> bool:
+	if lifecycle_state != LifecycleState.ACTIVE or not is_game_authority():
+		return false
+	if _restart_pending or not has_player(player_id):
+		return false
+	if current_config == null:
+		return false
+
+	_restart_config = current_config.duplicate_config()
+	if not reuse_seed:
+		# Seed 0 is an explicit request for the composition root to allocate a
+		# fresh seed before starting the next game. It is never consumed by World.
+		_restart_config.seed = 0
+	_restart_pending = true
+	if not stop_game():
+		_restart_pending = false
+		_restart_config = null
+		return false
+	return true
 
 
 func dispatch_flow_event(
@@ -339,6 +396,10 @@ func _allocate_game_id() -> int:
 	return allocated
 
 
+func _on_player_runtime_died(player_id: int, context: Variant = null) -> void:
+	notify_player_died(player_id, context)
+
+
 func _on_runtime_tree_exited(game_id: int) -> void:
 	_finish_stop(game_id)
 
@@ -354,6 +415,13 @@ func _finish_stop(game_id: int) -> void:
 	lifecycle_state = LifecycleState.IDLE
 	game_stopped.emit(game_id)
 
+	if _restart_pending:
+		var config := _restart_config
+		_restart_pending = false
+		_restart_config = null
+		if config != null:
+			restart_ready.emit(config)
+
 
 func _clear_framework_references() -> void:
 	game_state = null
@@ -361,3 +429,5 @@ func _clear_framework_references() -> void:
 	runtime_root = null
 	_player_states.clear()
 	_player_runtimes.clear()
+	if not _restart_pending:
+		current_config = null
