@@ -32,9 +32,9 @@ func respawn_at(position: Vector2) -> bool:
 
 
 func heal(amount: float) -> float:
-	if _dead:
+	if _dead or health_component == null:
 		return 0.0
-	return super.heal(amount)
+	return health_component.heal(amount)
 
 
 func _on_player_died(packet) -> void:
@@ -43,7 +43,6 @@ func _on_player_died(packet) -> void:
 	_dead = true
 	velocity = Vector2.ZERO
 	flying = false
-	player_died.emit()
 	authoritative_player_died.emit(runtime_player_id, packet)
 
 
