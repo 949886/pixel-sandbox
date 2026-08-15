@@ -1,0 +1,28 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://tests/fixtures/FakeBootstrapWorld.gd" id="1_world"]
+[ext_resource type="Script" path="res://tests/fixtures/FakeBootstrapPlayer.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/resources/WorldGenConfig.gd" id="3_world_config"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/WandController.gd" id="4_wand_controller"]
+[ext_resource type="Script" path="res://scripts/gameplay/items/PlayerInventory.gd" id="5_inventory"]
+
+[sub_resource type="Resource" id="WorldGenConfig_test"]
+script = ExtResource("3_world_config")
+world_seed = 1
+load_radius = 1
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_world")
+world_gen_config = SubResource("WorldGenConfig_test")
+
+[node name="Player" type="Node2D" parent="."]
+position = Vector2(64, 64)
+script = ExtResource("2_player")
+
+[node name="WandController" type="Node" parent="Player"]
+script = ExtResource("4_wand_controller")
+
+[node name="PlayerInventory" type="Node" parent="Player"]
+script = ExtResource("5_inventory")
+wand_slot_count = 4
+spell_inventory_capacity = 24

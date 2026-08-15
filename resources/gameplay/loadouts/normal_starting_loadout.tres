@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="StartingLoadoutDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/config/StartingLoadoutDef.gd" id="1_loadout"]
+[ext_resource type="Resource" path="res://resources/gameplay/wands/starter_wand.tres" id="2_wand"]
+
+[resource]
+script = ExtResource("1_loadout")
+starting_wands = Array[Resource]([ExtResource("2_wand")])
+starting_spells = Array[Resource]([])
+starting_gold = 0

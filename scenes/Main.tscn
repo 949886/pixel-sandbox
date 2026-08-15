@@ -1,8 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/Main.gd" id="1_main"]
-[ext_resource type="Script" path="res://scripts/game/GameManager.gd" id="2_game_manager"]
-[ext_resource type="PackedScene" path="res://scenes/World.tscn" id="3_world"]
+[ext_resource type="Script" path="res://scripts/game/GameBootstrapManager.gd" id="2_game_manager"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -11,5 +10,3 @@ script = ExtResource("1_main")
 script = ExtResource("2_game_manager")
 
 [node name="GameRuntime" type="Node2D" parent="."]
-
-[node name="World" parent="GameRuntime" instance=ExtResource("3_world")]
