@@ -16,19 +16,19 @@ var player_id: int:
 	get:
 		return _player_id
 	set(_value):
-		push_error("PlayerState.player_id is read-only after initialize().")
+		push_error("PlayerState.player_id is initialized once and cannot be reassigned.")
 
 var peer_id: int:
 	get:
 		return _peer_id
-	set(_value):
-		push_error("PlayerState.peer_id is read-only; use set_peer_id().")
+	set(value):
+		set_peer_id(value)
 
 var alive: bool:
 	get:
 		return _alive
-	set(_value):
-		push_error("PlayerState.alive is read-only; use set_alive().")
+	set(value):
+		set_alive(value)
 
 
 func initialize(player_id_value: int, peer_id_value: int = UNBOUND_PEER_ID) -> bool:

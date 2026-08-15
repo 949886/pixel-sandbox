@@ -40,61 +40,62 @@ var _used_creative_mode: bool = false
 var _current_depth: int = 0
 var _current_biome: StringName = DEFAULT_BIOME
 var _elapsed_time: float = 0.0
-var _statistics: GameStatistics = GameStatistics.new()
+var _statistics: GameStatistics = null
 
 var game_id: int:
 	get:
 		return _game_id
 	set(_value):
-		push_error("GameState.game_id is read-only after initialize().")
+		push_error("GameState.game_id is initialized once and cannot be reassigned.")
 
 var game_seed: int:
 	get:
 		return _game_seed
 	set(_value):
-		push_error("GameState.game_seed is read-only after initialize().")
+		push_error("GameState.game_seed is initialized once and cannot be reassigned.")
 
 var phase: GamePhase:
 	get:
 		return _phase
-	set(_value):
-		push_error("GameState.phase is read-only; use set_phase().")
+	set(value):
+		set_phase(value)
 
 var result: GameResult:
 	get:
 		return _result
-	set(_value):
-		push_error("GameState.result is read-only; use set_result().")
+	set(value):
+		set_result(value)
 
 var runtime_mode: RuntimeMode:
 	get:
 		return _runtime_mode
-	set(_value):
-		push_error("GameState.runtime_mode is read-only; use set_runtime_mode().")
+	set(value):
+		set_runtime_mode(value)
 
 var used_creative_mode: bool:
 	get:
 		return _used_creative_mode
-	set(_value):
-		push_error("GameState.used_creative_mode is managed by set_runtime_mode().")
+	set(value):
+		if value:
+			mark_creative_used()
 
 var current_depth: int:
 	get:
 		return _current_depth
-	set(_value):
-		push_error("GameState.current_depth is read-only; use set_depth().")
+	set(value):
+		set_depth(value)
 
 var current_biome: StringName:
 	get:
 		return _current_biome
-	set(_value):
-		push_error("GameState.current_biome is read-only; use set_biome().")
+	set(value):
+		set_biome(value)
 
 var elapsed_time: float:
 	get:
 		return _elapsed_time
-	set(_value):
-		push_error("GameState.elapsed_time is read-only; use set_elapsed_time() or advance_elapsed_time().")
+	set(value):
+		set_elapsed_time(value)
 
 var statistics: GameStatistics:
 	get:
@@ -111,6 +112,9 @@ func initialize(game_id_value: int, game_seed_value: int = 0) -> bool:
 
 	_game_id = game_id_value
 	_game_seed = game_seed_value
+	_statistics = GameStatistics.new()
+	_statistics.name = "GameStatistics"
+	add_child(_statistics)
 	_initialized = true
 	return true
 
@@ -153,9 +157,8 @@ func set_runtime_mode(next_mode: RuntimeMode) -> bool:
 	if not RuntimeMode.values().has(next_mode):
 		return false
 
-	if next_mode == RuntimeMode.CREATIVE and not _used_creative_mode:
-		_used_creative_mode = true
-		creative_usage_changed.emit(true)
+	if next_mode == RuntimeMode.CREATIVE:
+		mark_creative_used()
 
 	if _runtime_mode == next_mode:
 		return true
@@ -163,6 +166,16 @@ func set_runtime_mode(next_mode: RuntimeMode) -> bool:
 	var previous: RuntimeMode = _runtime_mode
 	_runtime_mode = next_mode
 	runtime_mode_changed.emit(previous, _runtime_mode)
+	return true
+
+
+func mark_creative_used() -> bool:
+	if not _initialized:
+		return false
+	if _used_creative_mode:
+		return true
+	_used_creative_mode = true
+	creative_usage_changed.emit(true)
 	return true
 
 
@@ -213,5 +226,5 @@ func to_dictionary() -> Dictionary:
 		"current_depth": _current_depth,
 		"current_biome": _current_biome,
 		"elapsed_time": _elapsed_time,
-		"statistics": _statistics.to_dictionary(),
+		"statistics": _statistics.to_dictionary() if _statistics != null else {},
 	}
