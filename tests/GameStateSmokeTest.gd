@@ -12,7 +12,8 @@ func _ready() -> void:
 	manager.name = "GameManager"
 	add_child(manager)
 
-	var game_id: int = manager.start_game()
+	var config := GameConfig.create_with_seed(24680)
+	var game_id: int = manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)
 
 	var runtime := Node.new()
@@ -46,7 +47,7 @@ func _ready() -> void:
 	assert(not state.set_phase(999))
 
 	# GameState validates values, not game-flow policy. Result and phase can be
-	# changed independently; #34 will own legal transition rules.
+	# changed independently; GameFlow owns legal transition rules.
 	assert(state.set_result(GameState.GameResult.VICTORY))
 	assert(state.phase == GameState.GamePhase.PLAYING)
 
@@ -91,7 +92,7 @@ func _ready() -> void:
 	assert(state.phase == GameState.GamePhase.PLAYING)
 
 	# Even if both public PlayerStates are dead, GameState does not end itself.
-	# NormalGameFlow will decide that policy in #34.
+	# GameFlow decides that policy.
 	assert(player_b.set_alive(false))
 	assert(state.phase == GameState.GamePhase.PLAYING)
 	assert(player_b.set_alive(true))
@@ -127,7 +128,8 @@ func _ready() -> void:
 	var player_a_ref: WeakRef = weakref(player_a)
 	var player_b_ref: WeakRef = weakref(player_b)
 
-	assert(manager.mark_game_started(game_id))
+	# This test intentionally has no GameFlow. Stopping from STARTING is valid and
+	# keeps public-state lifecycle tests independent from flow activation.
 	assert(manager.stop_game())
 	if manager.lifecycle_state != GameManager.LifecycleState.IDLE:
 		await manager.game_stopped

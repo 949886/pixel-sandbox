@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="StartingLoadoutDef" load_steps=27 format=3]
+
+[ext_resource type="Script" path="res://scripts/game/bootstrap/StartingLoadoutDef.gd" id="1_loadout"]
+[ext_resource type="Resource" path="res://resources/gameplay/wands/starter_wand.tres" id="2_wand"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/spark_bolt.tres" id="3_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/dig_bolt.tres" id="4_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/fire_bolt.tres" id="5_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/bomb.tres" id="6_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/modifiers/damage_plus.tres" id="7_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/magic_arrow.tres" id="8_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/multicast/double_cast.tres" id="9_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="10_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/acid_splash.tres" id="11_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/modifiers/light.tres" id="12_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/lightning.tres" id="13_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/energy_sphere.tres" id="14_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/ice_bolt.tres" id="15_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/teleport_bolt.tres" id="16_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/chainsaw.tres" id="17_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/dragon_breath.tres" id="18_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/death_cross.tres" id="19_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/glue_ball.tres" id="20_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/dynamite.tres" id="21_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/black_hole.tres" id="22_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/lightning_bolt.tres" id="23_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/multicast/formation.tres" id="24_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/spark.tres" id="25_spell"]
+[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/explosive_bomb.tres" id="26_spell"]
+
+[resource]
+script = ExtResource("1_loadout")
+primary_wand = ExtResource("2_wand")
+primary_spells = Array[Resource]([ExtResource("3_spell"), ExtResource("4_spell"), ExtResource("5_spell"), ExtResource("6_spell"), ExtResource("7_spell"), ExtResource("8_spell"), ExtResource("9_spell"), ExtResource("10_spell"), ExtResource("11_spell"), ExtResource("12_spell"), ExtResource("13_spell"), ExtResource("14_spell"), ExtResource("15_spell"), ExtResource("16_spell"), ExtResource("17_spell"), ExtResource("18_spell"), ExtResource("19_spell"), ExtResource("20_spell"), ExtResource("21_spell"), ExtResource("22_spell"), ExtResource("23_spell"), ExtResource("24_spell"), ExtResource("25_spell"), ExtResource("26_spell")])
+starting_gold = 0

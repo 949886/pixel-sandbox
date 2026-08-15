@@ -20,6 +20,7 @@ const LOCAL_PLAYER_ID: int = 1
 var lifecycle_state: int = LifecycleState.IDLE
 var current_game_id: int = INVALID_GAME_ID
 
+var game_config: GameConfig = null
 var game_state: GameState = null
 var game_flow: GameFlow = null
 var runtime_root: Node = null
@@ -44,11 +45,14 @@ func is_game_authority() -> bool:
 	return true
 
 
-func start_game(_config: Variant = null) -> int:
+func start_game(config: GameConfig) -> int:
 	if lifecycle_state != LifecycleState.IDLE:
+		return INVALID_GAME_ID
+	if config == null or not config.is_valid():
 		return INVALID_GAME_ID
 
 	_clear_framework_references()
+	game_config = config
 	current_game_id = _allocate_game_id()
 	lifecycle_state = LifecycleState.STARTING
 	game_starting.emit(current_game_id)
@@ -110,9 +114,13 @@ func stop_game() -> bool:
 func bind_game_state(state: GameState) -> bool:
 	if not _can_bind_framework_node(state):
 		return false
+	if game_config == null or not game_config.is_valid():
+		return false
 	if not state.is_initialized():
 		return false
 	if state.game_id != current_game_id:
+		return false
+	if state.game_seed != game_config.seed:
 		return false
 	if game_state != null and game_state != state:
 		return false
@@ -143,14 +151,14 @@ func start_game_flow() -> bool:
 	return game_flow.start()
 
 
-func notify_world_ready() -> bool:
+func notify_gameplay_ready() -> bool:
 	if lifecycle_state != LifecycleState.STARTING:
 		return false
 	if not is_game_authority():
 		return false
 	if game_flow == null or not is_instance_valid(game_flow) or not game_flow.is_started():
 		return false
-	return game_flow.on_world_ready()
+	return game_flow.on_gameplay_ready()
 
 
 func bind_runtime_root(root: Node) -> bool:
@@ -356,6 +364,7 @@ func _finish_stop(game_id: int) -> void:
 
 
 func _clear_framework_references() -> void:
+	game_config = null
 	game_state = null
 	game_flow = null
 	runtime_root = null
