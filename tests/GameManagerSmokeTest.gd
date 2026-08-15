@@ -1,9 +1,22 @@
 extends Node
 
 class FakeFlow:
-	extends Node
+	extends GameFlow
 
 	var received_value: int = -1
+
+	func _on_start() -> bool:
+		return true
+
+	func on_world_ready() -> bool:
+		return transition_phase(GameState.GamePhase.PLAYING)
+
+	func can_transition_phase(current: int, next: int) -> bool:
+		return current == GameState.GamePhase.STARTING \
+			and next == GameState.GamePhase.PLAYING
+
+	func on_player_joined(player_state: PlayerState) -> bool:
+		return is_registered_player_state(player_state)
 
 	func on_test_event(value: int) -> void:
 		received_value = value
@@ -41,6 +54,11 @@ func _ready() -> void:
 	assert(manager.bind_runtime_root(runtime_one))
 	assert(not manager.bind_runtime_root(manager))
 
+	var flow_without_state := FakeFlow.new()
+	runtime_one.add_child(flow_without_state)
+	assert(not manager.bind_game_flow(flow_without_state))
+	flow_without_state.queue_free()
+
 	var game_state_one := GameState.new()
 	game_state_one.name = "GameStateOne"
 	assert(game_state_one.initialize(first_game_id, 123))
@@ -71,8 +89,15 @@ func _ready() -> void:
 	flow_one.name = "FlowOne"
 	runtime_one.add_child(flow_one)
 	assert(manager.bind_game_flow(flow_one))
+	assert(flow_one.is_setup())
+	assert(manager.start_game_flow())
+	assert(not manager.start_game_flow())
+	assert(manager.notify_player_joined(GameManager.LOCAL_PLAYER_ID))
 
 	assert(not manager.can_process_player_request(GameManager.LOCAL_PLAYER_ID))
+	assert(not manager.mark_game_started(first_game_id))
+	assert(manager.notify_world_ready())
+	assert(game_state_one.phase == GameState.GamePhase.PLAYING)
 	assert(manager.mark_game_started(first_game_id))
 	assert(manager.lifecycle_state == GameManager.LifecycleState.ACTIVE)
 	assert(manager.can_process_player_request(GameManager.LOCAL_PLAYER_ID))
@@ -116,6 +141,12 @@ func _ready() -> void:
 	runtime_two.add_child(player_state_two)
 	assert(manager.register_player_state(player_state_two))
 
+	var flow_two := FakeFlow.new()
+	flow_two.name = "FlowTwo"
+	runtime_two.add_child(flow_two)
+	assert(manager.bind_game_flow(flow_two))
+	assert(manager.start_game_flow())
+	assert(manager.notify_world_ready())
 	assert(manager.mark_game_started(second_game_id))
 	assert(manager.stop_game())
 	if manager.lifecycle_state != GameManager.LifecycleState.IDLE:
