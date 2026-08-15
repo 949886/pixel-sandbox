@@ -29,16 +29,14 @@ func on_player_died(player_state: PlayerState, _context: Variant = null) -> bool
 	if not is_registered_player_state(player_state):
 		return false
 	if player_state.alive:
-		# GameManager updates the public PlayerState fact before asking the flow
-		# to evaluate the death policy.
 		return false
 	if game_state.phase not in [GameState.GamePhase.PLAYING, GameState.GamePhase.TRANSITION]:
 		return false
 
-	# Creative recovery itself belongs to #36/#2. The flow only establishes
-	# that Creative does not turn the last player death into Normal defeat.
+	# Creative recovery is an explicit flow rule. Player exposes only the neutral
+	# respawn primitive; GameManager owns the authoritative runtime operation.
 	if game_state.runtime_mode == GameState.RuntimeMode.CREATIVE:
-		return true
+		return game_manager.recover_player(player_state.player_id)
 
 	if get_alive_player_count() > 0:
 		return true
