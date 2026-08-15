@@ -1,7 +1,9 @@
 extends Node
 
 
-class FakePlayerRuntime extends Node:
+class FakePlayerRuntime:
+	extends Node
+
 	var spawn_position := Vector2(12.0, 34.0)
 	var respawn_count: int = 0
 
@@ -54,12 +56,10 @@ func _ready() -> void:
 	assert(manager.notify_world_ready())
 	assert(manager.mark_game_started(game_id))
 
-	# RuntimeMode can only be mutated through the authoritative request path.
 	assert(manager.request_runtime_mode(config.player_id, GameState.RuntimeMode.CREATIVE))
 	assert(state.runtime_mode == GameState.RuntimeMode.CREATIVE)
 	assert(state.used_creative_mode)
 
-	# Creative death is explicitly recovered by Flow -> GameManager -> runtime.
 	assert(manager.notify_player_died(config.player_id, &"creative_test"))
 	assert(player.respawn_count == 1)
 	assert(player_state.alive)
@@ -70,7 +70,6 @@ func _ready() -> void:
 	assert(state.runtime_mode == GameState.RuntimeMode.NORMAL)
 	assert(state.used_creative_mode)
 
-	# Normal last-player death ends the game and blocks Creative recovery.
 	assert(manager.notify_player_died(config.player_id, &"normal_test"))
 	assert(not player_state.alive)
 	assert(state.phase == GameState.GamePhase.ENDED)
@@ -78,18 +77,12 @@ func _ready() -> void:
 	assert(not manager.request_runtime_mode(config.player_id, GameState.RuntimeMode.CREATIVE))
 	assert(not manager.recover_player(config.player_id))
 
-	# Restart tears down this runtime and returns creation input for a new Game.
-	var next_config: GameConfig = null
-	manager.restart_ready.connect(func(value: GameConfig) -> void:
-		next_config = value
-	, Object.CONNECT_ONE_SHOT)
 	assert(manager.request_restart(config.player_id))
-	if manager.lifecycle_state != GameManager.LifecycleState.IDLE:
-		await manager.game_stopped
-	await get_tree().process_frame
+	var next_config: GameConfig = await manager.restart_ready
 	assert(next_config != null)
 	assert(next_config.seed == 0)
 	assert(next_config.player_id == config.player_id)
+	assert(manager.lifecycle_state == GameManager.LifecycleState.IDLE)
 
 	next_config.seed = 777777
 	var restarted_game_id: int = manager.start_game(next_config)
