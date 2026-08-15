@@ -26,8 +26,8 @@ func _ready() -> void:
 	assert(manager.current_game_id == GameManager.INVALID_GAME_ID)
 	assert(not manager.can_process_player_request(GameManager.LOCAL_PLAYER_ID))
 
-	var orphan_state := Node.new()
-	assert(not manager.register_player_state(GameManager.LOCAL_PLAYER_ID, orphan_state))
+	var orphan_state := PlayerState.new()
+	assert(not manager.register_player_state(orphan_state))
 	orphan_state.free()
 
 	var first_game_id: int = manager.start_game()
@@ -41,11 +41,25 @@ func _ready() -> void:
 	assert(manager.bind_runtime_root(runtime_one))
 	assert(not manager.bind_runtime_root(manager))
 
-	var state_one := Node.new()
-	state_one.name = "PlayerStateOne"
-	runtime_one.add_child(state_one)
-	assert(manager.register_player_state(GameManager.LOCAL_PLAYER_ID, state_one))
-	assert(manager.get_player_state(GameManager.LOCAL_PLAYER_ID) == state_one)
+	var game_state_one := GameState.new()
+	game_state_one.name = "GameStateOne"
+	assert(game_state_one.initialize(first_game_id, 123))
+	runtime_one.add_child(game_state_one)
+	assert(manager.bind_game_state(game_state_one))
+	assert(manager.game_state == game_state_one)
+
+	var wrong_game_state := GameState.new()
+	assert(wrong_game_state.initialize(first_game_id + 100, 456))
+	runtime_one.add_child(wrong_game_state)
+	assert(not manager.bind_game_state(wrong_game_state))
+
+	var player_state_one := PlayerState.new()
+	player_state_one.name = "PlayerStateOne"
+	assert(player_state_one.initialize(GameManager.LOCAL_PLAYER_ID))
+	runtime_one.add_child(player_state_one)
+	assert(manager.register_player_state(player_state_one))
+	assert(manager.get_player_state(GameManager.LOCAL_PLAYER_ID) == player_state_one)
+	assert(manager.get_player_states().size() == 1)
 
 	var player_one := Node.new()
 	player_one.name = "PlayerOne"
@@ -90,10 +104,17 @@ func _ready() -> void:
 	add_child(runtime_two)
 	assert(manager.bind_runtime_root(runtime_two))
 
-	var state_two := Node.new()
-	state_two.name = "PlayerStateTwo"
-	runtime_two.add_child(state_two)
-	assert(manager.register_player_state(GameManager.LOCAL_PLAYER_ID, state_two))
+	var game_state_two := GameState.new()
+	game_state_two.name = "GameStateTwo"
+	assert(game_state_two.initialize(second_game_id, 789))
+	runtime_two.add_child(game_state_two)
+	assert(manager.bind_game_state(game_state_two))
+
+	var player_state_two := PlayerState.new()
+	player_state_two.name = "PlayerStateTwo"
+	assert(player_state_two.initialize(GameManager.LOCAL_PLAYER_ID))
+	runtime_two.add_child(player_state_two)
+	assert(manager.register_player_state(player_state_two))
 
 	assert(manager.mark_game_started(second_game_id))
 	assert(manager.stop_game())
