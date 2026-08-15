@@ -7,6 +7,7 @@ signal runtime_mode_changed(previous: RuntimeMode, current: RuntimeMode)
 signal creative_usage_changed(used_creative_mode: bool)
 signal depth_changed(depth: int)
 signal biome_changed(biome: StringName)
+signal boss_defeated_changed(defeated: bool)
 
 enum GamePhase {
 	STARTING,
@@ -40,6 +41,7 @@ var _used_creative_mode: bool = false
 var _current_depth: int = 0
 var _current_biome: StringName = DEFAULT_BIOME
 var _elapsed_time: float = 0.0
+var _boss_defeated: bool = false
 var _statistics: GameStatistics = null
 
 var game_id: int:
@@ -96,6 +98,12 @@ var elapsed_time: float:
 		return _elapsed_time
 	set(value):
 		set_elapsed_time(value)
+
+var boss_defeated: bool:
+	get:
+		return _boss_defeated
+	set(value):
+		set_boss_defeated(value)
 
 var statistics: GameStatistics:
 	get:
@@ -215,6 +223,16 @@ func advance_elapsed_time(delta: float) -> bool:
 	return true
 
 
+func set_boss_defeated(defeated: bool) -> bool:
+	if not _initialized:
+		return false
+	if _boss_defeated == defeated:
+		return true
+	_boss_defeated = defeated
+	boss_defeated_changed.emit(_boss_defeated)
+	return true
+
+
 func to_dictionary() -> Dictionary:
 	return {
 		"game_id": _game_id,
@@ -226,5 +244,6 @@ func to_dictionary() -> Dictionary:
 		"current_depth": _current_depth,
 		"current_biome": _current_biome,
 		"elapsed_time": _elapsed_time,
+		"boss_defeated": _boss_defeated,
 		"statistics": _statistics.to_dictionary() if _statistics != null else {},
 	}
