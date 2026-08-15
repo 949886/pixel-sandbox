@@ -20,9 +20,8 @@ const LOCAL_PLAYER_ID: int = 1
 var lifecycle_state: int = LifecycleState.IDLE
 var current_game_id: int = INVALID_GAME_ID
 
-# These references intentionally stay Node-typed until #33/#34 introduce the
-# concrete GameState / GameFlow classes.
-var game_state: Node = null
+var game_state: GameState = null
+# GameFlow stays Node-typed until #34 introduces the concrete GameFlow class.
 var game_flow: Node = null
 var runtime_root: Node = null
 
@@ -103,8 +102,12 @@ func stop_game() -> bool:
 	return true
 
 
-func bind_game_state(state: Node) -> bool:
+func bind_game_state(state: GameState) -> bool:
 	if not _can_bind_framework_node(state):
+		return false
+	if not state.is_initialized():
+		return false
+	if state.game_id != current_game_id:
 		return false
 	if game_state != null and game_state != state:
 		return false
@@ -132,9 +135,12 @@ func bind_runtime_root(root: Node) -> bool:
 	return true
 
 
-func register_player_state(player_id: int, player_state: Node) -> bool:
+func register_player_state(player_state: PlayerState) -> bool:
 	if not _can_bind_framework_node(player_state):
 		return false
+	if not player_state.is_initialized():
+		return false
+	var player_id: int = player_state.player_id
 	if player_id <= INVALID_PLAYER_ID:
 		return false
 	if _player_states.has(player_id):
@@ -155,7 +161,7 @@ func unregister_player_state(player_id: int) -> bool:
 func bind_player_runtime(player_id: int, player: Node) -> bool:
 	if not _can_bind_framework_node(player):
 		return false
-	if not _player_states.has(player_id):
+	if get_player_state(player_id) == null:
 		return false
 	if _player_runtimes.has(player_id):
 		return _player_runtimes[player_id] == player
@@ -168,8 +174,24 @@ func unbind_player_runtime(player_id: int) -> bool:
 	return _player_runtimes.erase(player_id)
 
 
-func get_player_state(player_id: int) -> Node:
-	return _get_valid_registered_node(_player_states, player_id)
+func get_player_state(player_id: int) -> PlayerState:
+	if not _player_states.has(player_id):
+		return null
+	var value: Variant = _player_states[player_id]
+	if value is PlayerState and is_instance_valid(value):
+		return value as PlayerState
+	_player_states.erase(player_id)
+	_player_runtimes.erase(player_id)
+	return null
+
+
+func get_player_states() -> Array[PlayerState]:
+	var states: Array[PlayerState] = []
+	for key: Variant in _player_states.keys():
+		var state := get_player_state(int(key))
+		if state != null:
+			states.append(state)
+	return states
 
 
 func get_player_runtime(player_id: int) -> Node:
