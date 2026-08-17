@@ -27,10 +27,10 @@ func apply_starting_loadout(loadout: StartingLoadoutDef) -> bool:
 	if not inventory.apply_starting_loadout(loadout):
 		return false
 
-	player.set(&"starting_gold", maxi(0, loadout.starting_gold))
-	player.set(&"gold", maxi(0, loadout.starting_gold))
+	player.set(&"starting_gold", maxi(0, loadout.gold))
+	player.set(&"gold", maxi(0, loadout.gold))
 	if player.has_signal(&"gold_changed"):
-		player.emit_signal(&"gold_changed", maxi(0, loadout.starting_gold))
+		player.emit_signal(&"gold_changed", maxi(0, loadout.gold))
 
 	_loadout_applied = true
 	return true

@@ -4,7 +4,7 @@ extends Node
 func _ready() -> void:
 	_test_explicit_zero_seed()
 	_test_world_config_isolation()
-	_test_starting_loadout_replaces_wand_deck()
+	_test_starting_loadout_preserves_wand_decks()
 	_test_multiplayer_shaped_readiness()
 	print("Game Bootstrap Smoke Test: PASS")
 	get_tree().quit()
@@ -32,19 +32,27 @@ func _test_world_config_isolation() -> void:
 	assert(template.piece_library == shared_library)
 
 
-func _test_starting_loadout_replaces_wand_deck() -> void:
-	var old_spell := SpellDef.new()
+func _test_starting_loadout_preserves_wand_decks() -> void:
 	var spell_a := SpellDef.new()
 	var spell_b := SpellDef.new()
-	var source_wand := WandDef.new()
-	source_wand.capacity = 2
-	var source_spells: Array[Resource] = [old_spell]
-	source_wand.spells = source_spells
+	var loose_spell := SpellDef.new()
+
+	var source_primary := WandDef.new()
+	source_primary.capacity = 2
+	var primary_spells: Array[Resource] = [spell_a, spell_b]
+	source_primary.spells = primary_spells
+
+	var source_extra := WandDef.new()
+	source_extra.capacity = 1
+	var extra_spells: Array[Resource] = [spell_b]
+	source_extra.spells = extra_spells
 
 	var loadout := StartingLoadoutDef.new()
-	loadout.primary_wand = source_wand
-	var starting_spells: Array[Resource] = [spell_a, spell_b]
-	loadout.primary_spells = starting_spells
+	var starting_wands: Array[Resource] = [source_primary, source_extra]
+	loadout.wands = starting_wands
+	var inventory_spells: Array[Resource] = [loose_spell]
+	loadout.spells = inventory_spells
+	loadout.gold = 123
 	assert(loadout.is_valid())
 
 	var controller := WandController.new()
@@ -56,14 +64,21 @@ func _test_starting_loadout_replaces_wand_deck() -> void:
 	inventory.initialize(controller)
 
 	assert(inventory.apply_starting_loadout(loadout))
-	var runtime_wand := inventory.equipped_wand()
-	assert(runtime_wand != null)
-	assert(runtime_wand != source_wand)
-	assert(runtime_wand.spells.size() == 2)
-	assert(runtime_wand.spells[0] == spell_a)
-	assert(runtime_wand.spells[1] == spell_b)
-	assert(source_wand.spells.size() == 1)
-	assert(source_wand.spells[0] == old_spell)
+	var runtime_primary := inventory.wands[0]
+	var runtime_extra := inventory.wands[1]
+	assert(runtime_primary != null)
+	assert(runtime_extra != null)
+	assert(runtime_primary != source_primary)
+	assert(runtime_extra != source_extra)
+	assert(runtime_primary.spells.size() == 2)
+	assert(runtime_primary.spells[0] == spell_a)
+	assert(runtime_primary.spells[1] == spell_b)
+	assert(runtime_extra.spells.size() == 1)
+	assert(runtime_extra.spells[0] == spell_b)
+	assert(inventory.inventory_spell(0) == loose_spell)
+	assert(source_primary.spells.size() == 2)
+	assert(source_primary.spells[0] == spell_a)
+	assert(source_primary.spells[1] == spell_b)
 
 	inventory.queue_free()
 	controller.queue_free()

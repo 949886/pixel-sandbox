@@ -30,39 +30,32 @@ func apply_starting_loadout(loadout: StartingLoadoutDef) -> bool:
 	if loadout == null or not loadout.is_valid() or _wand_controller == null:
 		return false
 	_resize_storage()
-	if loadout.extra_wands.size() + 1 > wands.size():
+	if loadout.wands.size() > wands.size():
 		return false
-	if loadout.inventory_spells.size() > spell_inventory.size():
+	if loadout.spells.size() > spell_inventory.size():
 		return false
 
-	var primary := _duplicate_wand(loadout.primary_wand)
-	if primary == null or primary == loadout.primary_wand:
-		return false
-	var primary_spells: Array[Resource] = []
-	primary_spells.assign(loadout.primary_spells)
-	primary.spells = primary_spells
-	_normalize_wand_slots(primary)
-
-	var extra_runtime_wands: Array[WandDef] = []
-	for source_wand: WandDef in loadout.extra_wands:
+	var runtime_wands: Array[WandDef] = []
+	for wand_resource: Resource in loadout.wands:
+		var source_wand := wand_resource as WandDef
 		var runtime_wand := _duplicate_wand(source_wand)
 		if runtime_wand == null or runtime_wand == source_wand:
 			return false
-		extra_runtime_wands.append(runtime_wand)
+		runtime_wands.append(runtime_wand)
 
 	for wand_index: int in range(wands.size()):
 		wands[wand_index] = null
 	for spell_index: int in range(spell_inventory.size()):
 		spell_inventory[spell_index] = null
 
-	wands[0] = primary
-	for extra_index: int in range(extra_runtime_wands.size()):
-		wands[extra_index + 1] = extra_runtime_wands[extra_index]
-	for spell_index: int in range(loadout.inventory_spells.size()):
-		var spell_resource: Resource = loadout.inventory_spells[spell_index]
+	for wand_index: int in range(runtime_wands.size()):
+		wands[wand_index] = runtime_wands[wand_index]
+	for spell_index: int in range(loadout.spells.size()):
+		var spell_resource: Resource = loadout.spells[spell_index]
 		spell_inventory[spell_index] = spell_resource as SpellDef
 
 	equipped_wand_index = 0
+	var primary := runtime_wands[0]
 	_wand_controller.set_wand_definition(primary, true)
 	wand_slots_changed.emit()
 	inventory_changed.emit()
