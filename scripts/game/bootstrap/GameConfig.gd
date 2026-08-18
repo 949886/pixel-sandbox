@@ -2,8 +2,6 @@ class_name GameConfig
 extends RefCounted
 
 const DEFAULT_FLOW_ID: StringName = &"normal"
-const DEFAULT_STARTING_LOADOUT_PATH: String = \
-	"res://resources/gameplay/loadouts/default_starting_loadout.tres"
 
 var _seed: int = 0
 var _flow_id: StringName = DEFAULT_FLOW_ID
@@ -44,7 +42,7 @@ static func create_default(
 	) -> GameConfig:
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
-	return GameConfig.new(int(rng.randi()), flow_id_value, _resolve_loadout(loadout))
+	return GameConfig.new(int(rng.randi()), flow_id_value, loadout)
 
 
 static func create_with_seed(
@@ -54,16 +52,14 @@ static func create_with_seed(
 	) -> GameConfig:
 	# Zero is a valid deterministic seed. Explicit seeds are never interpreted as
 	# a request to randomize again downstream.
-	return GameConfig.new(seed_value, flow_id_value, _resolve_loadout(loadout))
+	return GameConfig.new(seed_value, flow_id_value, loadout)
 
 
 func is_valid() -> bool:
 	if _flow_id == &"":
 		return false
+	return _starting_loadout == null or _starting_loadout.is_valid()
+
+
+func has_valid_starting_loadout() -> bool:
 	return _starting_loadout != null and _starting_loadout.is_valid()
-
-
-static func _resolve_loadout(loadout: StartingLoadoutDef) -> StartingLoadoutDef:
-	if loadout != null:
-		return loadout
-	return ResourceLoader.load(DEFAULT_STARTING_LOADOUT_PATH) as StartingLoadoutDef

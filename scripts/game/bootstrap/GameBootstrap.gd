@@ -1,11 +1,8 @@
 class_name GameBootstrap
 extends Node
 
-const DEFAULT_WORLD_SCENE: PackedScene = preload("res://scenes/World.tscn")
-const DEFAULT_WORLD_CONFIG_PATH: String = \
-	"res://resources/world_gen/default_world_gen_config.tres"
-
-@export var world_scene: PackedScene = DEFAULT_WORLD_SCENE
+@export var world_scene: PackedScene
+@export var world_gen_config_template: WorldGenConfig
 
 var _game_manager: GameManager = null
 var _runtime_host: Node = null
@@ -34,6 +31,8 @@ func setup(manager: GameManager, runtime_host: Node) -> bool:
 
 func start_game(config: GameConfig) -> int:
 	if not _is_setup() or config == null or not config.is_valid():
+		return GameManager.INVALID_GAME_ID
+	if not config.has_valid_starting_loadout():
 		return GameManager.INVALID_GAME_ID
 	if _game_manager.lifecycle_state != GameManager.LifecycleState.IDLE:
 		return GameManager.INVALID_GAME_ID
@@ -165,22 +164,22 @@ func _instantiate_configured_world(config: GameConfig) -> Node:
 	if world_scene == null:
 		push_error("GameBootstrap: World scene is not configured.")
 		return null
+	if world_gen_config_template == null:
+		push_error("GameBootstrap: WorldGenConfig template is not configured.")
+		return null
 	var world := world_scene.instantiate()
 	if world == null:
 		push_error("GameBootstrap: Failed to instantiate World scene.")
 		return null
 
-	var template := world.get(&"world_gen_config") as WorldGenConfig
-	if template == null:
-		template = ResourceLoader.load(DEFAULT_WORLD_CONFIG_PATH) as WorldGenConfig
-	var runtime_config := create_runtime_world_config(template, config.seed)
+	var runtime_config := create_runtime_world_config(world_gen_config_template, config.seed)
 	if runtime_config == null:
 		world.free()
 		push_error("GameBootstrap: Failed to create per-game WorldGenConfig.")
 		return null
 
 	# This happens while World is still off-tree, before WorldManager._ready()
-	# starts generation. The shared .tres remains a read-only template.
+	# starts generation. The shared Resource remains a read-only template.
 	world.set(&"world_gen_config", runtime_config)
 	world.set(&"override_seed", false)
 	world.set(&"world_seed", config.seed)
