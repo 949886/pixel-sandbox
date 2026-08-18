@@ -55,15 +55,20 @@ func _test_starting_loadout_preserves_wand_decks() -> void:
 	loadout.gold = 123
 	assert(loadout.is_valid())
 
+	# Bootstrap applies loadout before Player enters the SceneTree. Exercise that
+	# public Player API directly so it cannot accidentally depend on @onready.
+	var player := Player.new()
 	var controller := WandController.new()
 	controller.name = "WandController"
-	add_child(controller)
+	player.add_child(controller)
 	var inventory := PlayerInventory.new()
 	inventory.name = "PlayerInventory"
-	add_child(inventory)
-	inventory.initialize(controller)
+	player.add_child(inventory)
 
-	assert(inventory.apply_starting_loadout(loadout))
+	assert(player.apply_starting_loadout(loadout))
+	assert(player.is_starting_loadout_applied())
+	assert(player.starting_gold == 123)
+	assert(player.gold == 123)
 	var runtime_primary := inventory.wands[0]
 	var runtime_extra := inventory.wands[1]
 	assert(runtime_primary != null)
@@ -80,28 +85,31 @@ func _test_starting_loadout_preserves_wand_decks() -> void:
 	assert(source_primary.spells[0] == spell_a)
 	assert(source_primary.spells[1] == spell_b)
 
-	inventory.queue_free()
-	controller.queue_free()
+	player.free()
 
 
 func _test_multiplayer_shaped_readiness() -> void:
-	var readiness := GameBootstrapReadiness.new()
+	var bootstrap := GameBootstrap.new()
 	var player_ids: Array[int] = [1, 2]
-	assert(readiness.reset(77, player_ids))
-	assert(not readiness.is_ready(77))
-	assert(readiness.mark_world_ready(77))
-	assert(not readiness.is_ready(77))
-	assert(readiness.mark_player_ready(77, 1))
-	assert(readiness.mark_player_ready(77, 1))
-	assert(not readiness.is_ready(77))
-	assert(not readiness.mark_player_ready(78, 2))
-	assert(not readiness.mark_player_ready(77, 999))
-	assert(readiness.mark_player_ready(77, 2))
-	assert(readiness.is_ready(77))
+	assert(bootstrap._reset_readiness(player_ids))
+	assert(not bootstrap._is_gameplay_ready())
+	bootstrap._mark_world_ready()
+	assert(not bootstrap._is_gameplay_ready())
+	assert(bootstrap._mark_player_ready(1))
+	assert(bootstrap._mark_player_ready(1))
+	assert(not bootstrap._is_gameplay_ready())
+	assert(not bootstrap._mark_player_ready(999))
+	assert(bootstrap._mark_player_ready(2))
+	assert(bootstrap._is_gameplay_ready())
 
-	assert(readiness.reset(88, player_ids))
-	assert(readiness.mark_player_ready(88, 2))
-	assert(readiness.mark_player_ready(88, 1))
-	assert(not readiness.is_ready(88))
-	assert(readiness.mark_world_ready(88))
-	assert(readiness.is_ready(88))
+	# Resetting for a new startup clears prior world/player readiness and keeps
+	# the required player IDs order-independent.
+	var reversed_player_ids: Array[int] = [2, 1]
+	assert(bootstrap._reset_readiness(reversed_player_ids))
+	assert(not bootstrap._is_gameplay_ready())
+	assert(bootstrap._mark_player_ready(2))
+	assert(bootstrap._mark_player_ready(1))
+	assert(not bootstrap._is_gameplay_ready())
+	bootstrap._mark_world_ready()
+	assert(bootstrap._is_gameplay_ready())
+	bootstrap.free()

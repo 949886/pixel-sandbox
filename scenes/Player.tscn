@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dy2dmllmw3eqq"]
+[gd_scene load_steps=11 format=3 uid="uid://dy2dmllmw3eqq"]
 
 [ext_resource type="Script" path="res://scripts/player/Player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" path="res://assets/player/player_sprite_frames.tres" id="2_body_frames"]
@@ -9,7 +9,6 @@
 [ext_resource type="Script" path="res://scripts/gameplay/status/EnvironmentSensor.gd" id="8_sensor"]
 [ext_resource type="Script" path="res://scripts/gameplay/spells/WandController.gd" id="9_wand_controller"]
 [ext_resource type="Script" path="res://scripts/gameplay/items/PlayerInventory.gd" id="11_inventory"]
-[ext_resource type="Script" path="res://scripts/game/bootstrap/PlayerBootstrapAdapter.gd" id="12_bootstrap_adapter"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 resource_local_to_scene = true
@@ -21,6 +20,7 @@ collision_layer = 2
 collision_mask = 1
 safe_margin = 0.01
 script = ExtResource("1_player")
+player_id = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -5.5)
@@ -48,10 +48,6 @@ script = ExtResource("9_wand_controller")
 script = ExtResource("11_inventory")
 wand_slot_count = 4
 spell_inventory_capacity = 24
-
-[node name="GameBootstrapAdapter" type="Node" parent="."]
-script = ExtResource("12_bootstrap_adapter")
-player_id = 1
 
 [node name="BodySprite" type="AnimatedSprite2D" parent="."]
 z_index = 5
