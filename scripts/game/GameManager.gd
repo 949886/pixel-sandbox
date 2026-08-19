@@ -5,6 +5,7 @@ signal game_starting(game_id: int)
 signal game_started(game_id: int)
 signal game_stopping(game_id: int)
 signal game_stopped(game_id: int)
+signal restart_requested(previous_game_id: int, player_id: int, options: Dictionary)
 
 enum LifecycleState {
 	IDLE,
@@ -260,15 +261,90 @@ func notify_player_joined(player_id: int) -> bool:
 	return game_flow.on_player_joined(player_state)
 
 
-func notify_player_died(player_id: int, context: Variant = null) -> bool:
+func notify_player_died(
+		player_id: int,
+		context: Variant = null,
+		source_runtime: Node = null,
+	) -> bool:
 	if not can_process_player_request(player_id):
 		return false
 	var player_state := get_player_state(player_id)
 	if player_state == null or not player_state.alive:
 		return false
+
+	# A death event is accepted only for a Player that is currently bound to
+	# this stable player_id. When the runtime forwards the event, the source
+	# identity must also match the registered runtime to reject stale objects.
+	var registered_runtime := get_player_runtime(player_id)
+	if registered_runtime == null:
+		return false
+	if source_runtime != null and source_runtime != registered_runtime:
+		return false
+
 	if not player_state.set_alive(false):
 		return false
 	return game_flow.on_player_died(player_state, context)
+
+
+func request_player_recovery(player_id: int, options: Dictionary = {}) -> bool:
+	if not can_process_player_request(player_id):
+		return false
+	var player_state := get_player_state(player_id)
+	if player_state == null or player_state.alive:
+		return false
+	if not game_flow.can_recover_player(player_state, options):
+		return false
+
+	var player_runtime := get_player_runtime(player_id)
+	if player_runtime == null or not player_runtime.has_method(&"respawn_at"):
+		return false
+
+	var respawn_position: Variant = options.get("position", null)
+	if not respawn_position is Vector2:
+		if not player_runtime.has_method(&"get_spawn_position"):
+			return false
+		respawn_position = player_runtime.call(&"get_spawn_position")
+	if not respawn_position is Vector2:
+		return false
+
+	var recovery_result: Variant = player_runtime.call(
+		&"respawn_at",
+		respawn_position,
+		options,
+	)
+	if recovery_result is bool and not bool(recovery_result):
+		return false
+
+	# Public state is restored only after the runtime recovery succeeds.
+	return player_state.set_alive(true)
+
+
+func request_restart(player_id: int, options: Dictionary = {}) -> bool:
+	# Restart is intentionally a separate authority path from ordinary active
+	# gameplay requests because a valid restart begins from an ENDED Game.
+	if lifecycle_state != LifecycleState.ACTIVE:
+		return false
+	if not is_game_authority():
+		return false
+	if game_state == null or not is_instance_valid(game_state):
+		return false
+	if game_state.phase != GameState.GamePhase.ENDED:
+		return false
+	if get_player_state(player_id) == null:
+		return false
+	if options.has("seed") and not options["seed"] is int:
+		return false
+
+	var previous_game_id: int = current_game_id
+	var restart_options: Dictionary = options.duplicate(true)
+
+	# Moving lifecycle out of ACTIVE before publishing the intent is the
+	# duplicate-request guard. Runtime teardown/rebuild is owned by #4; this
+	# task establishes that restart always stops the old Game first.
+	if not stop_game():
+		return false
+	restart_requested.emit(previous_game_id, player_id, restart_options)
+	return true
 
 
 func notify_boss_defeated(boss_id: StringName) -> bool:
