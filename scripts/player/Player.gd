@@ -11,7 +11,7 @@ signal flight_fuel_changed(current: float, maximum: float)
 signal wand_fired(origin: Vector2, direction: Vector2)
 signal health_changed(current: float, maximum: float)
 signal gold_changed(current: int)
-signal player_died
+signal player_died(player_id: int, context: Variant)
 
 const SPAWN_COLLISION_PROBE := Vector2(0.0, 1.0)
 const BODY_DEFAULT_ORIGIN := Vector2(31.0, 35.0)
@@ -70,7 +70,6 @@ const BASE_CAMERA_POSITION := Vector2(0.0, -28.0)
 @export var liquid_sample_radius: float = 6.0
 
 @export_category("Combat")
-@export var respawn_delay: float = 1.25
 @export var starting_gold: int = 0
 
 @export_category("Camera")
@@ -123,7 +122,9 @@ var _virtual_aim_direction := Vector2.RIGHT
 var _virtual_controls_active: bool = false
 var _rng := RandomNumberGenerator.new()
 var _game_mode_manager: GameModeManager
+var _game_state: GameState = null
 var _dead: bool = false
+var _game_ended: bool = false
 var _spawn_position := Vector2.ZERO
 var _starting_loadout_applied: bool = false
 var gold: int = 0
@@ -165,6 +166,12 @@ func _ready() -> void:
 	_play_body_animation(&"stand", true)
 	arm_sprite.play(&"default")
 	_update_aim()
+
+
+func _exit_tree() -> void:
+	if _game_state != null and is_instance_valid(_game_state):
+		if _game_state.phase_changed.is_connected(_on_game_phase_changed):
+			_game_state.phase_changed.disconnect(_on_game_phase_changed)
 
 
 func apply_starting_loadout(loadout: StartingLoadoutDef) -> bool:
@@ -219,12 +226,76 @@ func is_ready_for_gameplay() -> bool:
 	))
 
 
+func bind_game_state(state: GameState) -> bool:
+	if state == null or not is_instance_valid(state) or not state.is_initialized():
+		return false
+	if _game_state != null and is_instance_valid(_game_state) and _game_state != state:
+		if _game_state.phase_changed.is_connected(_on_game_phase_changed):
+			_game_state.phase_changed.disconnect(_on_game_phase_changed)
+
+	_game_state = state
+	if not _game_state.phase_changed.is_connected(_on_game_phase_changed):
+		_game_state.phase_changed.connect(_on_game_phase_changed)
+	_game_ended = _game_state.phase == GameState.GamePhase.ENDED
+	if _game_ended:
+		_clear_gameplay_input_state()
+		velocity = Vector2.ZERO
+		flying = false
+	return true
+
+
+func enter_dead_state(_context: Variant = null) -> bool:
+	if _dead:
+		return false
+	_dead = true
+	velocity = Vector2.ZERO
+	flying = false
+	_clear_gameplay_input_state()
+	return true
+
+
+func respawn_at(position: Vector2, _options: Dictionary = {}) -> bool:
+	# This is deliberately a neutral runtime primitive, not a permission check.
+	# GameManager/GameFlow decide whether recovery is allowed. The local ENDED
+	# guard makes the runtime unable to re-enable gameplay after its Game ended.
+	if _game_ended:
+		return false
+
+	global_position = position
+	velocity = Vector2.ZERO
+	_set_flight_fuel(maximum_flight_fuel)
+	if status_component != null:
+		status_component.clear_all()
+	if health_component != null:
+		health_component.reset_health()
+	if wand_controller != null:
+		wand_controller.reset_mana()
+	_clear_gameplay_input_state()
+	_dead = false
+	return true
+
+
+func get_spawn_position() -> Vector2:
+	return _spawn_position
+
+
+func is_dead() -> bool:
+	return _dead
+
+
+func is_gameplay_input_blocked() -> bool:
+	return _dead or _game_ended
+
+
 func set_virtual_move_input(input_vector: Vector2) -> void:
+	if is_gameplay_input_blocked():
+		_virtual_move_input = Vector2.ZERO
+		return
 	_virtual_move_input = input_vector.limit_length(1.0)
 
 
 func set_virtual_jump_pressed(pressed: bool) -> void:
-	_virtual_jump_pressed = pressed
+	_virtual_jump_pressed = pressed if not is_gameplay_input_blocked() else false
 
 
 # Backward-compatible alias for earlier touch-control scenes. The joystick's
@@ -239,15 +310,23 @@ func set_virtual_hover_pressed(pressed: bool) -> void:
 
 
 func set_virtual_fire_pressed(pressed: bool) -> void:
-	_virtual_fire_pressed = pressed
+	_virtual_fire_pressed = pressed if not is_gameplay_input_blocked() else false
 
 
 func set_virtual_aim_direction(direction: Vector2) -> void:
+	if is_gameplay_input_blocked():
+		return
 	if direction.length_squared() >= virtual_aim_threshold * virtual_aim_threshold:
 		_virtual_aim_direction = direction.normalized()
 
 
 func set_virtual_controls_active(active: bool) -> void:
+	if is_gameplay_input_blocked():
+		_virtual_controls_active = false
+		_virtual_move_input = Vector2.ZERO
+		_virtual_jump_pressed = false
+		_virtual_fire_pressed = false
+		return
 	if active and not _virtual_controls_active:
 		_virtual_aim_direction = aim_direction.normalized() if aim_direction.length_squared() > 0.0001 else Vector2.RIGHT
 	_virtual_controls_active = active
@@ -260,7 +339,7 @@ func set_virtual_controls_active(active: bool) -> void:
 func _physics_process(delta: float) -> void:
 	_tick_timers(delta)
 	_update_environment_state()
-	if _dead:
+	if is_gameplay_input_blocked():
 		velocity = Vector2.ZERO
 		flying = false
 		return
@@ -296,6 +375,8 @@ func _physics_process(delta: float) -> void:
 	_update_animation()
 
 func _process(_delta: float) -> void:
+	if is_gameplay_input_blocked():
+		return
 	if Input.is_action_just_pressed(&"zoom_in"):
 		_set_zoom(camera.zoom.x + zoom_step)
 	elif Input.is_action_just_pressed(&"zoom_out"):
@@ -506,6 +587,8 @@ func _fire_wand() -> void:
 
 
 func _gameplay_action_blocked(action: StringName) -> bool:
+	if is_gameplay_input_blocked():
+		return true
 	if _game_mode_manager == null or not is_instance_valid(_game_mode_manager):
 		_game_mode_manager = get_tree().get_first_node_in_group(&"game_mode_manager") as GameModeManager
 	return _game_mode_manager != null and _game_mode_manager.gameplay_action_blocked(action)
@@ -523,6 +606,8 @@ func _handle_wand_selection_input() -> void:
 		inventory_component.equip_wand(3)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_gameplay_input_blocked():
+		return
 	if inventory_component == null or not (event is InputEventMouseButton):
 		return
 	var mouse_event := event as InputEventMouseButton
@@ -744,27 +829,37 @@ func heal(amount: float) -> float:
 func _on_health_changed(current: float, maximum: float) -> void:
 	health_changed.emit(current, maximum)
 
-func _on_player_died(_packet) -> void:
-	if _dead:
+func _on_player_died(packet: Variant) -> void:
+	if not enter_dead_state(packet):
 		return
-	_dead = true
-	player_died.emit()
-	_respawn_after_delay()
+	player_died.emit(player_id, packet)
 
-func _respawn_after_delay() -> void:
-	await get_tree().create_timer(maxf(0.1, respawn_delay)).timeout
-	if not is_inside_tree():
+
+func _on_game_phase_changed(
+		_previous: GameState.GamePhase,
+		current: GameState.GamePhase,
+	) -> void:
+	_game_ended = current == GameState.GamePhase.ENDED
+	if not _game_ended:
 		return
-	global_position = _spawn_position
 	velocity = Vector2.ZERO
-	_set_flight_fuel(maximum_flight_fuel)
-	if status_component != null:
-		status_component.clear_all()
-	if health_component != null:
-		health_component.reset_health()
-	if wand_controller != null:
-		wand_controller.reset_mana()
-	_dead = false
+	flying = false
+	_clear_gameplay_input_state()
+
+
+func _clear_gameplay_input_state() -> void:
+	_horizontal_input = 0.0
+	_coyote_timer = 0.0
+	_jump_buffer_timer = 0.0
+	_flight_input_active = false
+	_jump_fly_was_pressed = false
+	_virtual_move_input = Vector2.ZERO
+	_virtual_jump_pressed = false
+	_virtual_fire_pressed = false
+	_kick_active = false
+	_landing_active = false
+	_action_animation = &""
+
 
 func _set_zoom(value: float) -> void:
 	var clamped := clampf(value, min_zoom, max_zoom)

@@ -32,6 +32,8 @@ func _exit_tree() -> void:
 	if _game_state != null and is_instance_valid(_game_state):
 		if _game_state.runtime_mode_changed.is_connected(_on_runtime_mode_changed):
 			_game_state.runtime_mode_changed.disconnect(_on_runtime_mode_changed)
+		if _game_state.phase_changed.is_connected(_on_game_phase_changed):
+			_game_state.phase_changed.disconnect(_on_game_phase_changed)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -76,7 +78,7 @@ func unregister_input_capture(node: Node) -> void:
 
 
 func gameplay_action_blocked(action: StringName) -> bool:
-	if not is_creative():
+	if not _creative_runtime_effects_active():
 		return false
 	for index: int in range(_input_captures.size() - 1, -1, -1):
 		var target: Variant = _input_captures[index].get_ref()
@@ -91,13 +93,13 @@ func gameplay_action_blocked(action: StringName) -> bool:
 
 
 func active_rules() -> GameRules:
-	if is_creative():
+	if _creative_runtime_effects_active():
 		return _runtime_creative_rules
 	return null
 
 
 func set_rule(property_name: StringName, enabled: bool) -> void:
-	if _runtime_creative_rules == null:
+	if _runtime_creative_rules == null or not _creative_runtime_effects_active():
 		return
 	if property_name not in [&"invulnerable", &"infinite_mana", &"infinite_flight", &"creative_fly"]:
 		return
@@ -110,8 +112,8 @@ func set_rule(property_name: StringName, enabled: bool) -> void:
 #
 # GameModeManager does not own RuntimeMode state. This method finds the current
 # GameManager/GameState, disconnects from a previously bound GameState when the
-# Game changes, subscribes to runtime_mode_changed on the current state, and
-# immediately applies that state's RuntimeMode to the gameplay runtime.
+# Game changes, subscribes to public state changes on the current state, and
+# immediately applies that state to the gameplay runtime.
 #
 # Keeping the binding replaceable also makes the adapter safe for a future New
 # Game / Restart flow where the old GameState is destroyed and a new one becomes
@@ -123,12 +125,16 @@ func _bind_game_state() -> void:
 	if _game_state != null and is_instance_valid(_game_state) and _game_state != next_state:
 		if _game_state.runtime_mode_changed.is_connected(_on_runtime_mode_changed):
 			_game_state.runtime_mode_changed.disconnect(_on_runtime_mode_changed)
+		if _game_state.phase_changed.is_connected(_on_game_phase_changed):
+			_game_state.phase_changed.disconnect(_on_game_phase_changed)
 
 	_game_manager = next_manager
 	_game_state = next_state
 	if _game_state != null and is_instance_valid(_game_state):
 		if not _game_state.runtime_mode_changed.is_connected(_on_runtime_mode_changed):
 			_game_state.runtime_mode_changed.connect(_on_runtime_mode_changed)
+		if not _game_state.phase_changed.is_connected(_on_game_phase_changed):
+			_game_state.phase_changed.connect(_on_game_phase_changed)
 	_apply_mode()
 
 
@@ -151,21 +157,40 @@ func _current_runtime_mode() -> int:
 	return _game_state.runtime_mode
 
 
+func _creative_runtime_effects_active() -> bool:
+	if not is_creative():
+		return false
+	if _game_state == null or not is_instance_valid(_game_state):
+		return false
+	# Keep RuntimeMode as the final public fact, but ENDED is a hard runtime
+	# input/effect boundary. We do not mutate the canonical mode just to disable
+	# Creative abilities and tools after the Game has ended.
+	return _game_state.phase != GameState.GamePhase.ENDED
+
+
 func _on_runtime_mode_changed(_previous: GameState.RuntimeMode, current: GameState.RuntimeMode) -> void:
 	_apply_mode()
 	mode_changed.emit(current)
 
 
+func _on_game_phase_changed(
+		_previous: GameState.GamePhase,
+		_current: GameState.GamePhase,
+	) -> void:
+	_apply_mode()
+
+
 func _apply_mode() -> void:
+	var creative_active := _creative_runtime_effects_active()
 	_apply_rules_to_players()
-	if not is_creative():
+	if not creative_active:
 		var world_service: Node = get_tree().get_first_node_in_group(&"world_gameplay_service")
 		if world_service != null and is_instance_valid(world_service) \
 				and world_service.has_method(&"reset_creative_simulation_controls"):
 			world_service.call(&"reset_creative_simulation_controls")
 	for node: Node in get_tree().get_nodes_in_group(&"creative_ui"):
 		if node != null and is_instance_valid(node) and node.has_method(&"set_creative_active"):
-			node.call(&"set_creative_active", is_creative())
+			node.call(&"set_creative_active", creative_active)
 
 
 func _apply_rules_to_players() -> void:
