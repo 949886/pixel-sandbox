@@ -106,6 +106,16 @@ func set_rule(property_name: StringName, enabled: bool) -> void:
 	creative_rules_changed.emit(_runtime_creative_rules)
 
 
+# Bind this runtime adapter to the current authoritative GameState.
+#
+# GameModeManager does not own RuntimeMode state. This method finds the current
+# GameManager/GameState, disconnects from a previously bound GameState when the
+# Game changes, subscribes to runtime_mode_changed on the current state, and
+# immediately applies that state's RuntimeMode to the gameplay runtime.
+#
+# Keeping the binding replaceable also makes the adapter safe for a future New
+# Game / Restart flow where the old GameState is destroyed and a new one becomes
+# authoritative without introducing a second mode state in GameModeManager.
 func _bind_game_state() -> void:
 	var next_manager := get_tree().get_first_node_in_group(&"game_manager") as GameManager
 	var next_state: GameState = next_manager.game_state if next_manager != null else null
@@ -122,6 +132,9 @@ func _bind_game_state() -> void:
 	_apply_mode()
 
 
+# Requests may arrive after scene/lifecycle changes, so validate that the cached
+# binding still points at GameManager.game_state and rebind before forwarding a
+# RuntimeMode request when necessary.
 func _ensure_game_state_bound() -> bool:
 	if _game_manager == null or not is_instance_valid(_game_manager) \
 			or _game_state == null or not is_instance_valid(_game_state) \
