@@ -9,7 +9,7 @@
 [ext_resource type="Resource" path="res://resources/gameplay/spells/multicast/double_scatter.tres" id="7_spell"]
 [ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="8_spell"]
 [ext_resource type="Resource" path="res://resources/gameplay/spells/luna/spark.tres" id="9_spell"]
-[ext_resource type="Texture2D" path="res://assets/player/wand.png" id="99_wand_visual"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/wands/wand.png" id="99_wand_visual"]
 
 [resource]
 script = ExtResource("1_wand")
