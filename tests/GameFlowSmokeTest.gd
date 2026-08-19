@@ -1,6 +1,26 @@
 extends Node
 
 
+class FakePlayerRuntime:
+	extends Node
+
+	var spawn_position := Vector2.ZERO
+	var current_position := Vector2.ZERO
+	var respawn_count: int = 0
+
+	func _init(initial_spawn: Vector2 = Vector2.ZERO) -> void:
+		spawn_position = initial_spawn
+		current_position = initial_spawn
+
+	func get_spawn_position() -> Vector2:
+		return spawn_position
+
+	func respawn_at(position: Vector2, _options: Dictionary = {}) -> bool:
+		current_position = position
+		respawn_count += 1
+		return true
+
+
 func _ready() -> void:
 	var manager := GameManager.new()
 	manager.name = "GameManager"
@@ -11,8 +31,11 @@ func _ready() -> void:
 	var first_state: GameState = first["state"] as GameState
 	var first_flow: NormalGameFlow = first["flow"] as NormalGameFlow
 	var first_players: Dictionary = first["players"]
+	var first_runtimes: Dictionary = first["runtimes"]
 	var player_a: PlayerState = first_players[1] as PlayerState
 	var player_b: PlayerState = first_players[2] as PlayerState
+	var player_a_runtime: FakePlayerRuntime = first_runtimes[1] as FakePlayerRuntime
+	var player_b_runtime: FakePlayerRuntime = first_runtimes[2] as FakePlayerRuntime
 
 	assert(first_state.phase == GameState.GamePhase.STARTING)
 	assert(first_state.result == GameState.GameResult.NONE)
@@ -52,39 +75,38 @@ func _ready() -> void:
 	assert(first_flow.complete_transition())
 	assert(first_state.phase == GameState.GamePhase.PLAYING)
 
-	# One player death is a per-player fact, not a global Game Over.
-	assert(manager.notify_player_died(1))
+	# One Normal death is a per-player fact, not a global Game Over while another
+	# registered Player is still alive.
+	assert(manager.notify_player_died(1, {"cause": &"smoke"}, player_a_runtime))
 	assert(not player_a.alive)
 	assert(player_b.alive)
 	assert(first_state.phase == GameState.GamePhase.PLAYING)
 	assert(first_state.result == GameState.GameResult.NONE)
-	assert(not manager.notify_player_died(1))
+	assert(not manager.notify_player_died(1, null, player_a_runtime))
 
-	# Switching RuntimeMode must not roll back public per-player facts. Creative
-	# suppresses Normal defeat policy; recovery itself remains a later #2 concern.
+	# Creative death recovery is an explicit Flow -> GameManager -> runtime path.
+	# It restores the dead PlayerState after the runtime recovery succeeds and
+	# does not replace the current Game or roll back other public facts.
+	player_b_runtime.current_position = Vector2(80.0, 40.0)
 	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
-	assert(not player_a.alive)
+	assert(manager.notify_player_died(2, {"cause": &"creative_smoke"}, player_b_runtime))
 	assert(player_b.alive)
-	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.NORMAL))
+	assert(player_b_runtime.respawn_count == 1)
+	assert(player_b_runtime.current_position == player_b_runtime.spawn_position)
 	assert(not player_a.alive)
+	assert(first_state.phase == GameState.GamePhase.PLAYING)
+	assert(first_state.result == GameState.GameResult.NONE)
 	assert(first_state.used_creative_mode)
-	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
-	assert(manager.notify_player_died(2))
-	assert(not player_b.alive)
-	assert(first_state.phase == GameState.GamePhase.PLAYING)
-	assert(first_state.result == GameState.GameResult.NONE)
-	assert(not manager.can_change_runtime_mode(2, GameState.RuntimeMode.NORMAL))
-	assert(not manager.request_runtime_mode(2, GameState.RuntimeMode.NORMAL))
 
-	# Return the public facts to a Normal scenario and verify that the last
-	# living player death ends the Game with an explicit defeat result.
-	assert(player_b.set_alive(true))
+	# Return to Normal and verify that the last living Player death ends the Game
+	# with an explicit defeat result.
 	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.NORMAL))
 	assert(first_state.runtime_mode == GameState.RuntimeMode.NORMAL)
-	assert(first_state.used_creative_mode)
-	assert(manager.notify_player_died(2))
+	assert(manager.notify_player_died(2, {"cause": &"normal_smoke"}, player_b_runtime))
+	assert(not player_b.alive)
 	assert(first_state.phase == GameState.GamePhase.ENDED)
 	assert(first_state.result == GameState.GameResult.DEFEAT)
+	assert(not manager.request_player_recovery(2))
 	assert(not manager.can_change_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
 	assert(not manager.request_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
 	assert(first_state.runtime_mode == GameState.RuntimeMode.NORMAL)
@@ -100,6 +122,7 @@ func _ready() -> void:
 	var second_players: Dictionary = second["players"]
 	var second_player: PlayerState = second_players[7] as PlayerState
 
+	assert(second_game_id != first_game_id)
 	assert(manager.notify_player_joined(second_player.player_id))
 	assert(manager.notify_gameplay_ready())
 	assert(manager.mark_game_started(second_game_id))
@@ -149,6 +172,7 @@ func _create_normal_game(
 	assert(manager.bind_game_state(state))
 
 	var players: Dictionary = {}
+	var runtimes: Dictionary = {}
 	for player_id_value: Variant in player_ids:
 		var player_id := int(player_id_value)
 		var player_state := PlayerState.new()
@@ -157,6 +181,12 @@ func _create_normal_game(
 		runtime.add_child(player_state)
 		assert(manager.register_player_state(player_state))
 		players[player_id] = player_state
+
+		var player_runtime := FakePlayerRuntime.new(Vector2(float(player_id * 10), 20.0))
+		player_runtime.name = "PlayerRuntime%d" % player_id
+		runtime.add_child(player_runtime)
+		assert(manager.bind_player_runtime(player_id, player_runtime))
+		runtimes[player_id] = player_runtime
 
 	var flow := NormalGameFlow.new()
 	flow.name = "NormalGameFlow"
@@ -173,4 +203,5 @@ func _create_normal_game(
 		"state": state,
 		"flow": flow,
 		"players": players,
+		"runtimes": runtimes,
 	}
