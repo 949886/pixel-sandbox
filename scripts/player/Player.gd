@@ -180,7 +180,7 @@ func apply_starting_loadout(loadout: StartingLoadoutDef) -> bool:
 	if inventory == null or controller == null:
 		return false
 	inventory.initialize(controller)
-	if not inventory.apply_starting_loadout(loadout):
+	if not inventory.apply_loadout_items(loadout):
 		return false
 
 	starting_gold = maxi(0, loadout.gold)

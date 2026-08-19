@@ -26,7 +26,7 @@ func initialize(wand_controller: WandController) -> void:
 	inventory_changed.emit()
 	equipped_wand_changed.emit(equipped_wand_index, equipped_wand())
 
-func apply_starting_loadout(loadout: StartingLoadoutDef) -> bool:
+func apply_loadout_items(loadout: StartingLoadoutDef) -> bool:
 	if loadout == null or not loadout.is_valid() or _wand_controller == null:
 		return false
 	_resize_storage()
