@@ -8,7 +8,7 @@ class FakeFlow:
 	func _on_start() -> bool:
 		return true
 
-	func on_world_ready() -> bool:
+	func on_gameplay_ready() -> bool:
 		return transition_phase(GameState.GamePhase.PLAYING)
 
 	func can_transition_phase(current: int, next: int) -> bool:
@@ -37,16 +37,20 @@ func _ready() -> void:
 
 	assert(not manager.has_active_game())
 	assert(manager.current_game_id == GameManager.INVALID_GAME_ID)
+	assert(manager.game_config == null)
 	assert(not manager.can_process_player_request(GameManager.LOCAL_PLAYER_ID))
 
 	var orphan_state := PlayerState.new()
 	assert(not manager.register_player_state(orphan_state))
 	orphan_state.free()
 
-	var first_game_id: int = manager.start_game()
+	var first_config := GameConfig.create_with_seed(123)
+	assert(first_config.is_valid())
+	var first_game_id: int = manager.start_game(first_config)
 	assert(first_game_id != GameManager.INVALID_GAME_ID)
+	assert(manager.game_config == first_config)
 	assert(manager.lifecycle_state == GameManager.LifecycleState.STARTING)
-	assert(manager.start_game() == GameManager.INVALID_GAME_ID)
+	assert(manager.start_game(first_config) == GameManager.INVALID_GAME_ID)
 
 	var runtime_one := Node.new()
 	runtime_one.name = "RuntimeOne"
@@ -59,6 +63,12 @@ func _ready() -> void:
 	assert(not manager.bind_game_flow(flow_without_state))
 	flow_without_state.queue_free()
 
+	var wrong_seed_state := GameState.new()
+	assert(wrong_seed_state.initialize(first_game_id, 999))
+	runtime_one.add_child(wrong_seed_state)
+	assert(not manager.bind_game_state(wrong_seed_state))
+	wrong_seed_state.queue_free()
+
 	var game_state_one := GameState.new()
 	game_state_one.name = "GameStateOne"
 	assert(game_state_one.initialize(first_game_id, 123))
@@ -67,7 +77,7 @@ func _ready() -> void:
 	assert(manager.game_state == game_state_one)
 
 	var wrong_game_state := GameState.new()
-	assert(wrong_game_state.initialize(first_game_id + 100, 456))
+	assert(wrong_game_state.initialize(first_game_id + 100, 123))
 	runtime_one.add_child(wrong_game_state)
 	assert(not manager.bind_game_state(wrong_game_state))
 
@@ -96,7 +106,7 @@ func _ready() -> void:
 
 	assert(not manager.can_process_player_request(GameManager.LOCAL_PLAYER_ID))
 	assert(not manager.mark_game_started(first_game_id))
-	assert(manager.notify_world_ready())
+	assert(manager.notify_gameplay_ready())
 	assert(game_state_one.phase == GameState.GamePhase.PLAYING)
 	assert(manager.mark_game_started(first_game_id))
 	assert(manager.lifecycle_state == GameManager.LifecycleState.ACTIVE)
@@ -114,6 +124,7 @@ func _ready() -> void:
 
 	assert(not manager.has_active_game())
 	assert(manager.current_game_id == GameManager.INVALID_GAME_ID)
+	assert(manager.game_config == null)
 	assert(manager.game_state == null)
 	assert(manager.game_flow == null)
 	assert(manager.runtime_root == null)
@@ -121,7 +132,8 @@ func _ready() -> void:
 	assert(manager.get_player_runtime(GameManager.LOCAL_PLAYER_ID) == null)
 	assert(not is_instance_valid(runtime_one))
 
-	var second_game_id: int = manager.start_game()
+	var second_config := GameConfig.create_with_seed(789)
+	var second_game_id: int = manager.start_game(second_config)
 	assert(second_game_id > first_game_id)
 
 	var runtime_two := Node.new()
@@ -146,7 +158,7 @@ func _ready() -> void:
 	runtime_two.add_child(flow_two)
 	assert(manager.bind_game_flow(flow_two))
 	assert(manager.start_game_flow())
-	assert(manager.notify_world_ready())
+	assert(manager.notify_gameplay_ready())
 	assert(manager.mark_game_started(second_game_id))
 	assert(manager.stop_game())
 	if manager.lifecycle_state != GameManager.LifecycleState.IDLE:

@@ -1,7 +1,7 @@
 class_name CreativeWandService
 extends RefCounted
 
-const DEFAULT_WAND_TEXTURE: Texture2D = preload("res://assets/player/wand.png")
+const DEFAULT_WAND_TEXTURE: Texture2D = preload("res://resources/gameplay/wands/wand.png")
 
 var inventory: PlayerInventory
 var wand_controller: WandController

@@ -1,15 +1,22 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/Main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/game/GameManager.gd" id="2_game_manager"]
-[ext_resource type="PackedScene" path="res://scenes/World.tscn" id="3_world"]
+[ext_resource type="Script" path="res://scripts/game/bootstrap/GameBootstrap.gd" id="3_game_bootstrap"]
+[ext_resource type="PackedScene" path="res://scenes/World.tscn" id="4_world"]
+[ext_resource type="Resource" path="res://resources/world_gen/default_world_gen_config.tres" id="5_world_config"]
+[ext_resource type="Resource" path="res://resources/gameplay/loadouts/default_starting_loadout.tres" id="6_starting_loadout"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
+starting_loadout = ExtResource("6_starting_loadout")
 
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("2_game_manager")
 
-[node name="GameRuntime" type="Node2D" parent="."]
+[node name="GameBootstrap" type="Node" parent="."]
+script = ExtResource("3_game_bootstrap")
+world_scene = ExtResource("4_world")
+world_gen_config_template = ExtResource("5_world_config")
 
-[node name="World" parent="GameRuntime" instance=ExtResource("3_world")]
+[node name="GameRuntime" type="Node2D" parent="."]

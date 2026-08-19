@@ -22,9 +22,9 @@ func _ready() -> void:
 	assert(not manager.notify_player_joined(999))
 	assert(not manager.mark_game_started(first_game_id))
 
-	assert(manager.notify_world_ready())
+	assert(manager.notify_gameplay_ready())
 	assert(first_state.phase == GameState.GamePhase.PLAYING)
-	assert(not manager.notify_world_ready())
+	assert(not manager.notify_gameplay_ready())
 	assert(manager.mark_game_started(first_game_id))
 	assert(manager.can_change_runtime_mode(1, GameState.RuntimeMode.CREATIVE))
 	assert(not manager.can_change_runtime_mode(1, 999))
@@ -75,7 +75,7 @@ func _ready() -> void:
 	var second_player: PlayerState = second_players[7] as PlayerState
 
 	assert(manager.notify_player_joined(second_player.player_id))
-	assert(manager.notify_world_ready())
+	assert(manager.notify_gameplay_ready())
 	assert(manager.mark_game_started(second_game_id))
 	assert(second_state.phase == GameState.GamePhase.PLAYING)
 	assert(not second_state.boss_defeated)
@@ -104,7 +104,8 @@ func _create_normal_game(
 		seed: int,
 		player_ids: Array,
 	) -> Dictionary:
-	var game_id: int = manager.start_game()
+	var config := GameConfig.create_with_seed(seed)
+	var game_id: int = manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)
 
 	var runtime := Node.new()

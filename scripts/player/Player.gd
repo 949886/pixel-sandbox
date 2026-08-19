@@ -1,3 +1,4 @@
+class_name Player
 extends CharacterBody2D
 
 ## Noita-inspired player controller.
@@ -12,6 +13,7 @@ signal health_changed(current: float, maximum: float)
 signal gold_changed(current: int)
 signal player_died
 
+const SPAWN_COLLISION_PROBE := Vector2(0.0, 1.0)
 const BODY_DEFAULT_ORIGIN := Vector2(31.0, 35.0)
 const BODY_ORIGIN_OVERRIDES := {
 	&"intro_stand_up": Vector2(10.0, 14.0),
@@ -30,6 +32,9 @@ const BASE_CEILING_LEFT_POSITION := Vector2(-5.0, -13.0)
 const BASE_CEILING_RIGHT_POSITION := Vector2(5.0, -13.0)
 const BASE_CEILING_TARGET := Vector2(0.0, -10.0)
 const BASE_CAMERA_POSITION := Vector2(0.0, -28.0)
+
+@export_category("Framework")
+@export var player_id: int = GameManager.LOCAL_PLAYER_ID
 
 @export_category("Character size")
 @export_range(0.25, 1.0, 0.05) var character_scale: float = 0.5
@@ -120,6 +125,7 @@ var _rng := RandomNumberGenerator.new()
 var _game_mode_manager: GameModeManager
 var _dead: bool = false
 var _spawn_position := Vector2.ZERO
+var _starting_loadout_applied: bool = false
 var gold: int = 0
 var creative_fly_enabled: bool = false
 var infinite_flight_enabled: bool = false
@@ -159,6 +165,58 @@ func _ready() -> void:
 	_play_body_animation(&"stand", true)
 	arm_sprite.play(&"default")
 	_update_aim()
+
+
+func apply_starting_loadout(loadout: StartingLoadoutDef) -> bool:
+	if _starting_loadout_applied:
+		return true
+	if loadout == null or not loadout.is_valid():
+		return false
+
+	# Bootstrap calls this while Player is still off-tree, so do not rely on
+	# @onready references here.
+	var inventory := get_node_or_null("PlayerInventory") as PlayerInventory
+	var controller := get_node_or_null("WandController") as WandController
+	if inventory == null or controller == null:
+		return false
+	inventory.initialize(controller)
+	if not inventory.apply_loadout_items(loadout):
+		return false
+
+	starting_gold = maxi(0, loadout.gold)
+	gold = starting_gold
+	gold_changed.emit(gold)
+	_starting_loadout_applied = true
+	return true
+
+
+func is_starting_loadout_applied() -> bool:
+	return _starting_loadout_applied
+
+
+func is_ready_for_gameplay() -> bool:
+	if not _starting_loadout_applied or not is_inside_tree():
+		return false
+	var world := get_parent()
+	if world == null or not world.has_method(&"is_world_position_loaded"):
+		return false
+	if not bool(world.call(&"is_world_position_loaded", global_position)):
+		return false
+	if not world.has_method(&"is_motion_collision_ready"):
+		return false
+
+	var player_collision_shape := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if player_collision_shape == null:
+		return false
+	var rectangle := player_collision_shape.shape as RectangleShape2D
+	if rectangle == null:
+		return false
+	return bool(world.call(
+		&"is_motion_collision_ready",
+		global_position + player_collision_shape.position,
+		SPAWN_COLLISION_PROBE,
+		rectangle.size * 0.5,
+	))
 
 
 func set_virtual_move_input(input_vector: Vector2) -> void:

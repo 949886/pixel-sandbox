@@ -10,7 +10,6 @@ signal inventory_full(spell: SpellDef)
 
 @export_range(1, 8, 1) var wand_slot_count: int = 4
 @export_range(4, 64, 1) var spell_inventory_capacity: int = 24
-@export var secondary_test_wand: WandDef
 
 var wands: Array[WandDef] = []
 var spell_inventory: Array[SpellDef] = []
@@ -23,17 +22,45 @@ func _ready() -> void:
 func initialize(wand_controller: WandController) -> void:
 	_wand_controller = wand_controller
 	_resize_storage()
-	if _wand_controller == null:
-		return
-	if wands[0] == null and _wand_controller.wand_def != null:
-		wands[0] = _duplicate_wand(_wand_controller.wand_def)
-		equipped_wand_index = 0
-		_wand_controller.set_wand_definition(wands[0], true)
-	if wands.size() > 1 and wands[1] == null and secondary_test_wand != null:
-		wands[1] = _duplicate_wand(secondary_test_wand)
 	wand_slots_changed.emit()
 	inventory_changed.emit()
 	equipped_wand_changed.emit(equipped_wand_index, equipped_wand())
+
+func apply_loadout_items(loadout: StartingLoadoutDef) -> bool:
+	if loadout == null or not loadout.is_valid() or _wand_controller == null:
+		return false
+	_resize_storage()
+	if loadout.wands.size() > wands.size():
+		return false
+	if loadout.spells.size() > spell_inventory.size():
+		return false
+
+	var runtime_wands: Array[WandDef] = []
+	for wand_resource: Resource in loadout.wands:
+		var source_wand := wand_resource as WandDef
+		var runtime_wand := _duplicate_wand(source_wand)
+		if runtime_wand == null or runtime_wand == source_wand:
+			return false
+		runtime_wands.append(runtime_wand)
+
+	for wand_index: int in range(wands.size()):
+		wands[wand_index] = null
+	for spell_index: int in range(spell_inventory.size()):
+		spell_inventory[spell_index] = null
+
+	for wand_index: int in range(runtime_wands.size()):
+		wands[wand_index] = runtime_wands[wand_index]
+	for spell_index: int in range(loadout.spells.size()):
+		var spell_resource: Resource = loadout.spells[spell_index]
+		spell_inventory[spell_index] = spell_resource as SpellDef
+
+	equipped_wand_index = 0
+	var primary := runtime_wands[0]
+	_wand_controller.set_wand_definition(primary, true)
+	wand_slots_changed.emit()
+	inventory_changed.emit()
+	equipped_wand_changed.emit(equipped_wand_index, primary)
+	return true
 
 func equipped_wand() -> WandDef:
 	if equipped_wand_index < 0 or equipped_wand_index >= wands.size():

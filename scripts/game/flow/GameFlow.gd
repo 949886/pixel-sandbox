@@ -41,7 +41,7 @@ func start() -> bool:
 	return true
 
 
-func on_world_ready() -> bool:
+func on_gameplay_ready() -> bool:
 	return false
 
 

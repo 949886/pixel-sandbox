@@ -7,7 +7,7 @@ func _on_start() -> bool:
 		and game_state.result == GameState.GameResult.NONE
 
 
-func on_world_ready() -> bool:
+func on_gameplay_ready() -> bool:
 	if not _can_apply_flow_rules():
 		return false
 	if game_state.phase != GameState.GamePhase.STARTING:

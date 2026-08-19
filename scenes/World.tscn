@@ -11,10 +11,7 @@
 [ext_resource type="Resource" path="res://resources/materials/default_material_palette.tres" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="10_touch_controls"]
 [ext_resource type="Script" path="res://scripts/gameplay/world/WorldGameplayService.gd" id="11_gameplay_world"]
-[ext_resource type="PackedScene" path="res://scenes/gameplay/CaveEye.tscn" id="12_cave_eye"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameplayUI.tscn" id="13_gameplay_ui"]
-[ext_resource type="PackedScene" path="res://scenes/gameplay/SpellPickup.tscn" id="14_spell_pickup"]
-[ext_resource type="Resource" path="res://resources/gameplay/spells/luna/fireball.tres" id="15_test_spell"]
 [ext_resource type="Script" path="res://scripts/gameplay/modes/GameModeManager.gd" id="16_game_mode"]
 [ext_resource type="Resource" path="res://resources/gameplay/modes/creative_rules.tres" id="17_creative_rules"]
 [ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeBrushController.gd" id="18_creative_brush"]
@@ -55,20 +52,7 @@ position = Vector2(256, 256)
 
 [node name="CreativeUI" parent="." instance=ExtResource("19_creative_ui")]
 
-[node name="StarterSpellPickup" parent="." instance=ExtResource("14_spell_pickup")]
-position = Vector2(305, 245)
-spell = ExtResource("15_test_spell")
-
 [node name="Enemies" type="Node2D" parent="."]
-
-[node name="CaveEyeA" parent="Enemies" instance=ExtResource("12_cave_eye")]
-position = Vector2(390, 210)
-
-[node name="CaveEyeB" parent="Enemies" instance=ExtResource("12_cave_eye")]
-position = Vector2(500, 300)
-
-[node name="CaveEyeC" parent="Enemies" instance=ExtResource("12_cave_eye")]
-position = Vector2(190, 360)
 
 [node name="TouchControls" parent="." instance=ExtResource("10_touch_controls")]
 
