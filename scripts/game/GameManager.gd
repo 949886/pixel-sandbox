@@ -295,6 +295,14 @@ func can_change_runtime_mode(player_id: int, target_mode: int) -> bool:
 	return game_flow.can_change_runtime_mode(player_state, target_mode)
 
 
+func request_runtime_mode(player_id: int, target_mode: int) -> bool:
+	# RuntimeMode is a public GameState fact, but all gameplay requests must pass
+	# through this authority gateway so the active GameFlow owns permission rules.
+	if not can_change_runtime_mode(player_id, target_mode):
+		return false
+	return game_state.set_runtime_mode(target_mode)
+
+
 func dispatch_flow_event(
 		event_method: StringName,
 		arguments: Array = [],

@@ -16,7 +16,10 @@ func _ready() -> void:
 
 	assert(first_state.phase == GameState.GamePhase.STARTING)
 	assert(first_state.result == GameState.GameResult.NONE)
+	assert(first_state.runtime_mode == GameState.RuntimeMode.NORMAL)
+	assert(not first_state.used_creative_mode)
 	assert(not first_flow.can_change_runtime_mode(player_a, GameState.RuntimeMode.CREATIVE))
+	assert(not manager.request_runtime_mode(1, GameState.RuntimeMode.CREATIVE))
 	assert(manager.notify_player_joined(1))
 	assert(manager.notify_player_joined(2))
 	assert(not manager.notify_player_joined(999))
@@ -28,10 +31,22 @@ func _ready() -> void:
 	assert(manager.mark_game_started(first_game_id))
 	assert(manager.can_change_runtime_mode(1, GameState.RuntimeMode.CREATIVE))
 	assert(not manager.can_change_runtime_mode(1, 999))
+	assert(not manager.request_runtime_mode(999, GameState.RuntimeMode.CREATIVE))
+	assert(not manager.request_runtime_mode(1, 999))
+
+	# RuntimeMode mutations go through GameManager and mark Creative usage sticky.
+	assert(manager.request_runtime_mode(1, GameState.RuntimeMode.CREATIVE))
+	assert(first_state.runtime_mode == GameState.RuntimeMode.CREATIVE)
+	assert(first_state.used_creative_mode)
+	assert(manager.request_runtime_mode(1, GameState.RuntimeMode.NORMAL))
+	assert(first_state.runtime_mode == GameState.RuntimeMode.NORMAL)
+	assert(first_state.used_creative_mode)
 
 	assert(first_flow.enter_transition())
 	assert(first_state.phase == GameState.GamePhase.TRANSITION)
 	assert(not manager.can_change_runtime_mode(1, GameState.RuntimeMode.CREATIVE))
+	assert(not manager.request_runtime_mode(1, GameState.RuntimeMode.CREATIVE))
+	assert(first_state.runtime_mode == GameState.RuntimeMode.NORMAL)
 	assert(not first_flow.transition_phase(GameState.GamePhase.STARTING))
 	assert(not first_flow.transition_phase(GameState.GamePhase.ENDED))
 	assert(first_flow.complete_transition())
@@ -45,23 +60,34 @@ func _ready() -> void:
 	assert(first_state.result == GameState.GameResult.NONE)
 	assert(not manager.notify_player_died(1))
 
-	# Creative suppresses Normal defeat policy. Recovery itself is implemented
-	# later by #36/#2, so this test only verifies the flow decision boundary.
-	assert(first_state.set_runtime_mode(GameState.RuntimeMode.CREATIVE))
+	# Switching RuntimeMode must not roll back public per-player facts. Creative
+	# suppresses Normal defeat policy; recovery itself remains a later #2 concern.
+	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
+	assert(not player_a.alive)
+	assert(player_b.alive)
+	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.NORMAL))
+	assert(not player_a.alive)
+	assert(first_state.used_creative_mode)
+	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
 	assert(manager.notify_player_died(2))
 	assert(not player_b.alive)
 	assert(first_state.phase == GameState.GamePhase.PLAYING)
 	assert(first_state.result == GameState.GameResult.NONE)
 	assert(not manager.can_change_runtime_mode(2, GameState.RuntimeMode.NORMAL))
+	assert(not manager.request_runtime_mode(2, GameState.RuntimeMode.NORMAL))
 
 	# Return the public facts to a Normal scenario and verify that the last
 	# living player death ends the Game with an explicit defeat result.
 	assert(player_b.set_alive(true))
-	assert(first_state.set_runtime_mode(GameState.RuntimeMode.NORMAL))
+	assert(manager.request_runtime_mode(2, GameState.RuntimeMode.NORMAL))
+	assert(first_state.runtime_mode == GameState.RuntimeMode.NORMAL)
+	assert(first_state.used_creative_mode)
 	assert(manager.notify_player_died(2))
 	assert(first_state.phase == GameState.GamePhase.ENDED)
 	assert(first_state.result == GameState.GameResult.DEFEAT)
 	assert(not manager.can_change_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
+	assert(not manager.request_runtime_mode(2, GameState.RuntimeMode.CREATIVE))
+	assert(first_state.runtime_mode == GameState.RuntimeMode.NORMAL)
 	assert(not manager.notify_boss_defeated(&"mine_boss"))
 
 	assert(manager.stop_game())
@@ -78,6 +104,8 @@ func _ready() -> void:
 	assert(manager.notify_gameplay_ready())
 	assert(manager.mark_game_started(second_game_id))
 	assert(second_state.phase == GameState.GamePhase.PLAYING)
+	assert(second_state.runtime_mode == GameState.RuntimeMode.NORMAL)
+	assert(not second_state.used_creative_mode)
 	assert(not second_state.boss_defeated)
 
 	# The Normal victory path requires the boss fact before a living player can
@@ -90,6 +118,7 @@ func _ready() -> void:
 	assert(second_state.phase == GameState.GamePhase.ENDED)
 	assert(second_state.result == GameState.GameResult.VICTORY)
 	assert(not manager.notify_exit_reached(second_player.player_id))
+	assert(not manager.request_runtime_mode(second_player.player_id, GameState.RuntimeMode.CREATIVE))
 
 	assert(manager.stop_game())
 	if manager.lifecycle_state != GameManager.LifecycleState.IDLE:
