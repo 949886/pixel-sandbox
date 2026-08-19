@@ -35,8 +35,9 @@ func on_player_died(player_state: PlayerState, _context: Variant = null) -> bool
 	if game_state.phase not in [GameState.GamePhase.PLAYING, GameState.GamePhase.TRANSITION]:
 		return false
 
-	# Creative recovery itself belongs to #36/#2. The flow only establishes
-	# that Creative does not turn the last player death into Normal defeat.
+	# Creative runtime recovery belongs to the death/respawn task (#2). The flow
+	# only establishes that Creative does not turn the last player death into
+	# Normal defeat.
 	if game_state.runtime_mode == GameState.RuntimeMode.CREATIVE:
 		return true
 
