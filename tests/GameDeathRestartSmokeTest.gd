@@ -5,7 +5,7 @@ class FakePlayerRuntime:
 	extends Node
 
 	var spawn_position := Vector2(12.0, 34.0)
-	var current_position := spawn_position
+	var current_position := Vector2(12.0, 34.0)
 	var respawn_count: int = 0
 
 	func get_spawn_position() -> Vector2:
@@ -93,11 +93,18 @@ func _ready() -> void:
 	assert(player_runtime.respawn_count == 1)
 
 	# Restart is a separate authority request from ordinary gameplay events. It
-	# accepts only an ENDED Game, stops the old Game first, and lifecycle state
-	# itself rejects duplicate restart requests. Runtime rebuild belongs to #4.
+	# accepts only an ENDED Game and moves lifecycle to STOPPING immediately, so
+	# duplicate requests are rejected while the old runtime is still exiting.
 	assert(not manager.request_restart(999))
 	assert(not manager.request_restart(GameManager.LOCAL_PLAYER_ID, {"seed": "bad"}))
 	assert(manager.request_restart(GameManager.LOCAL_PLAYER_ID, {"seed": 4202}))
+	assert(manager.lifecycle_state == GameManager.LifecycleState.STOPPING)
+	assert(not manager.request_restart(GameManager.LOCAL_PLAYER_ID, {"seed": 4203}))
+	assert(_restart_count == 0)
+
+	# restart_requested is published only after GameRuntime has left the tree and
+	# GameManager has reached IDLE, making it a safe continuation point for #4.
+	await manager.restart_requested
 	assert(_restart_count == 1)
 	assert(_restart_game_id == first_game_id)
 	assert(_restart_player_id == GameManager.LOCAL_PLAYER_ID)
@@ -135,26 +142,31 @@ func _create_active_game(manager: GameManager, seed: int) -> Dictionary:
 	var game_id := manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)
 
+	var runtime := Node.new()
+	runtime.name = "GameRuntime%d" % game_id
+	add_child(runtime)
+	assert(manager.bind_runtime_root(runtime))
+
 	var state := GameState.new()
 	state.name = "GameState%d" % game_id
 	assert(state.initialize(game_id, seed))
-	add_child(state)
+	runtime.add_child(state)
 	assert(manager.bind_game_state(state))
 
 	var player_state := PlayerState.new()
 	player_state.name = "PlayerState%d" % GameManager.LOCAL_PLAYER_ID
 	assert(player_state.initialize(GameManager.LOCAL_PLAYER_ID))
-	add_child(player_state)
+	runtime.add_child(player_state)
 	assert(manager.register_player_state(player_state))
 
 	var player_runtime := FakePlayerRuntime.new()
 	player_runtime.name = "PlayerRuntime%d" % GameManager.LOCAL_PLAYER_ID
-	add_child(player_runtime)
+	runtime.add_child(player_runtime)
 	assert(manager.bind_player_runtime(GameManager.LOCAL_PLAYER_ID, player_runtime))
 
 	var flow := NormalGameFlow.new()
 	flow.name = "NormalGameFlow%d" % game_id
-	add_child(flow)
+	runtime.add_child(flow)
 	assert(manager.bind_game_flow(flow))
 	assert(manager.start_game_flow())
 	assert(manager.notify_player_joined(GameManager.LOCAL_PLAYER_ID))
@@ -163,6 +175,7 @@ func _create_active_game(manager: GameManager, seed: int) -> Dictionary:
 
 	return {
 		"game_id": game_id,
+		"runtime": runtime,
 		"state": state,
 		"player_state": player_state,
 		"player_runtime": player_runtime,

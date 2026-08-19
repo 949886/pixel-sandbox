@@ -29,6 +29,7 @@ var runtime_root: Node = null
 var _next_game_id: int = 1
 var _player_states: Dictionary = {}
 var _player_runtimes: Dictionary = {}
+var _pending_restart: Dictionary = {}
 
 
 func _ready() -> void:
@@ -335,15 +336,18 @@ func request_restart(player_id: int, options: Dictionary = {}) -> bool:
 	if options.has("seed") and not options["seed"] is int:
 		return false
 
-	var previous_game_id: int = current_game_id
-	var restart_options: Dictionary = options.duplicate(true)
+	_pending_restart = {
+		"previous_game_id": current_game_id,
+		"player_id": player_id,
+		"options": options.duplicate(true),
+	}
 
-	# Moving lifecycle out of ACTIVE before publishing the intent is the
-	# duplicate-request guard. Runtime teardown/rebuild is owned by #4; this
-	# task establishes that restart always stops the old Game first.
+	# Entering STOPPING is the duplicate-request guard. The continuation signal
+	# is intentionally deferred until _finish_stop() reaches IDLE, so listeners
+	# can never start a replacement Game while the old runtime is still alive.
 	if not stop_game():
+		_pending_restart.clear()
 		return false
-	restart_requested.emit(previous_game_id, player_id, restart_options)
 	return true
 
 
@@ -441,10 +445,19 @@ func _finish_stop(game_id: int) -> void:
 	if game_id != current_game_id:
 		return
 
+	var restart_payload: Dictionary = _pending_restart
+	_pending_restart = {}
+
 	_clear_framework_references()
 	current_game_id = INVALID_GAME_ID
 	lifecycle_state = LifecycleState.IDLE
 	game_stopped.emit(game_id)
+
+	if int(restart_payload.get("previous_game_id", INVALID_GAME_ID)) != game_id:
+		return
+	var restart_player_id := int(restart_payload.get("player_id", INVALID_PLAYER_ID))
+	var restart_options := restart_payload.get("options", {}) as Dictionary
+	restart_requested.emit(game_id, restart_player_id, restart_options)
 
 
 func _clear_framework_references() -> void:
