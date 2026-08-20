@@ -19,4 +19,4 @@ script = ExtResource("3_game_bootstrap")
 world_scene = ExtResource("4_world")
 world_gen_config_template = ExtResource("5_world_config")
 
-[node name="GameRuntime" type="Node2D" parent="."]
+[node name="GameRuntimeHost" type="Node2D" parent="."]
