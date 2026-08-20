@@ -111,6 +111,11 @@ func start_game(config: GameConfig) -> int:
 			return _fail_startup("Player runtime %d became invalid." % player_id)
 		if not _game_manager.bind_player_runtime(player_id, player_runtime):
 			return _fail_startup("Failed to bind Player runtime %d." % player_id)
+		if not player_runtime.bind_game_state(state):
+			return _fail_startup("Failed to bind GameState to Player runtime %d." % player_id)
+		var death_callback: Callable = _on_player_runtime_died.bind(player_runtime)
+		if not player_runtime.player_died.is_connected(death_callback):
+			player_runtime.player_died.connect(death_callback)
 		if not player_runtime.apply_starting_loadout(config.starting_loadout):
 			return _fail_startup("Failed to apply StartingLoadoutDef to Player %d." % player_id)
 		if not _game_manager.notify_player_joined(player_id):
@@ -310,6 +315,16 @@ func _startup_is_current() -> bool:
 func _is_setup() -> bool:
 	return _game_manager != null and is_instance_valid(_game_manager) \
 		and _runtime_host != null and is_instance_valid(_runtime_host)
+
+
+func _on_player_runtime_died(
+		player_id: int,
+		context: Variant,
+		source_runtime: Player,
+	) -> void:
+	if _game_manager == null or not is_instance_valid(_game_manager):
+		return
+	_game_manager.notify_player_died(player_id, context, source_runtime)
 
 
 func _fail_startup(message: String) -> int:

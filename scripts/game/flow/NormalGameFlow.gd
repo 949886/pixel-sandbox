@@ -23,7 +23,7 @@ func on_player_joined(player_state: PlayerState) -> bool:
 	return is_registered_player_state(player_state)
 
 
-func on_player_died(player_state: PlayerState, _context: Variant = null) -> bool:
+func on_player_died(player_state: PlayerState, context: Variant = null) -> bool:
 	if not _can_apply_flow_rules():
 		return false
 	if not is_registered_player_state(player_state):
@@ -35,11 +35,25 @@ func on_player_died(player_state: PlayerState, _context: Variant = null) -> bool
 	if game_state.phase not in [GameState.GamePhase.PLAYING, GameState.GamePhase.TRANSITION]:
 		return false
 
-	# Creative runtime recovery belongs to the death/respawn task (#2). The flow
-	# only establishes that Creative does not turn the last player death into
-	# Normal defeat.
 	if game_state.runtime_mode == GameState.RuntimeMode.CREATIVE:
-		return true
+		# Creative recovery remains an explicit flow decision. The runtime
+		# operation itself is executed by GameManager against the registered
+		# Player runtime, so Player never owns an autonomous respawn rule.
+		if game_manager.request_player_recovery(
+				player_state.player_id,
+				{
+					"reason": &"creative_death",
+					"death_context": context,
+				},
+			):
+			return true
+
+		# A failed recovery must not leave a game permanently PLAYING with no
+		# living players. Multiplayer can still continue while another player
+		# remains alive.
+		if get_alive_player_count() > 0:
+			return true
+		return end_game(GameState.GameResult.DEFEAT)
 
 	if get_alive_player_count() > 0:
 		return true
@@ -92,6 +106,16 @@ func can_transition_phase(current: int, next: int) -> bool:
 		GameState.GamePhase.ENDED:
 			return false
 	return false
+
+
+func can_recover_player(player_state: PlayerState, _options: Dictionary = {}) -> bool:
+	if not _can_apply_flow_rules():
+		return false
+	if not is_registered_player_state(player_state) or player_state.alive:
+		return false
+	if game_state.phase not in [GameState.GamePhase.PLAYING, GameState.GamePhase.TRANSITION]:
+		return false
+	return game_state.runtime_mode == GameState.RuntimeMode.CREATIVE
 
 
 func can_change_runtime_mode(player_state: PlayerState, target_mode: int) -> bool:

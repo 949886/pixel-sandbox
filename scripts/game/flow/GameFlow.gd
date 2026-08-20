@@ -61,6 +61,10 @@ func on_exit_reached(_player_state: PlayerState) -> bool:
 	return false
 
 
+func can_recover_player(_player_state: PlayerState, _options: Dictionary = {}) -> bool:
+	return false
+
+
 func can_change_runtime_mode(_player_state: PlayerState, _target_mode: int) -> bool:
 	return false
 

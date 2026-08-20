@@ -5,6 +5,7 @@ signal game_starting(game_id: int)
 signal game_started(game_id: int)
 signal game_stopping(game_id: int)
 signal game_stopped(game_id: int)
+signal restart_requested(previous_game_id: int, player_id: int, options: Dictionary)
 
 enum LifecycleState {
 	IDLE,
@@ -28,6 +29,7 @@ var runtime_root: Node = null
 var _next_game_id: int = 1
 var _player_states: Dictionary = {}
 var _player_runtimes: Dictionary = {}
+var _pending_restart: Dictionary = {}
 
 
 func _ready() -> void:
@@ -260,15 +262,93 @@ func notify_player_joined(player_id: int) -> bool:
 	return game_flow.on_player_joined(player_state)
 
 
-func notify_player_died(player_id: int, context: Variant = null) -> bool:
+func notify_player_died(
+		player_id: int,
+		context: Variant = null,
+		source_runtime: Node = null,
+	) -> bool:
 	if not can_process_player_request(player_id):
 		return false
 	var player_state := get_player_state(player_id)
 	if player_state == null or not player_state.alive:
 		return false
+
+	# A death event is accepted only for a Player that is currently bound to
+	# this stable player_id. When the runtime forwards the event, the source
+	# identity must also match the registered runtime to reject stale objects.
+	var registered_runtime := get_player_runtime(player_id)
+	if registered_runtime == null:
+		return false
+	if source_runtime != null and source_runtime != registered_runtime:
+		return false
+
 	if not player_state.set_alive(false):
 		return false
 	return game_flow.on_player_died(player_state, context)
+
+
+func request_player_recovery(player_id: int, options: Dictionary = {}) -> bool:
+	if not can_process_player_request(player_id):
+		return false
+	var player_state := get_player_state(player_id)
+	if player_state == null or player_state.alive:
+		return false
+	if not game_flow.can_recover_player(player_state, options):
+		return false
+
+	var player_runtime := get_player_runtime(player_id)
+	if player_runtime == null or not player_runtime.has_method(&"respawn_at"):
+		return false
+
+	var respawn_position: Variant = options.get("position", null)
+	if not respawn_position is Vector2:
+		if not player_runtime.has_method(&"get_spawn_position"):
+			return false
+		respawn_position = player_runtime.call(&"get_spawn_position")
+	if not respawn_position is Vector2:
+		return false
+
+	var recovery_result: Variant = player_runtime.call(
+		&"respawn_at",
+		respawn_position,
+		options,
+	)
+	if recovery_result is bool and not bool(recovery_result):
+		return false
+
+	# Public state is restored only after the runtime recovery succeeds.
+	return player_state.set_alive(true)
+
+
+func request_restart(player_id: int, options: Dictionary = {}) -> bool:
+	# Restart is intentionally a separate authority path from ordinary active
+	# gameplay requests because a valid restart begins from an ENDED Game.
+	if lifecycle_state != LifecycleState.ACTIVE:
+		return false
+	if not is_game_authority():
+		return false
+	if game_state == null or not is_instance_valid(game_state):
+		return false
+	if game_state.phase != GameState.GamePhase.ENDED:
+		return false
+	if get_player_state(player_id) == null:
+		return false
+	if options.has("seed") and not options["seed"] is int:
+		return false
+
+	_pending_restart = {
+		"previous_game_id": current_game_id,
+		"player_id": player_id,
+		"options": options.duplicate(true),
+	}
+
+	# Entering STOPPING is the duplicate-request guard. The continuation signal
+	# is intentionally deferred until _finish_stop() reaches IDLE, so listeners
+	# can never start a replacement Game while the old runtime is still alive.
+	if not stop_game():
+		_pending_restart.clear()
+		return false
+	return true
 
 
 func notify_boss_defeated(boss_id: StringName) -> bool:
@@ -365,10 +445,19 @@ func _finish_stop(game_id: int) -> void:
 	if game_id != current_game_id:
 		return
 
+	var restart_payload: Dictionary = _pending_restart
+	_pending_restart = {}
+
 	_clear_framework_references()
 	current_game_id = INVALID_GAME_ID
 	lifecycle_state = LifecycleState.IDLE
 	game_stopped.emit(game_id)
+
+	if int(restart_payload.get("previous_game_id", INVALID_GAME_ID)) != game_id:
+		return
+	var restart_player_id := int(restart_payload.get("player_id", INVALID_PLAYER_ID))
+	var restart_options := restart_payload.get("options", {}) as Dictionary
+	restart_requested.emit(game_id, restart_player_id, restart_options)
 
 
 func _clear_framework_references() -> void:

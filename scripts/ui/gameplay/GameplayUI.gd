@@ -89,6 +89,10 @@ func _process(_delta: float) -> void:
 			_position_spell_tooltip()
 
 func _input(event: InputEvent) -> void:
+	if _gameplay_input_blocked():
+		if _inventory_open:
+			set_inventory_open(false)
+		return
 	if _creative_mode_active():
 		if _inventory_open:
 			set_inventory_open(false)
@@ -104,6 +108,8 @@ func toggle_inventory() -> void:
 	set_inventory_open(not _inventory_open)
 
 func set_inventory_open(open: bool) -> void:
+	if open and _gameplay_input_blocked():
+		return
 	if _inventory_open == open:
 		return
 	_inventory_open = open
@@ -468,9 +474,9 @@ func _on_health_changed(current: float, maximum: float) -> void:
 	if _death_label != null and current > 0.0:
 		_death_label.visible = false
 
-func _on_player_died() -> void:
+func _on_player_died(_player_id: int, _context: Variant) -> void:
 	if _death_label != null:
-		_death_label.visible = true
+		_death_label.visible = _health == null or _health.current_health <= 0.0
 
 func _on_mana_changed(current: float, maximum: float) -> void:
 	_mana_bar.max_value = maxf(1.0, maximum)
@@ -587,3 +593,10 @@ func _add_key_action(action: StringName, keys: Array[int]) -> void:
 func _creative_mode_active() -> bool:
 	var manager: GameModeManager = get_tree().get_first_node_in_group(&"game_mode_manager") as GameModeManager
 	return manager != null and manager.is_creative()
+
+func _gameplay_input_blocked() -> bool:
+	if _player == null or not is_instance_valid(_player):
+		return false
+	if not _player.has_method(&"is_gameplay_input_blocked"):
+		return false
+	return bool(_player.call(&"is_gameplay_input_blocked"))
