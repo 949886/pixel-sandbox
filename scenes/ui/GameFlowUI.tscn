@@ -1,0 +1,263 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/game_flow/GameFlowUI.gd" id="1_ui"]
+
+[sub_resource type="StyleBoxFlat" id="Style_end_panel"]
+bg_color = Color(0.035, 0.028, 0.025, 0.97)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.82, 0.58, 0.24, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="Style_button"]
+bg_color = Color(0.14, 0.105, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.82, 0.58, 0.24, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="GameFlowUI" type="CanvasLayer"]
+layer = 90
+script = ExtResource("1_ui")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="StartOverlay" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.01, 0.008, 0.008, 0.84)
+
+[node name="Center" type="CenterContainer" parent="Root/StartOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Box" type="VBoxContainer" parent="Root/StartOverlay/Center"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LoadingLabel" type="Label" parent="Root/StartOverlay/Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.78, 0.48, 1)
+theme_override_font_sizes/font_size = 28
+text = "LOADING…"
+horizontal_alignment = 1
+
+[node name="SeedLabel" type="Label" parent="Root/StartOverlay/Center/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.68, 0.64, 1)
+theme_override_font_sizes/font_size = 13
+text = "Seed: 0"
+horizontal_alignment = 1
+
+[node name="TransitionOverlay" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.01, 0.008, 0.008, 0.58)
+
+[node name="Center" type="CenterContainer" parent="Root/TransitionOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="Root/TransitionOverlay/Center"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.78, 0.48, 1)
+theme_override_font_sizes/font_size = 24
+text = "TRANSITION"
+
+[node name="EndOverlay" type="ColorRect" parent="Root"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+color = Color(0.01, 0.008, 0.008, 0.88)
+
+[node name="Center" type="CenterContainer" parent="Root/EndOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Panel" type="PanelContainer" parent="Root/EndOverlay/Center"]
+custom_minimum_size = Vector2(430, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("Style_end_panel")
+
+[node name="Margin" type="MarginContainer" parent="Root/EndOverlay/Center/Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 28
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 28
+theme_override_constants/margin_bottom = 24
+
+[node name="Box" type="VBoxContainer" parent="Root/EndOverlay/Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ResultTitle" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.72, 0.32, 1)
+theme_override_font_sizes/font_size = 30
+text = "GAME OVER"
+horizontal_alignment = 1
+
+[node name="SummaryGrid" type="GridContainer" parent="Root/EndOverlay/Center/Panel/Margin/Box"]
+layout_mode = 2
+columns = 2
+theme_override_constants/h_separation = 22
+theme_override_constants/v_separation = 5
+
+[node name="ResultKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Result"
+[node name="ResultValue" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "—"
+horizontal_alignment = 2
+
+[node name="SeedKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Seed"
+[node name="SummarySeed" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="DepthKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Depth"
+[node name="SummaryDepth" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="GoldKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Gold"
+[node name="SummaryGold" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="TimeKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Elapsed"
+[node name="SummaryTime" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "00:00"
+horizontal_alignment = 2
+
+[node name="KillsKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Enemies Killed"
+[node name="SummaryKills" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="WandsKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Wands Collected"
+[node name="SummaryWands" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="SpellsKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Spells Collected"
+[node name="SummarySpells" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "0"
+horizontal_alignment = 2
+
+[node name="CreativeKey" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+layout_mode = 2
+text = "Creative Used"
+[node name="SummaryCreative" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box/SummaryGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "No"
+horizontal_alignment = 2
+
+[node name="StatusLabel" type="Label" parent="Root/EndOverlay/Center/Panel/Margin/Box"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.58, 0.42, 1)
+theme_override_font_sizes/font_size = 12
+horizontal_alignment = 1
+
+[node name="Buttons" type="HBoxContainer" parent="Root/EndOverlay/Center/Panel/Margin/Box"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 12
+
+[node name="RestartButton" type="Button" parent="Root/EndOverlay/Center/Panel/Margin/Box/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 42)
+layout_mode = 2
+theme_override_styles/normal = SubResource("Style_button")
+text = "Restart"
+
+[node name="QuitButton" type="Button" parent="Root/EndOverlay/Center/Panel/Margin/Box/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(150, 42)
+layout_mode = 2
+theme_override_styles/normal = SubResource("Style_button")
+text = "Quit"
