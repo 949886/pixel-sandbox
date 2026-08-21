@@ -4,6 +4,7 @@ extends Node
 func _ready() -> void:
 	_test_explicit_zero_seed()
 	_test_world_config_isolation()
+	_test_material_palette_isolation()
 	_test_starting_loadout_preserves_wand_decks()
 	_test_multiplayer_shaped_readiness()
 	print("Game Bootstrap Smoke Test: PASS")
@@ -24,12 +25,36 @@ func _test_world_config_isolation() -> void:
 	template.piece_library = shared_library
 
 	var runtime := GameBootstrap.create_runtime_world_config(template, 42)
+	var second_runtime := GameBootstrap.create_runtime_world_config(template, 42)
 	assert(runtime != null)
+	assert(second_runtime != null)
 	assert(runtime != template)
+	assert(second_runtime != template)
+	assert(second_runtime != runtime)
 	assert(runtime.world_seed == 42)
+	assert(second_runtime.world_seed == 42)
 	assert(template.world_seed == 20260706)
 	assert(runtime.piece_library == shared_library)
+	assert(second_runtime.piece_library == shared_library)
 	assert(template.piece_library == shared_library)
+
+
+func _test_material_palette_isolation() -> void:
+	var template := MaterialPalette.new()
+	var runtime := GameBootstrap.create_runtime_material_palette(template)
+	var second_runtime := GameBootstrap.create_runtime_material_palette(template)
+	assert(runtime != null)
+	assert(second_runtime != null)
+	assert(runtime != template)
+	assert(second_runtime != template)
+	assert(second_runtime != runtime)
+
+	# MaterialPalette owns mutable lookup caches. Building a runtime cache must
+	# not mutate the shared .tres/template instance or another Game's copy.
+	runtime.rebuild_cache()
+	assert(runtime._cache_ready)
+	assert(not template._cache_ready)
+	assert(not second_runtime._cache_ready)
 
 
 func _test_starting_loadout_preserves_wand_decks() -> void:

@@ -6,15 +6,29 @@ extends Node
 
 var _game_manager: GameManager = null
 var _runtime_host: Node = null
+var _runtime_root: Node = null
 var _world: Node = null
 var _active_game_id: int = GameManager.INVALID_GAME_ID
 var _world_ready: bool = false
 var _required_player_ids: Array[int] = []
 var _ready_player_ids: Dictionary = {}
+var _restart_flow_id: StringName = GameConfig.DEFAULT_FLOW_ID
+var _restart_starting_loadout: StartingLoadoutDef = null
+var _last_stopped_game_id: int = GameManager.INVALID_GAME_ID
+var _restart_generation: int = 0
 
 
 func _ready() -> void:
 	set_process(false)
+
+
+func _exit_tree() -> void:
+	if _game_manager == null or not is_instance_valid(_game_manager):
+		return
+	if _game_manager.game_stopped.is_connected(_on_game_stopped):
+		_game_manager.game_stopped.disconnect(_on_game_stopped)
+	if _game_manager.restart_requested.is_connected(_on_restart_requested):
+		_game_manager.restart_requested.disconnect(_on_restart_requested)
 
 
 func setup(manager: GameManager, runtime_host: Node) -> bool:
@@ -28,6 +42,10 @@ func setup(manager: GameManager, runtime_host: Node) -> bool:
 		return false
 	_game_manager = manager
 	_runtime_host = runtime_host
+	if not _game_manager.game_stopped.is_connected(_on_game_stopped):
+		_game_manager.game_stopped.connect(_on_game_stopped)
+	if not _game_manager.restart_requested.is_connected(_on_restart_requested):
+		_game_manager.restart_requested.connect(_on_restart_requested)
 	return true
 
 
@@ -37,6 +55,9 @@ func start_game(config: GameConfig) -> int:
 	if not config.has_valid_starting_loadout():
 		return GameManager.INVALID_GAME_ID
 	if _game_manager.lifecycle_state != GameManager.LifecycleState.IDLE:
+		return GameManager.INVALID_GAME_ID
+	if _runtime_root != null and is_instance_valid(_runtime_root):
+		push_error("GameBootstrap: Refused to start while a previous GameRuntime is still valid.")
 		return GameManager.INVALID_GAME_ID
 
 	var world := _instantiate_configured_world(config)
@@ -66,10 +87,20 @@ func start_game(config: GameConfig) -> int:
 		world.free()
 		flow.free()
 		return GameManager.INVALID_GAME_ID
-	if not _game_manager.bind_runtime_root(_runtime_host):
+
+	var runtime_root := Node2D.new()
+	runtime_root.name = "GameRuntime%d" % game_id
+	runtime_root.set_meta(&"game_id", game_id)
+	_runtime_host.add_child(runtime_root)
+	_runtime_root = runtime_root
+	_active_game_id = game_id
+
+	if not _game_manager.bind_runtime_root(_runtime_root):
 		world.free()
 		flow.free()
-		return _fail_startup("Failed to bind GameRuntime as the current runtime root.")
+		_runtime_root.queue_free()
+		_runtime_root = null
+		return _fail_startup("Failed to bind the per-game GameRuntime root.")
 
 	var state := GameState.new()
 	state.name = "GameState"
@@ -78,7 +109,7 @@ func start_game(config: GameConfig) -> int:
 		world.free()
 		flow.free()
 		return _fail_startup("Failed to initialize GameState.")
-	_runtime_host.add_child(state)
+	_runtime_root.add_child(state)
 	if not _game_manager.bind_game_state(state):
 		state.queue_free()
 		world.free()
@@ -90,7 +121,7 @@ func start_game(config: GameConfig) -> int:
 		flow.free()
 		return _fail_startup("Failed to initialize PlayerState registry.")
 
-	_runtime_host.add_child(flow)
+	_runtime_root.add_child(flow)
 	if not _game_manager.bind_game_flow(flow):
 		flow.queue_free()
 		world.free()
@@ -104,7 +135,8 @@ func start_game(config: GameConfig) -> int:
 		return _fail_startup("Failed to initialize gameplay readiness tracking.")
 
 	_world = world
-	_active_game_id = game_id
+	_restart_flow_id = config.flow_id
+	_restart_starting_loadout = config.starting_loadout
 	for player_id: int in required_player_ids:
 		var player_runtime := players.get(player_id, null) as Player
 		if player_runtime == null:
@@ -113,7 +145,7 @@ func start_game(config: GameConfig) -> int:
 			return _fail_startup("Failed to bind Player runtime %d." % player_id)
 		if not player_runtime.bind_game_state(state):
 			return _fail_startup("Failed to bind GameState to Player runtime %d." % player_id)
-		var death_callback: Callable = _on_player_runtime_died.bind(player_runtime)
+		var death_callback: Callable = _on_player_runtime_died.bind(player_runtime, game_id)
 		if not player_runtime.player_died.is_connected(death_callback):
 			player_runtime.player_died.connect(death_callback)
 		if not player_runtime.apply_starting_loadout(config.starting_loadout):
@@ -123,7 +155,7 @@ func start_game(config: GameConfig) -> int:
 
 	# All authoritative creation inputs are now resolved and applied. Only now may
 	# WorldManager enter the SceneTree and start generation/streaming in _ready().
-	_runtime_host.add_child(_world)
+	_runtime_root.add_child(_world)
 	set_process(true)
 	return game_id
 
@@ -139,6 +171,12 @@ static func create_runtime_world_config(
 		return null
 	runtime_config.world_seed = seed
 	return runtime_config
+
+
+static func create_runtime_material_palette(template: MaterialPalette) -> MaterialPalette:
+	if template == null:
+		return null
+	return template.duplicate(false) as MaterialPalette
 
 
 func _process(_delta: float) -> void:
@@ -183,21 +221,30 @@ func _instantiate_configured_world(config: GameConfig) -> Node:
 		return null
 
 	# This happens while World is still off-tree, before WorldManager._ready()
-	# starts generation. The shared Resource remains a read-only template.
+	# starts generation. Shared Resources remain templates; per-game mutable
+	# caches/configuration live on runtime copies owned by this World instance.
 	world.set(&"world_gen_config", runtime_config)
 	world.set(&"override_seed", false)
 	world.set(&"world_seed", config.seed)
+	var palette_template := world.get(&"material_palette") as MaterialPalette
+	if palette_template != null:
+		var runtime_palette := create_runtime_material_palette(palette_template)
+		if runtime_palette == null:
+			world.free()
+			push_error("GameBootstrap: Failed to create per-game MaterialPalette.")
+			return null
+		world.set(&"material_palette", runtime_palette)
 	return world
 
 
-func _create_player_states(game_id: int, player_ids: Array[int]) -> bool:
+func _create_player_states(_game_id: int, player_ids: Array[int]) -> bool:
 	for player_id: int in player_ids:
 		var player_state := PlayerState.new()
 		player_state.name = "PlayerState%d" % player_id
 		if not player_state.initialize(player_id):
 			player_state.free()
 			return false
-		_runtime_host.add_child(player_state)
+		_runtime_root.add_child(player_state)
 		if not _game_manager.register_player_state(player_state):
 			player_state.queue_free()
 			return false
@@ -307,8 +354,10 @@ func _is_gameplay_ready() -> bool:
 
 func _startup_is_current() -> bool:
 	return _is_setup() \
+		and _runtime_root != null and is_instance_valid(_runtime_root) \
 		and _active_game_id != GameManager.INVALID_GAME_ID \
 		and _game_manager.current_game_id == _active_game_id \
+		and _game_manager.runtime_root == _runtime_root \
 		and _game_manager.lifecycle_state == GameManager.LifecycleState.STARTING
 
 
@@ -321,13 +370,88 @@ func _on_player_runtime_died(
 		player_id: int,
 		context: Variant,
 		source_runtime: Player,
+		source_game_id: int,
 	) -> void:
 	if _game_manager == null or not is_instance_valid(_game_manager):
 		return
+	if source_game_id != _active_game_id or _game_manager.current_game_id != source_game_id:
+		return
 	_game_manager.notify_player_died(player_id, context, source_runtime)
+
+
+func _on_game_stopped(game_id: int) -> void:
+	if game_id != _active_game_id:
+		return
+	_last_stopped_game_id = game_id
+	_active_game_id = GameManager.INVALID_GAME_ID
+	_runtime_root = null
+	_world = null
+	_world_ready = false
+	_required_player_ids.clear()
+	_ready_player_ids.clear()
+	set_process(false)
+
+
+func _on_restart_requested(
+		previous_game_id: int,
+		_player_id: int,
+		options: Dictionary,
+	) -> void:
+	# GameManager publishes this only after the old runtime root left the tree and
+	# lifecycle returned to IDLE. Crossing one process frame ensures queued frees
+	# and SceneTree teardown complete before a replacement runtime is instantiated.
+	if previous_game_id != _last_stopped_game_id:
+		return
+	_restart_generation += 1
+	var generation := _restart_generation
+	_continue_restart_after_frame(previous_game_id, options.duplicate(true), generation)
+
+
+func _continue_restart_after_frame(
+		previous_game_id: int,
+		options: Dictionary,
+		generation: int,
+	) -> void:
+	await get_tree().process_frame
+	if generation != _restart_generation:
+		return
+	if previous_game_id != _last_stopped_game_id:
+		return
+	if not _is_setup():
+		return
+	if _game_manager.lifecycle_state != GameManager.LifecycleState.IDLE \
+			or _game_manager.current_game_id != GameManager.INVALID_GAME_ID:
+		return
+
+	var config := _create_restart_config(options)
+	if config == null:
+		push_error("GameBootstrap: Failed to create restart GameConfig.")
+		return
+	if start_game(config) == GameManager.INVALID_GAME_ID:
+		push_error("GameBootstrap: Failed to start replacement GameRuntime.")
+
+
+func _create_restart_config(options: Dictionary) -> GameConfig:
+	if _restart_starting_loadout == null or not _restart_starting_loadout.is_valid():
+		return null
+	if options.has("seed"):
+		if not options["seed"] is int:
+			return null
+		return GameConfig.create_with_seed(
+			int(options["seed"]),
+			_restart_flow_id,
+			_restart_starting_loadout,
+		)
+	return GameConfig.create_default(_restart_flow_id, _restart_starting_loadout)
 
 
 func _fail_startup(message: String) -> int:
 	push_error("GameBootstrap: %s" % message)
 	set_process(false)
+	if _game_manager != null and is_instance_valid(_game_manager) \
+			and _game_manager.lifecycle_state not in [
+				GameManager.LifecycleState.IDLE,
+				GameManager.LifecycleState.STOPPING,
+			]:
+		_game_manager.stop_game()
 	return GameManager.INVALID_GAME_ID

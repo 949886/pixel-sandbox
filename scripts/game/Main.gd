@@ -4,10 +4,10 @@ extends Node
 
 @onready var _game_manager: GameManager = $GameManager
 @onready var _game_bootstrap: GameBootstrap = $GameBootstrap
-@onready var _game_runtime: Node = $GameRuntime
+@onready var _game_runtime_host: Node = $GameRuntimeHost
 
 func _ready() -> void:
-	if not _game_bootstrap.setup(_game_manager, _game_runtime):
+	if not _game_bootstrap.setup(_game_manager, _game_runtime_host):
 		push_error("Failed to configure GameBootstrap.")
 		return
 	var config := GameConfig.create_default(GameConfig.DEFAULT_FLOW_ID, starting_loadout)
