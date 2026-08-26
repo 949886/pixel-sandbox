@@ -74,7 +74,7 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 	assert(first_state.mark_creative_used())
 	assert(first_flow.end_game(GameState.GameResult.VICTORY))
 
-	var first_summary := summary_store.current_summary
+	var first_summary: GameSummary = summary_store.current_summary
 	assert(first_summary != null)
 	assert(first_summary.game_id == first_game_id)
 	assert(first_summary.result == GameState.GameResult.VICTORY)
@@ -89,11 +89,11 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 	assert(ui.is_end_overlay_visible())
 	assert(ui.displayed_result_title() == "VICTORY")
 
-	var old_root_ref := weakref(first_root)
-	var old_state_ref := weakref(first_state)
-	var old_flow_ref := weakref(first_flow)
-	var old_player_state_ref := weakref(first_player_state)
-	var old_player_ref := weakref(first_player)
+	var old_root_ref: WeakRef = weakref(first_root)
+	var old_state_ref: WeakRef = weakref(first_state)
+	var old_flow_ref: WeakRef = weakref(first_flow)
+	var old_player_state_ref: WeakRef = weakref(first_player_state)
+	var old_player_ref: WeakRef = weakref(first_player)
 
 	# Restart only forwards to GameManager. The summary survives teardown while
 	# the old per-game root and all bound state/runtime objects disappear.
