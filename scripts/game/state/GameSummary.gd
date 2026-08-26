@@ -72,23 +72,54 @@ var used_creative_mode: bool:
 	set(_value):
 		push_error("GameSummary is read-only.")
 
+# Presentation compatibility alias. The canonical public fact remains
+# used_creative_mode, matching GameState.
+var creative_used: bool:
+	get:
+		return _used_creative_mode
+	set(_value):
+		push_error("GameSummary is read-only.")
+
 
 static func from_game_state(state: GameState, current_gold: int = 0) -> GameSummary:
 	if state == null or not is_instance_valid(state) or not state.is_initialized():
 		return null
 
-	var summary := GameSummary.new()
+	var summary: GameSummary = GameSummary.new()
 	summary._game_id = state.game_id
 	summary._result = state.result
 	summary._seed = state.game_seed
 	summary._depth = state.current_depth
-	summary._gold = current_gold if current_gold > 0 else 0
+	summary._gold = maxi(0, current_gold)
 	summary._elapsed_time = state.elapsed_time
 	summary._enemies_killed = state.statistics.enemies_killed
 	summary._wands_collected = state.statistics.wands_collected
 	summary._spells_collected = state.statistics.spells_collected
 	summary._used_creative_mode = state.used_creative_mode
 	return summary
+
+
+static func create_from_state(state: GameState, player_data: Dictionary = {}) -> GameSummary:
+	if state == null or not is_instance_valid(state) or not state.is_initialized():
+		return null
+	if state.phase != GameState.GamePhase.ENDED:
+		return null
+	if state.result == GameState.GameResult.NONE:
+		return null
+	var current_gold: int = maxi(0, int(player_data.get("gold", 0)))
+	return from_game_state(state, current_gold)
+
+
+func is_valid() -> bool:
+	return _game_id > GameState.INVALID_GAME_ID \
+		and GameState.GameResult.values().has(_result) \
+		and _result != GameState.GameResult.NONE \
+		and _depth >= 0 \
+		and _gold >= 0 \
+		and _elapsed_time >= 0.0 \
+		and _enemies_killed >= 0 \
+		and _wands_collected >= 0 \
+		and _spells_collected >= 0
 
 
 func to_dictionary() -> Dictionary:
