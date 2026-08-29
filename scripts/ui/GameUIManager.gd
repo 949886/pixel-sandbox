@@ -7,7 +7,6 @@ extends Node
 
 @onready var _summary_store: GameSummaryStore = $GameSummaryStore
 @onready var _persistent_ui_host: Node = $PersistentUIHost
-@onready var _runtime_ui_host: Node = $RuntimeUIHost
 
 var _game_manager: GameManager = null
 var _context: GameUIContext = null
@@ -26,8 +25,6 @@ func setup(manager: GameManager) -> bool:
 	if _summary_store == null or not is_instance_valid(_summary_store):
 		return false
 	if _persistent_ui_host == null or not is_instance_valid(_persistent_ui_host):
-		return false
-	if _runtime_ui_host == null or not is_instance_valid(_runtime_ui_host):
 		return false
 	if not _summary_store.setup(manager):
 		return false
@@ -81,21 +78,26 @@ func creative_ui() -> CreativeUI:
 
 
 func runtime_ui_count() -> int:
-	return _runtime_ui_host.get_child_count() if _runtime_ui_host != null else 0
+	var count: int = 0
+	if _gameplay_ui != null and is_instance_valid(_gameplay_ui):
+		count += 1
+	if _creative_ui != null and is_instance_valid(_creative_ui):
+		count += 1
+	return count
 
 
 func _create_game_flow_ui() -> bool:
 	var instance: Node = _instantiate_ui(game_flow_ui_scene, _persistent_ui_host)
 	_game_flow_ui = instance as GameFlowUI
 	if _game_flow_ui == null:
-		_free_ui_instance(instance, _persistent_ui_host)
+		_free_ui_instance(instance)
 		return false
 	if not _game_flow_ui.setup(
 			_game_manager,
 			_summary_store,
 			Callable(_game_manager, "request_shell_quit"),
 		):
-		_free_ui_instance(_game_flow_ui, _persistent_ui_host)
+		_free_ui_instance(_game_flow_ui)
 		_game_flow_ui = null
 		return false
 	return true
@@ -155,44 +157,48 @@ func _compose_current_game_context(game_id: int) -> bool:
 func _create_runtime_ui() -> bool:
 	if _context == null or not _context.has_game():
 		return false
-
-	var gameplay_instance: Node = _instantiate_ui(gameplay_ui_scene, _runtime_ui_host)
-	_gameplay_ui = gameplay_instance as GameplayUI
-	if _gameplay_ui == null:
-		_free_ui_instance(gameplay_instance, _runtime_ui_host)
+	var runtime_ui_parent: Node = _context.gameplay_world.get_parent()
+	if runtime_ui_parent == null or not is_instance_valid(runtime_ui_parent):
 		return false
 
-	var creative_instance: Node = _instantiate_ui(creative_ui_scene, _runtime_ui_host)
+	var gameplay_instance: Node = _instantiate_ui(gameplay_ui_scene, runtime_ui_parent)
+	_gameplay_ui = gameplay_instance as GameplayUI
+	if _gameplay_ui == null:
+		_free_ui_instance(gameplay_instance)
+		return false
+
+	var creative_instance: Node = _instantiate_ui(creative_ui_scene, runtime_ui_parent)
 	_creative_ui = creative_instance as CreativeUI
 	if _creative_ui == null:
-		_free_ui_instance(creative_instance, _runtime_ui_host)
+		_free_ui_instance(creative_instance)
 		return false
 	return true
 
 
 func _destroy_runtime_ui() -> void:
 	if _gameplay_ui != null and is_instance_valid(_gameplay_ui):
-		_free_ui_instance(_gameplay_ui, _runtime_ui_host)
+		_free_ui_instance(_gameplay_ui)
 	_gameplay_ui = null
 
 	if _creative_ui != null and is_instance_valid(_creative_ui):
-		_free_ui_instance(_creative_ui, _runtime_ui_host)
+		_free_ui_instance(_creative_ui)
 	_creative_ui = null
 
 
-func _instantiate_ui(scene: PackedScene, host: Node) -> Node:
-	if scene == null or host == null:
+func _instantiate_ui(scene: PackedScene, parent: Node) -> Node:
+	if scene == null or parent == null or not is_instance_valid(parent):
 		return null
 	var instance: Node = scene.instantiate()
 	if instance == null:
 		return null
-	host.add_child(instance)
+	parent.add_child(instance)
 	return instance
 
 
-func _free_ui_instance(instance: Node, host: Node) -> void:
+func _free_ui_instance(instance: Node) -> void:
 	if instance == null or not is_instance_valid(instance):
 		return
-	if host != null and is_instance_valid(host) and instance.get_parent() == host:
-		host.remove_child(instance)
+	var parent: Node = instance.get_parent()
+	if parent != null and is_instance_valid(parent):
+		parent.remove_child(instance)
 	instance.queue_free()
