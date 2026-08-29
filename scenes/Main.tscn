@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/game/Main.gd" id="1_main"]
 [ext_resource type="Script" path="res://scripts/game/GameManager.gd" id="2_game_manager"]
@@ -6,8 +6,11 @@
 [ext_resource type="PackedScene" path="res://scenes/World.tscn" id="4_world"]
 [ext_resource type="Resource" path="res://resources/world_gen/default_world_gen_config.tres" id="5_world_config"]
 [ext_resource type="Resource" path="res://resources/gameplay/loadouts/default_starting_loadout.tres" id="6_starting_loadout"]
-[ext_resource type="Script" path="res://scripts/game/summary/GameSummaryStore.gd" id="7_summary_store"]
-[ext_resource type="PackedScene" path="res://scenes/ui/GameFlowUI.tscn" id="8_game_flow_ui"]
+[ext_resource type="Script" path="res://scripts/ui/GameUIManager.gd" id="7_ui_manager"]
+[ext_resource type="Script" path="res://scripts/game/summary/GameSummaryStore.gd" id="8_summary_store"]
+[ext_resource type="PackedScene" path="res://scenes/ui/GameFlowUI.tscn" id="9_game_flow_ui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/GameplayUI.tscn" id="10_gameplay_ui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/creative/CreativeUI.tscn" id="11_creative_ui"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -21,9 +24,17 @@ script = ExtResource("3_game_bootstrap")
 world_scene = ExtResource("4_world")
 world_gen_config_template = ExtResource("5_world_config")
 
-[node name="GameSummaryStore" type="Node" parent="."]
-script = ExtResource("7_summary_store")
+[node name="GameUIManager" type="Node" parent="."]
+script = ExtResource("7_ui_manager")
+game_flow_ui_scene = ExtResource("9_game_flow_ui")
+gameplay_ui_scene = ExtResource("10_gameplay_ui")
+creative_ui_scene = ExtResource("11_creative_ui")
 
-[node name="GameFlowUI" parent="." instance=ExtResource("8_game_flow_ui")]
+[node name="GameSummaryStore" type="Node" parent="GameUIManager"]
+script = ExtResource("8_summary_store")
+
+[node name="PersistentUIHost" type="Node" parent="GameUIManager"]
+
+[node name="RuntimeUIHost" type="Node" parent="GameUIManager"]
 
 [node name="GameRuntimeHost" type="Node2D" parent="."]
