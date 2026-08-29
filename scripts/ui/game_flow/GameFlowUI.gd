@@ -23,7 +23,7 @@ signal quit_intent(player_id: int)
 @onready var _quit_button: Button = %QuitButton
 
 var _game_manager: GameManager = null
-var _summary_store: GameSummaryStore = null
+var _game_summary: GameSummary = null
 var _quit_handler: Callable = Callable()
 var _game_state: GameState = null
 var _player_state: PlayerState = null
@@ -40,18 +40,18 @@ func _ready() -> void:
 
 func setup(
 		manager: GameManager,
-		summary_store: GameSummaryStore,
+		summary: GameSummary,
 		quit_handler: Callable = Callable(),
 	) -> bool:
-	if _game_manager != null or _summary_store != null:
-		return _game_manager == manager and _summary_store == summary_store
+	if _game_manager != null or _game_summary != null:
+		return _game_manager == manager and _game_summary == summary
 	if manager == null or not is_instance_valid(manager):
 		return false
-	if summary_store == null or not is_instance_valid(summary_store):
+	if summary == null or not is_instance_valid(summary):
 		return false
 
 	_game_manager = manager
-	_summary_store = summary_store
+	_game_summary = summary
 	_quit_handler = quit_handler
 	_connect_framework_signals()
 
@@ -134,10 +134,10 @@ func _connect_framework_signals() -> void:
 		_game_manager.game_stopping.connect(_on_game_stopping)
 	if not _game_manager.game_stopped.is_connected(_on_game_stopped):
 		_game_manager.game_stopped.connect(_on_game_stopped)
-	if not _summary_store.summary_captured.is_connected(_on_summary_captured):
-		_summary_store.summary_captured.connect(_on_summary_captured)
-	if not _summary_store.summary_cleared.is_connected(_on_summary_cleared):
-		_summary_store.summary_cleared.connect(_on_summary_cleared)
+	if not _game_summary.summary_captured.is_connected(_on_summary_captured):
+		_game_summary.summary_captured.connect(_on_summary_captured)
+	if not _game_summary.summary_cleared.is_connected(_on_summary_cleared):
+		_game_summary.summary_cleared.connect(_on_summary_cleared)
 
 
 func _disconnect_framework_signals() -> void:
@@ -150,11 +150,11 @@ func _disconnect_framework_signals() -> void:
 			_game_manager.game_stopping.disconnect(_on_game_stopping)
 		if _game_manager.game_stopped.is_connected(_on_game_stopped):
 			_game_manager.game_stopped.disconnect(_on_game_stopped)
-	if _summary_store != null and is_instance_valid(_summary_store):
-		if _summary_store.summary_captured.is_connected(_on_summary_captured):
-			_summary_store.summary_captured.disconnect(_on_summary_captured)
-		if _summary_store.summary_cleared.is_connected(_on_summary_cleared):
-			_summary_store.summary_cleared.disconnect(_on_summary_cleared)
+	if _game_summary != null and is_instance_valid(_game_summary):
+		if _game_summary.summary_captured.is_connected(_on_summary_captured):
+			_game_summary.summary_captured.disconnect(_on_summary_captured)
+		if _game_summary.summary_cleared.is_connected(_on_summary_cleared):
+			_game_summary.summary_cleared.disconnect(_on_summary_cleared)
 
 
 func _on_game_starting(game_id: int) -> void:
@@ -191,8 +191,8 @@ func _on_game_stopping(game_id: int) -> void:
 
 func _on_game_stopped(_game_id: int) -> void:
 	# Keep the captured EndPanel visible until the next game_starting signal.
-	if _summary_store != null and _summary_store.current_summary != null:
-		_render_summary(_summary_store.current_summary)
+	if _game_summary != null and _game_summary.is_valid():
+		_render_summary(_game_summary)
 
 
 func _on_summary_captured(summary: GameSummary) -> void:
@@ -275,8 +275,8 @@ func _render_phase() -> void:
 		GameState.GamePhase.ENDED:
 			_start_overlay.visible = false
 			_transition_overlay.visible = false
-			if _summary_store != null and _summary_store.current_summary != null:
-				_render_summary(_summary_store.current_summary)
+			if _game_summary != null and _game_summary.is_valid():
+				_render_summary(_game_summary)
 			else:
 				_end_overlay.visible = true
 				_result_title.text = _result_title_for(_game_state.result)
@@ -284,7 +284,7 @@ func _render_phase() -> void:
 
 
 func _render_summary(summary: GameSummary) -> void:
-	if summary == null:
+	if summary == null or not summary.is_valid():
 		return
 	_start_overlay.visible = false
 	_transition_overlay.visible = false

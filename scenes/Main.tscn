@@ -7,7 +7,7 @@
 [ext_resource type="Resource" path="res://resources/world_gen/default_world_gen_config.tres" id="5_world_config"]
 [ext_resource type="Resource" path="res://resources/gameplay/loadouts/default_starting_loadout.tres" id="6_starting_loadout"]
 [ext_resource type="Script" path="res://scripts/ui/GameUIManager.gd" id="7_ui_manager"]
-[ext_resource type="Script" path="res://scripts/game/summary/GameSummaryStore.gd" id="8_summary_store"]
+[ext_resource type="Script" path="res://scripts/game/state/GameSummary.gd" id="8_game_summary"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameFlowUI.tscn" id="9_game_flow_ui"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameplayUI.tscn" id="10_gameplay_ui"]
 [ext_resource type="PackedScene" path="res://scenes/ui/creative/CreativeUI.tscn" id="11_creative_ui"]
@@ -30,8 +30,8 @@ game_flow_ui_scene = ExtResource("9_game_flow_ui")
 gameplay_ui_scene = ExtResource("10_gameplay_ui")
 creative_ui_scene = ExtResource("11_creative_ui")
 
-[node name="GameSummaryStore" type="Node" parent="GameUIManager"]
-script = ExtResource("8_summary_store")
+[node name="GameSummary" type="Node" parent="GameUIManager"]
+script = ExtResource("8_game_summary")
 
 [node name="PersistentUIHost" type="Node" parent="GameUIManager"]
 

@@ -12,13 +12,13 @@ func _test_context_lifecycle() -> void:
 	manager.name = "GameManager"
 	add_child(manager)
 
-	var summary_store: GameSummaryStore = GameSummaryStore.new()
-	summary_store.name = "GameSummaryStore"
-	add_child(summary_store)
-	assert(summary_store.setup(manager))
+	var summary: GameSummary = GameSummary.new()
+	summary.name = "GameSummary"
+	add_child(summary)
+	assert(summary.setup(manager))
 
 	var context: GameUIContext = GameUIContext.new()
-	assert(context.setup_persistent(manager, summary_store))
+	assert(context.setup_persistent(manager, summary))
 	assert(context.is_persistent_ready())
 	assert(not context.has_game())
 
@@ -80,7 +80,7 @@ func _test_context_lifecycle() -> void:
 	assert(not context.has_game())
 	assert(context.game_id == GameManager.INVALID_GAME_ID)
 	assert(context.game_manager == manager)
-	assert(context.summary_store == summary_store)
+	assert(context.game_summary == summary)
 
 	assert(manager.stop_game())
 	await get_tree().process_frame
@@ -91,5 +91,5 @@ func _test_context_lifecycle() -> void:
 	mode_manager.free()
 	brush.free()
 	entities.free()
-	summary_store.queue_free()
+	summary.queue_free()
 	manager.queue_free()

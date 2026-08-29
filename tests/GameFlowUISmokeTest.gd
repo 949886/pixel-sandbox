@@ -21,15 +21,15 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 	manager.name = "GameManager"
 	add_child(manager)
 
-	var summary_store := GameSummaryStore.new()
-	summary_store.name = "GameSummaryStore"
-	add_child(summary_store)
-	assert(summary_store.setup(manager))
+	var summary := GameSummary.new()
+	summary.name = "GameSummary"
+	add_child(summary)
+	assert(summary.setup(manager))
 
 	var ui := GAME_FLOW_UI_SCENE.instantiate() as GameFlowUI
 	assert(ui != null)
 	add_child(ui)
-	assert(ui.setup(manager, summary_store, Callable(self, "_handle_quit")))
+	assert(ui.setup(manager, summary, Callable(self, "_handle_quit")))
 
 	var runtime_host := Node.new()
 	runtime_host.name = "RuntimeHost"
@@ -46,7 +46,7 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 	assert(ui.is_start_overlay_visible())
 	assert(not ui.is_transition_overlay_visible())
 	assert(not ui.is_end_overlay_visible())
-	assert(summary_store.current_summary == null)
+	assert(not summary.is_valid())
 
 	_activate_game(manager, first_game_id)
 	assert(ui.bound_game_id() == first_game_id)
@@ -74,18 +74,17 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 	assert(first_state.mark_creative_used())
 	assert(first_flow.end_game(GameState.GameResult.VICTORY))
 
-	var first_summary: GameSummary = summary_store.current_summary
-	assert(first_summary != null)
-	assert(first_summary.game_id == first_game_id)
-	assert(first_summary.result == GameState.GameResult.VICTORY)
-	assert(first_summary.seed == 4242)
-	assert(first_summary.depth == 7)
-	assert(first_summary.gold == 345)
-	assert(is_equal_approx(first_summary.elapsed_time, 125.9))
-	assert(first_summary.enemies_killed == 12)
-	assert(first_summary.wands_collected == 4)
-	assert(first_summary.spells_collected == 9)
-	assert(first_summary.creative_used)
+	assert(summary.is_valid())
+	assert(summary.game_id == first_game_id)
+	assert(summary.result == GameState.GameResult.VICTORY)
+	assert(summary.seed == 4242)
+	assert(summary.depth == 7)
+	assert(summary.gold == 345)
+	assert(is_equal_approx(summary.elapsed_time, 125.9))
+	assert(summary.enemies_killed == 12)
+	assert(summary.wands_collected == 4)
+	assert(summary.spells_collected == 9)
+	assert(summary.creative_used)
 	assert(ui.is_end_overlay_visible())
 	assert(ui.displayed_result_title() == "VICTORY")
 
@@ -95,28 +94,31 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 	var old_player_state_ref: WeakRef = weakref(first_player_state)
 	var old_player_ref: WeakRef = weakref(first_player)
 
-	# Restart only forwards to GameManager. The summary survives teardown while
-	# the old per-game root and all bound state/runtime objects disappear.
+	# Restart only forwards to GameManager. GameSummary keeps its captured scalar
+	# fields while the old per-game root and all runtime objects disappear.
 	assert(ui.request_restart({"seed": 4242}))
 	assert(ui.is_pending())
 	await get_tree().process_frame
 	await get_tree().process_frame
 	assert(manager.lifecycle_state == GameManager.LifecycleState.IDLE)
-	assert(summary_store.current_summary == first_summary)
+	assert(summary.is_valid())
+	assert(summary.game_id == first_game_id)
+	assert(summary.gold == 345)
 	assert(old_root_ref.get_ref() == null)
 	assert(old_state_ref.get_ref() == null)
 	assert(old_flow_ref.get_ref() == null)
 	assert(old_player_state_ref.get_ref() == null)
 	assert(old_player_ref.get_ref() == null)
 
-	# Starting the next Game clears the old summary, shows real STARTING state,
-	# and then rebinds the same persistent UI instance to the fresh GameState.
+	# Starting the next Game clears the same persistent GameSummary and then
+	# rebinds the same persistent UI instance to the fresh GameState.
 	var second := _begin_game(manager, runtime_host, 4242)
 	var second_game_id := int(second["game_id"])
 	var second_state := second["state"] as GameState
 	var second_flow := second["flow"] as NormalGameFlow
 	assert(second_game_id != first_game_id)
-	assert(summary_store.current_summary == null)
+	assert(not summary.is_valid())
+	assert(summary.game_id == GameState.INVALID_GAME_ID)
 	assert(ui.is_start_overlay_visible())
 	assert(ui.bound_game_id() == second_game_id)
 	_activate_game(manager, second_game_id)
@@ -150,7 +152,7 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 
 	runtime_host.queue_free()
 	ui.queue_free()
-	summary_store.queue_free()
+	summary.queue_free()
 	manager.queue_free()
 
 

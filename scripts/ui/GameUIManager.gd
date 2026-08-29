@@ -5,7 +5,7 @@ extends Node
 @export var gameplay_ui_scene: PackedScene
 @export var creative_ui_scene: PackedScene
 
-@onready var _summary_store: GameSummaryStore = $GameSummaryStore
+@onready var _game_summary: GameSummary = $GameSummary
 @onready var _persistent_ui_host: Node = $PersistentUIHost
 
 var _game_manager: GameManager = null
@@ -22,16 +22,16 @@ func setup(manager: GameManager) -> bool:
 		return false
 	if game_flow_ui_scene == null or gameplay_ui_scene == null or creative_ui_scene == null:
 		return false
-	if _summary_store == null or not is_instance_valid(_summary_store):
+	if _game_summary == null or not is_instance_valid(_game_summary):
 		return false
 	if _persistent_ui_host == null or not is_instance_valid(_persistent_ui_host):
 		return false
-	if not _summary_store.setup(manager):
+	if not _game_summary.setup(manager):
 		return false
 
 	_game_manager = manager
 	_context = GameUIContext.new()
-	if not _context.setup_persistent(_game_manager, _summary_store):
+	if not _context.setup_persistent(_game_manager, _game_summary):
 		_context = null
 		_game_manager = null
 		return false
@@ -94,7 +94,7 @@ func _create_game_flow_ui() -> bool:
 		return false
 	if not _game_flow_ui.setup(
 			_game_manager,
-			_summary_store,
+			_game_summary,
 			Callable(_game_manager, "request_shell_quit"),
 		):
 		_free_ui_instance(_game_flow_ui)

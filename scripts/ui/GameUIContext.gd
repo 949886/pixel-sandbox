@@ -4,7 +4,7 @@ extends RefCounted
 # GameUIManager is the only writer. UI implementations treat this object as a
 # read-only dependency carrier for persistent and current-game references.
 var game_manager: GameManager = null
-var summary_store: GameSummaryStore = null
+var game_summary: GameSummary = null
 
 var game_id: int = GameManager.INVALID_GAME_ID
 var game_state: GameState = null
@@ -16,21 +16,21 @@ var creative_brush: CreativeBrushController = null
 var creative_entities: CreativeEntityController = null
 
 
-func setup_persistent(manager: GameManager, store: GameSummaryStore) -> bool:
-	if game_manager != null or summary_store != null:
-		return game_manager == manager and summary_store == store
+func setup_persistent(manager: GameManager, summary: GameSummary) -> bool:
+	if game_manager != null or game_summary != null:
+		return game_manager == manager and game_summary == summary
 	if manager == null or not is_instance_valid(manager):
 		return false
-	if store == null or not is_instance_valid(store):
+	if summary == null or not is_instance_valid(summary):
 		return false
 	game_manager = manager
-	summary_store = store
+	game_summary = summary
 	return true
 
 
 func is_persistent_ready() -> bool:
 	return game_manager != null and is_instance_valid(game_manager) \
-		and summary_store != null and is_instance_valid(summary_store)
+		and game_summary != null and is_instance_valid(game_summary)
 
 
 func bind_game(
