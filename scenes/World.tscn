@@ -11,11 +11,9 @@
 [ext_resource type="Resource" path="res://resources/materials/default_material_palette.tres" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/ui/TouchControls.tscn" id="10_touch_controls"]
 [ext_resource type="Script" path="res://scripts/gameplay/world/WorldGameplayService.gd" id="11_gameplay_world"]
-[ext_resource type="PackedScene" path="res://scenes/ui/GameplayUI.tscn" id="13_gameplay_ui"]
 [ext_resource type="Script" path="res://scripts/gameplay/modes/GameModeManager.gd" id="16_game_mode"]
 [ext_resource type="Resource" path="res://resources/gameplay/modes/creative_rules.tres" id="17_creative_rules"]
 [ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeBrushController.gd" id="18_creative_brush"]
-[ext_resource type="PackedScene" path="res://scenes/ui/creative/CreativeUI.tscn" id="19_creative_ui"]
 [ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeEntityController.gd" id="20_creative_entities"]
 
 [node name="World" type="Node2D" unique_id=1354663026]
@@ -47,10 +45,6 @@ script = ExtResource("20_creative_entities")
 
 [node name="Player" parent="." unique_id=1306727430 instance=ExtResource("2")]
 position = Vector2(256, 256)
-
-[node name="GameplayUI" parent="." instance=ExtResource("13_gameplay_ui")]
-
-[node name="CreativeUI" parent="." instance=ExtResource("19_creative_ui")]
 
 [node name="Enemies" type="Node2D" parent="."]
 

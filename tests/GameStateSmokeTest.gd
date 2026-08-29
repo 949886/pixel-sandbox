@@ -106,8 +106,10 @@ func _ready() -> void:
 	assert(statistics_snapshot["enemies_killed"] == 3)
 
 	assert(state.set_phase(GameState.GamePhase.ENDED))
-	var summary := GameSummary.from_game_state(state, 77)
-	assert(summary != null)
+	var summary := GameSummary.new()
+	summary.name = "GameSummary"
+	add_child(summary)
+	assert(summary.capture_from_state(state, 77))
 	assert(summary.game_id == game_id)
 	assert(summary.result == GameState.GameResult.VICTORY)
 	assert(summary.seed == 24680)
@@ -139,8 +141,8 @@ func _ready() -> void:
 	assert(player_a_ref.get_ref() == null)
 	assert(player_b_ref.get_ref() == null)
 
-	# GameSummary is a scalar snapshot and survives destruction of the source
-	# GameState, PlayerState and runtime nodes.
+	# GameSummary stores only scalar snapshot data and therefore survives
+	# destruction of the source GameState, PlayerState and runtime nodes.
 	assert(summary.game_id == game_id)
 	assert(summary.seed == 24680)
 	assert(summary.gold == 77)
@@ -160,6 +162,7 @@ func _ready() -> void:
 	assert(_creative_usage_events == [true])
 	assert(_player_alive_events == ["1:true->false", "2:true->false", "2:false->true"])
 
+	summary.queue_free()
 	print("Game State Smoke Test: PASS")
 	get_tree().quit()
 

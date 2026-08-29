@@ -351,6 +351,21 @@ func request_restart(player_id: int, options: Dictionary = {}) -> bool:
 	return true
 
 
+func request_shell_quit(player_id: int) -> bool:
+	# Shell quit is an explicit public request path so UI and other callers do
+	# not need to own SceneTree shutdown policy or duplicate lifecycle checks.
+	if lifecycle_state != LifecycleState.ACTIVE:
+		return false
+	if game_state == null or not is_instance_valid(game_state):
+		return false
+	if game_state.phase != GameState.GamePhase.ENDED:
+		return false
+	if not has_player(player_id):
+		return false
+	get_tree().quit()
+	return true
+
+
 func notify_boss_defeated(boss_id: StringName) -> bool:
 	if not _can_dispatch_active_game_event():
 		return false
