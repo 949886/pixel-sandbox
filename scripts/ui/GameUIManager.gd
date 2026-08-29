@@ -1,10 +1,6 @@
 class_name GameUIManager
 extends Node
 
-const GAME_FLOW_UI_BINDING_SCRIPT: Script = preload("res://scripts/ui/bindings/GameFlowUIBinding.gd")
-const GAMEPLAY_UI_BINDING_SCRIPT: Script = preload("res://scripts/ui/bindings/GameplayUIBinding.gd")
-const CREATIVE_UI_BINDING_SCRIPT: Script = preload("res://scripts/ui/bindings/CreativeUIBinding.gd")
-
 @export var game_flow_ui_scene: PackedScene
 @export var gameplay_ui_scene: PackedScene
 @export var creative_ui_scene: PackedScene
@@ -14,14 +10,13 @@ const CREATIVE_UI_BINDING_SCRIPT: Script = preload("res://scripts/ui/bindings/Cr
 @onready var _runtime_ui_host: Node = $RuntimeUIHost
 
 var _game_manager: GameManager = null
-var _shell_quit_handler: Callable = Callable()
 var _context: GameUIContext = null
 var _game_flow_ui: GameFlowUI = null
 var _gameplay_ui: GameplayUI = null
 var _creative_ui: CreativeUI = null
 
 
-func setup(manager: GameManager, shell_quit_handler: Callable = Callable()) -> bool:
+func setup(manager: GameManager) -> bool:
 	if _game_manager != null:
 		return _game_manager == manager
 	if manager == null or not is_instance_valid(manager):
@@ -38,7 +33,6 @@ func setup(manager: GameManager, shell_quit_handler: Callable = Callable()) -> b
 		return false
 
 	_game_manager = manager
-	_shell_quit_handler = shell_quit_handler
 	_context = GameUIContext.new()
 	if not _context.setup_persistent(_game_manager, _summary_store):
 		_context = null
@@ -91,21 +85,16 @@ func runtime_ui_count() -> int:
 
 
 func _create_game_flow_ui() -> bool:
-	var instance: Node = _instantiate_with_binding(
-		game_flow_ui_scene,
-		GAME_FLOW_UI_BINDING_SCRIPT,
-		_persistent_ui_host,
-	)
+	var instance: Node = _instantiate_ui(game_flow_ui_scene, _persistent_ui_host)
 	_game_flow_ui = instance as GameFlowUI
-	if _game_flow_ui == null or not _game_flow_ui.has_method(&"bind_context"):
+	if _game_flow_ui == null:
 		_free_ui_instance(instance, _persistent_ui_host)
-		_game_flow_ui = null
 		return false
-	if not bool(_game_flow_ui.call(
-			&"bind_context",
-			_context,
-			Callable(self, "_request_shell_quit"),
-		)):
+	if not _game_flow_ui.setup(
+			_game_manager,
+			_summary_store,
+			Callable(_game_manager, "request_shell_quit"),
+		):
 		_free_ui_instance(_game_flow_ui, _persistent_ui_host)
 		_game_flow_ui = null
 		return false
@@ -167,49 +156,36 @@ func _create_runtime_ui() -> bool:
 	if _context == null or not _context.has_game():
 		return false
 
-	var gameplay_instance: Node = _instantiate_with_binding(
-		gameplay_ui_scene,
-		GAMEPLAY_UI_BINDING_SCRIPT,
-		_runtime_ui_host,
-	)
+	var gameplay_instance: Node = _instantiate_ui(gameplay_ui_scene, _runtime_ui_host)
 	_gameplay_ui = gameplay_instance as GameplayUI
-	if _gameplay_ui == null or not _gameplay_ui.has_method(&"bind_context") \
-			or not bool(_gameplay_ui.call(&"bind_context", _context)):
+	if _gameplay_ui == null:
+		_free_ui_instance(gameplay_instance, _runtime_ui_host)
 		return false
 
-	var creative_instance: Node = _instantiate_with_binding(
-		creative_ui_scene,
-		CREATIVE_UI_BINDING_SCRIPT,
-		_runtime_ui_host,
-	)
+	var creative_instance: Node = _instantiate_ui(creative_ui_scene, _runtime_ui_host)
 	_creative_ui = creative_instance as CreativeUI
-	if _creative_ui == null or not _creative_ui.has_method(&"bind_context") \
-			or not bool(_creative_ui.call(&"bind_context", _context)):
+	if _creative_ui == null:
+		_free_ui_instance(creative_instance, _runtime_ui_host)
 		return false
 	return true
 
 
 func _destroy_runtime_ui() -> void:
 	if _gameplay_ui != null and is_instance_valid(_gameplay_ui):
-		if _gameplay_ui.has_method(&"unbind_context"):
-			_gameplay_ui.call(&"unbind_context")
 		_free_ui_instance(_gameplay_ui, _runtime_ui_host)
 	_gameplay_ui = null
 
 	if _creative_ui != null and is_instance_valid(_creative_ui):
-		if _creative_ui.has_method(&"unbind_context"):
-			_creative_ui.call(&"unbind_context")
 		_free_ui_instance(_creative_ui, _runtime_ui_host)
 	_creative_ui = null
 
 
-func _instantiate_with_binding(scene: PackedScene, binding_script: Script, host: Node) -> Node:
-	if scene == null or binding_script == null or host == null:
+func _instantiate_ui(scene: PackedScene, host: Node) -> Node:
+	if scene == null or host == null:
 		return null
 	var instance: Node = scene.instantiate()
 	if instance == null:
 		return null
-	instance.set_script(binding_script)
 	host.add_child(instance)
 	return instance
 
@@ -220,10 +196,3 @@ func _free_ui_instance(instance: Node, host: Node) -> void:
 	if host != null and is_instance_valid(host) and instance.get_parent() == host:
 		host.remove_child(instance)
 	instance.queue_free()
-
-
-func _request_shell_quit(player_id: int) -> bool:
-	if not _shell_quit_handler.is_valid():
-		return false
-	var result: Variant = _shell_quit_handler.call(player_id)
-	return result is bool and bool(result)
