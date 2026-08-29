@@ -1,12 +1,13 @@
 class_name CreativeUI
 extends CanvasLayer
 
+@export var material_tile_scene: PackedScene
+@export var spell_tile_scene: PackedScene
+@export var spell_slot_scene: PackedScene
+@export var entity_tile_scene: PackedScene
+
 const EXPANDED_HEIGHT: float = 316.0
 const COLLAPSED_HEIGHT: float = 64.0
-const MATERIAL_TILE_SCENE: PackedScene = preload("res://scenes/ui/creative/CreativeMaterialTile.tscn")
-const SPELL_TILE_SCENE: PackedScene = preload("res://scenes/ui/creative/CreativeSpellTile.tscn")
-const SPELL_SLOT_SCENE: PackedScene = preload("res://scenes/ui/shared/SpellSlot.tscn")
-const ENTITY_TILE_SCENE: PackedScene = preload("res://scenes/ui/creative/CreativeEntityTile.tscn")
 
 var _active: bool = false
 var _collapsed: bool = false
@@ -15,6 +16,7 @@ var _selected_wand_index: int = 0
 var _spell_filter_kind: int = -1
 var _stats_updating: bool = false
 
+var _gameplay_content: GameplayContentDB
 var _mode_manager: GameModeManager
 var _player: Node
 var _inventory: PlayerInventory
@@ -212,12 +214,17 @@ func set_creative_active(enabled: bool) -> void:
 		_refresh_active_panel()
 
 func _bind_dependencies() -> void:
+	_gameplay_content = GameplayContentAccess.find_from(self)
 	_mode_manager = get_tree().get_first_node_in_group(&"game_mode_manager") as GameModeManager
 	_player = get_tree().get_first_node_in_group(&"player")
 	if _player != null:
 		_inventory = _player.get_node_or_null("PlayerInventory") as PlayerInventory
 		_wand_controller = _player.get_node_or_null("WandController") as WandController
-		_wand_service.configure(_inventory, _wand_controller)
+		_wand_service.configure(
+			_inventory,
+			_wand_controller,
+			_gameplay_content.creative_wand_template if _gameplay_content != null else null,
+		)
 	var world: Node = get_parent()
 	_world_service = world.get_node_or_null("GameplayWorld") as WorldGameplayService if world != null else null
 	_brush = world.get_node_or_null("CreativeBrush") as CreativeBrushController if world != null else null
@@ -313,7 +320,7 @@ func _refresh_material_grid() -> void:
 	for entry: MaterialEntry in palette.entries:
 		if entry == null or entry.engine_element_id == 0:
 			continue
-		var tile: CreativeMaterialTile = MATERIAL_TILE_SCENE.instantiate() as CreativeMaterialTile
+		var tile: CreativeMaterialTile = material_tile_scene.instantiate() as CreativeMaterialTile
 		tile.setup(entry)
 		tile.material_selected.connect(_select_material)
 		_material_grid.add_child(tile)
@@ -359,6 +366,18 @@ func _material_label_for_id(element_id: int) -> String:
 		return "SELECTED: %s" % String(entry.id).replace("_", " ").to_upper()
 	return "SELECTED: ELEMENT %d" % element_id
 
+func _creative_spells() -> Array[SpellDef]:
+	if _gameplay_content == null or _gameplay_content.spell_catalog == null:
+		return []
+	return _gameplay_content.spell_catalog.all_spells()
+
+
+func _creative_entities() -> Array[CreativeEntityDef]:
+	if _gameplay_content == null or _gameplay_content.creative_entity_catalog == null:
+		return []
+	return _gameplay_content.creative_entity_catalog.all_entities()
+
+
 func _refresh_spell_panel() -> void:
 	_refresh_spell_wand_buttons()
 	_refresh_spell_grid()
@@ -374,7 +393,7 @@ func _on_spell_kind_selected(index: int) -> void:
 func _refresh_spell_grid() -> void:
 	_clear_children(_spell_grid)
 	var query: String = _spell_search.text.strip_edges().to_lower()
-	for spell: SpellDef in SpellCatalog.all_spells():
+	for spell: SpellDef in _creative_spells():
 		if spell == null:
 			continue
 		if _spell_filter_kind >= 0 and spell.kind != _spell_filter_kind:
@@ -383,7 +402,7 @@ func _refresh_spell_grid() -> void:
 			var haystack: String = (spell.display_name + " " + String(spell.spell_id) + " " + " ".join(spell.tags)).to_lower()
 			if query not in haystack:
 				continue
-		var tile: CreativeSpellTile = SPELL_TILE_SCENE.instantiate() as CreativeSpellTile
+		var tile: CreativeSpellTile = spell_tile_scene.instantiate() as CreativeSpellTile
 		tile.setup(spell)
 		tile.spell_activated.connect(_add_creative_spell)
 		tile.drag_visual_started.connect(_show_drag_visual)
@@ -452,7 +471,7 @@ func _refresh_wand_deck() -> void:
 func _add_creative_wand_slot(parent: Control, wand: WandDef, slot_index: int, index_text: String) -> void:
 	var resource: Resource = wand.spells[slot_index] if slot_index < wand.spells.size() else null
 	var spell: SpellDef = resource as SpellDef if resource is SpellDef else null
-	var slot: SpellSlot = SPELL_SLOT_SCENE.instantiate() as SpellSlot
+	var slot: SpellSlot = spell_slot_scene.instantiate() as SpellSlot
 	slot.setup({"area": &"wand", "wand": _selected_wand_index, "slot": slot_index}, spell, index_text, index_text.is_empty(), true)
 	slot.spell_dropped.connect(_on_wand_spell_moved)
 	slot.creative_spell_dropped.connect(_on_creative_spell_dropped)
@@ -543,10 +562,10 @@ func _on_creative_spell_dropped(spell: SpellDef, target: Dictionary) -> void:
 func _refresh_entity_grid() -> void:
 	_clear_children(_entity_grid)
 	_entity_tiles.clear()
-	for definition: CreativeEntityDef in CreativeEntityCatalog.all_entities():
+	for definition: CreativeEntityDef in _creative_entities():
 		if definition == null:
 			continue
-		var tile: CreativeEntityTile = ENTITY_TILE_SCENE.instantiate() as CreativeEntityTile
+		var tile: CreativeEntityTile = entity_tile_scene.instantiate() as CreativeEntityTile
 		tile.setup(definition)
 		tile.entity_activated.connect(_select_entity_definition)
 		_entity_grid.add_child(tile)

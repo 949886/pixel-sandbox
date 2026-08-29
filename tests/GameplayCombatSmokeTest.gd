@@ -56,6 +56,7 @@ func _test_status_rules() -> void:
 	health.reset_health()
 	var status := StatusComponent.new()
 	status.name = "StatusComponent"
+	status.rules = load("res://resources/gameplay/status_rules.tres") as StatusRulesDef
 	actor.add_child(status)
 	status.expose_wet(1.0)
 	_expect(not status.ignite(2.0), "wet should prevent ignition")

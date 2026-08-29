@@ -12,7 +12,7 @@ func _ready() -> void:
 	manager.name = "GameManager"
 	add_child(manager)
 
-	var config := GameConfig.create_with_seed(24680)
+	var config := GameConfig.create_with_seed(24680, &"test")
 	var game_id: int = manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)
 

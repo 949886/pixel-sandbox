@@ -1,53 +1,27 @@
 class_name SpellCatalog
-extends RefCounted
+extends Resource
 
-static var _cached_spells: Array[SpellDef] = []
+@export var spells: Array[SpellDef] = []
 
-const SPELL_PATHS: PackedStringArray = [
-	"res://resources/gameplay/spells/spark_bolt.tres",
-	"res://resources/gameplay/spells/dig_bolt.tres",
-	"res://resources/gameplay/spells/fire_bolt.tres",
-	"res://resources/gameplay/spells/bomb.tres",
-	"res://resources/gameplay/spells/luna/acid_splash.tres",
-	"res://resources/gameplay/spells/luna/black_hole.tres",
-	"res://resources/gameplay/spells/luna/chainsaw.tres",
-	"res://resources/gameplay/spells/luna/death_cross.tres",
-	"res://resources/gameplay/spells/luna/dragon_breath.tres",
-	"res://resources/gameplay/spells/luna/dynamite.tres",
-	"res://resources/gameplay/spells/luna/energy_sphere.tres",
-	"res://resources/gameplay/spells/luna/explosive_bomb.tres",
-	"res://resources/gameplay/spells/luna/fireball.tres",
-	"res://resources/gameplay/spells/luna/glue_ball.tres",
-	"res://resources/gameplay/spells/luna/ice_bolt.tres",
-	"res://resources/gameplay/spells/luna/lightning.tres",
-	"res://resources/gameplay/spells/luna/lightning_bolt.tres",
-	"res://resources/gameplay/spells/luna/magic_arrow.tres",
-	"res://resources/gameplay/spells/luna/spark.tres",
-	"res://resources/gameplay/spells/luna/teleport_bolt.tres",
-	"res://resources/gameplay/spells/modifiers/damage_plus.tres",
-	"res://resources/gameplay/spells/modifiers/fixed_angle.tres",
-	"res://resources/gameplay/spells/modifiers/light.tres",
-	"res://resources/gameplay/spells/modifiers/long_distance_cast.tres",
-	"res://resources/gameplay/spells/modifiers/spread.tres",
-	"res://resources/gameplay/spells/multicast/double_cast.tres",
-	"res://resources/gameplay/spells/multicast/double_scatter.tres",
-	"res://resources/gameplay/spells/multicast/formation.tres",
-	"res://resources/gameplay/spells/multicast/formation_back_front.tres",
-	"res://resources/gameplay/spells/multicast/octuple_cast.tres",
-	"res://resources/gameplay/spells/multicast/quadruple_cast.tres",
-	"res://resources/gameplay/spells/multicast/triple_cast.tres",
-]
+var _by_id: Dictionary = {}
+var _cache_ready: bool = false
 
-static func all_spells() -> Array[SpellDef]:
-	if not _cached_spells.is_empty():
-		return _cached_spells.duplicate()
-	for path: String in SPELL_PATHS:
-		var resource: Resource = load(path) as Resource
-		if resource is SpellDef:
-			_cached_spells.append(resource as SpellDef)
-	return _cached_spells.duplicate()
 
-static func random_spell(rng: RandomNumberGenerator = null, max_tier: int = 99) -> SpellDef:
+func all_spells() -> Array[SpellDef]:
+	_ensure_cache()
+	var result: Array[SpellDef] = []
+	for spell: SpellDef in spells:
+		if spell != null:
+			result.append(spell)
+	return result
+
+
+func get_spell(spell_id: StringName) -> SpellDef:
+	_ensure_cache()
+	return _by_id.get(spell_id, null) as SpellDef
+
+
+func random_spell(rng: RandomNumberGenerator = null, max_tier: int = 99) -> SpellDef:
 	var candidates: Array[SpellDef] = []
 	for spell: SpellDef in all_spells():
 		if spell.tier <= max_tier:
@@ -58,3 +32,38 @@ static func random_spell(rng: RandomNumberGenerator = null, max_tier: int = 99) 
 	if rng == null:
 		source_rng.randomize()
 	return candidates[source_rng.randi_range(0, candidates.size() - 1)]
+
+
+func is_valid() -> bool:
+	_ensure_cache()
+	return not _by_id.is_empty() and _by_id.size() == _non_null_spell_count()
+
+
+func invalidate_cache() -> void:
+	_cache_ready = false
+	_by_id.clear()
+
+
+func _ensure_cache() -> void:
+	if _cache_ready:
+		return
+	_by_id.clear()
+	for spell: SpellDef in spells:
+		if spell == null:
+			continue
+		if spell.spell_id == &"":
+			push_error("SpellCatalog contains a spell with an empty spell_id.")
+			continue
+		if _by_id.has(spell.spell_id):
+			push_error("SpellCatalog contains duplicate spell id '%s'." % str(spell.spell_id))
+			continue
+		_by_id[spell.spell_id] = spell
+	_cache_ready = true
+
+
+func _non_null_spell_count() -> int:
+	var count: int = 0
+	for spell: SpellDef in spells:
+		if spell != null:
+			count += 1
+	return count

@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="EnemyCatalog" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/EnemyCatalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://resources/gameplay/enemies/cave_eye.tres" id="2_cave_eye"]
+
+[resource]
+script = ExtResource("1_catalog")
+enemies = Array[Resource]([ExtResource("2_cave_eye")])

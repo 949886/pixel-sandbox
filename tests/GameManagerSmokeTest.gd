@@ -44,7 +44,7 @@ func _ready() -> void:
 	assert(not manager.register_player_state(orphan_state))
 	orphan_state.free()
 
-	var first_config := GameConfig.create_with_seed(123)
+	var first_config := GameConfig.create_with_seed(123, &"test")
 	assert(first_config.is_valid())
 	var first_game_id: int = manager.start_game(first_config)
 	assert(first_game_id != GameManager.INVALID_GAME_ID)
@@ -132,7 +132,7 @@ func _ready() -> void:
 	assert(manager.get_player_runtime(GameManager.LOCAL_PLAYER_ID) == null)
 	assert(not is_instance_valid(runtime_one))
 
-	var second_config := GameConfig.create_with_seed(789)
+	var second_config := GameConfig.create_with_seed(789, &"test")
 	var second_game_id: int = manager.start_game(second_config)
 	assert(second_game_id > first_game_id)
 

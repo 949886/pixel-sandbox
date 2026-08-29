@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="WorldGenConfig" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="WorldGenConfig" load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/WorldGenConfig.gd" id="1"]
 [ext_resource type="Resource" path="res://resources/biomes/mine.tres" id="2"]
@@ -9,6 +9,7 @@
 [ext_resource type="Resource" path="res://resources/special_chunks/snow_shrine_chunk.tres" id="7"]
 [ext_resource type="Resource" path="res://resources/special_chunks/crystal_grotto_chunk.tres" id="8"]
 [ext_resource type="Resource" path="res://resources/pieces/piece_library.tres" id="9"]
+[ext_resource type="Resource" path="res://resources/world_gen/default_world_structure_profile.tres" id="10"]
 
 [resource]
 script = ExtResource("1")
@@ -17,5 +18,6 @@ unit_size = 128
 units_per_chunk = 4
 load_radius = 2
 piece_library = ExtResource("9")
+structure_profile = ExtResource("10")
 biome_configs = Array[Resource]([ExtResource("2"), ExtResource("3"), ExtResource("4")])
 special_chunk_defs = Array[Resource]([ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8")])

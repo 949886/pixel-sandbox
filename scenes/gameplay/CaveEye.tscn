@@ -1,9 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scripts/gameplay/enemies/CaveEye.gd" id="1_enemy"]
 [ext_resource type="Script" path="res://scripts/gameplay/combat/HealthComponent.gd" id="2_health"]
 [ext_resource type="Script" path="res://scripts/gameplay/combat/FactionComponent.gd" id="3_faction"]
 [ext_resource type="Script" path="res://scripts/gameplay/status/StatusComponent.gd" id="4_status"]
+[ext_resource type="Resource" path="res://resources/gameplay/status_rules.tres" id="4_status_rules"]
+[ext_resource type="Resource" path="res://resources/gameplay/enemies/cave_eye_tuning.tres" id="6_tuning"]
 [ext_resource type="Script" path="res://scripts/gameplay/status/EnvironmentSensor.gd" id="5_sensor"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_enemy"]
@@ -14,6 +16,7 @@ collision_layer = 4
 collision_mask = 1
 safe_margin = 0.01
 script = ExtResource("1_enemy")
+tuning = ExtResource("6_tuning")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_enemy")
@@ -29,6 +32,7 @@ faction = 2
 
 [node name="StatusComponent" type="Node" parent="."]
 script = ExtResource("4_status")
+rules = ExtResource("4_status_rules")
 
 [node name="EnvironmentSensor" type="Node" parent="."]
 script = ExtResource("5_sensor")

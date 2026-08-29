@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="MaterialPalette" load_steps=21 format=3]
+[gd_resource type="Resource" script_class="MaterialPalette" load_steps=29 format=3]
 
 [ext_resource type="Script" path="res://scripts/materials/MaterialPalette.gd" id="1_palette"]
 [ext_resource type="Script" path="res://scripts/materials/MaterialEntry.gd" id="2_entry"]
+[ext_resource type="Script" path="res://scripts/materials/MaterialGameplayBinding.gd" id="3_gameplay_binding"]
 
 [sub_resource type="Resource" id="MaterialEntry_air"]
 script = ExtResource("2_entry")
@@ -260,9 +261,46 @@ density = 2.6
 viscosity = 0.5
 durability = 0.98
 
+[sub_resource type="Resource" id="GameplayBinding_water"]
+script = ExtResource("3_gameplay_binding")
+engine_element_id = 3
+tags = Array[StringName]([&"water", &"liquid"])
+
+[sub_resource type="Resource" id="GameplayBinding_fire"]
+script = ExtResource("3_gameplay_binding")
+engine_element_id = 5
+tags = Array[StringName]([&"fire"])
+
+[sub_resource type="Resource" id="GameplayBinding_lava"]
+script = ExtResource("3_gameplay_binding")
+engine_element_id = 20
+tags = Array[StringName]([&"lava", &"fire", &"liquid"])
+
+[sub_resource type="Resource" id="GameplayBinding_acid"]
+script = ExtResource("3_gameplay_binding")
+engine_element_id = 21
+tags = Array[StringName]([&"toxic", &"liquid"])
+
+[sub_resource type="Resource" id="GameplayBinding_blue_fire"]
+script = ExtResource("3_gameplay_binding")
+engine_element_id = 24
+tags = Array[StringName]([&"fire"])
+
+[sub_resource type="Resource" id="GameplayBinding_oil"]
+script = ExtResource("3_gameplay_binding")
+engine_element_id = 30
+tags = Array[StringName]([&"oil", &"liquid"])
+
+[sub_resource type="Resource" id="GameplayBinding_burning_oil"]
+script = ExtResource("3_gameplay_binding")
+engine_element_id = 50
+tags = Array[StringName]([&"oil", &"fire", &"liquid"])
+
 [resource]
 script = ExtResource("1_palette")
 entries = Array[Resource]([SubResource("MaterialEntry_air"), SubResource("MaterialEntry_rock"), SubResource("MaterialEntry_mine_dark"), SubResource("MaterialEntry_snow"), SubResource("MaterialEntry_deep"), SubResource("MaterialEntry_snow_dark"), SubResource("MaterialEntry_deep_dark"), SubResource("MaterialEntry_metal"), SubResource("MaterialEntry_wood"), SubResource("MaterialEntry_water"), SubResource("MaterialEntry_oil"), SubResource("MaterialEntry_lava"), SubResource("MaterialEntry_crystal"), SubResource("MaterialEntry_organic"), SubResource("MaterialEntry_blood"), SubResource("MaterialEntry_ruins"), SubResource("MaterialEntry_gold"), SubResource("MaterialEntry_shrine")])
+gameplay_bindings = Array[MaterialGameplayBinding]([SubResource("GameplayBinding_water"), SubResource("GameplayBinding_fire"), SubResource("GameplayBinding_lava"), SubResource("GameplayBinding_acid"), SubResource("GameplayBinding_blue_fire"), SubResource("GameplayBinding_oil"), SubResource("GameplayBinding_burning_oil")])
+base_element_resource_directories = PackedStringArray("res://painting/element_manager/element_material")
 transparent_alpha_threshold = 0.05
 use_nearest_color_fallback = true
 maximum_color_distance = 0.42

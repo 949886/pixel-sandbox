@@ -20,6 +20,7 @@ const DEFAULT_TARGET_FORMAT: Image.Format = Image.FORMAT_RGBA8
 @export var size_units: Vector2i = Vector2i.ONE
 @export var allowed_biomes: Array[StringName] = []
 @export var tags: Array[StringName] = []
+@export var spawn_anchors: Array[SpawnAnchorDef] = []
 @export var weight: float = 1.0
 @export var top_slots: Array[PieceSocket.Socket] = []
 @export var right_slots: Array[PieceSocket.Socket] = []

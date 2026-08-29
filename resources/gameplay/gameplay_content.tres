@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="GameplayContentDB" load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/GameplayContentDB.gd" id="1_content"]
+[ext_resource type="Resource" path="res://resources/gameplay/catalogs/game_flow_catalog.tres" id="2_flows"]
+[ext_resource type="Resource" path="res://resources/gameplay/loadouts/default_starting_loadout.tres" id="3_loadout"]
+[ext_resource type="Resource" path="res://resources/gameplay/catalogs/spell_catalog.tres" id="4_spells"]
+[ext_resource type="Resource" path="res://resources/gameplay/catalogs/enemy_catalog.tres" id="4_enemies"]
+[ext_resource type="Resource" path="res://resources/gameplay/catalogs/encounter_catalog.tres" id="4_encounters"]
+[ext_resource type="Resource" path="res://resources/gameplay/catalogs/wand_generation_catalog.tres" id="4_wand_generation"]
+[ext_resource type="Resource" path="res://resources/gameplay/catalogs/reward_catalog.tres" id="4_rewards"]
+[ext_resource type="Resource" path="res://resources/gameplay/catalogs/creative_entity_catalog.tres" id="5_entities"]
+[ext_resource type="Resource" path="res://resources/gameplay/modes/creative_rules.tres" id="6_rules"]
+[ext_resource type="Resource" path="res://resources/gameplay/status_rules.tres" id="6_status"]
+[ext_resource type="Resource" path="res://resources/gameplay/wands/creative_blank_wand.tres" id="7_wand"]
+
+[resource]
+script = ExtResource("1_content")
+default_flow_id = &"normal"
+flow_catalog = ExtResource("2_flows")
+default_starting_loadout = ExtResource("3_loadout")
+spell_catalog = ExtResource("4_spells")
+enemy_catalog = ExtResource("4_enemies")
+encounter_catalog = ExtResource("4_encounters")
+wand_generation_catalog = ExtResource("4_wand_generation")
+reward_catalog = ExtResource("4_rewards")
+creative_entity_catalog = ExtResource("5_entities")
+creative_rules = ExtResource("6_rules")
+status_rules = ExtResource("6_status")
+creative_wand_template = ExtResource("7_wand")

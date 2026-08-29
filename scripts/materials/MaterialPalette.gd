@@ -3,6 +3,8 @@ extends Resource
 
 ## Converts flat colors in generated material images to sand-slide element IDs.
 @export var entries: Array[MaterialEntry] = []
+@export var gameplay_bindings: Array[MaterialGameplayBinding] = []
+@export var base_element_resource_directories: PackedStringArray = PackedStringArray()
 @export_range(0.0, 1.0, 0.01) var transparent_alpha_threshold: float = 0.05
 @export var use_nearest_color_fallback: bool = true
 @export_range(0.0, 2.0, 0.01) var maximum_color_distance: float = 0.42
@@ -11,6 +13,7 @@ var _exact_element_by_rgba: Dictionary = {}
 var _nearest_cache: Dictionary = {}
 var _solid_element_ids: Dictionary = {}
 var _entry_by_element_id: Dictionary = {}
+var _gameplay_tags_by_element_id: Dictionary = {}
 var _cache_ready: bool = false
 
 func rebuild_cache() -> void:
@@ -18,6 +21,7 @@ func rebuild_cache() -> void:
 	_nearest_cache.clear()
 	_solid_element_ids.clear()
 	_entry_by_element_id.clear()
+	_gameplay_tags_by_element_id.clear()
 	for entry: MaterialEntry in entries:
 		if entry == null:
 			continue
@@ -26,6 +30,14 @@ func rebuild_cache() -> void:
 			_solid_element_ids[entry.engine_element_id] = true
 		for source_color: Color in entry.all_source_colors():
 			_exact_element_by_rgba[_rgba_key_from_color(source_color)] = entry.engine_element_id
+	for binding: MaterialGameplayBinding in gameplay_bindings:
+		if binding == null:
+			continue
+		var normalized: Array[StringName] = []
+		for tag: StringName in binding.tags:
+			if tag != &"" and not normalized.has(tag):
+				normalized.append(tag)
+		_gameplay_tags_by_element_id[binding.engine_element_id] = normalized
 	_cache_ready = true
 
 func element_id_for_color(source_color: Color) -> int:
@@ -160,6 +172,20 @@ func build_collision_rects(element_ids: PackedInt32Array, width: int, height: in
 func is_solid_element_id(element_id: int) -> bool:
 	_ensure_cache()
 	return bool(_solid_element_ids.get(element_id, false))
+
+func gameplay_tags_for_element_id(element_id: int) -> Array[StringName]:
+	_ensure_cache()
+	var result: Array[StringName] = []
+	var entry := _entry_by_element_id.get(element_id, null) as MaterialEntry
+	if entry != null and entry.liquid:
+		result.append(&"liquid")
+	var configured: Variant = _gameplay_tags_by_element_id.get(element_id, [])
+	if configured is Array:
+		for tag_value: Variant in configured:
+			var tag := StringName(tag_value)
+			if tag != &"" and not result.has(tag):
+				result.append(tag)
+	return result
 
 func entry_for_element_id(element_id: int) -> MaterialEntry:
 	_ensure_cache()

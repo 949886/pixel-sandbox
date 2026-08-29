@@ -1,10 +1,8 @@
 class_name GameConfig
 extends RefCounted
 
-const DEFAULT_FLOW_ID: StringName = &"normal"
-
 var _seed: int = 0
-var _flow_id: StringName = DEFAULT_FLOW_ID
+var _flow_id: StringName = &""
 var _starting_loadout: StartingLoadoutDef = null
 
 var seed: int:
@@ -28,7 +26,7 @@ var starting_loadout: StartingLoadoutDef:
 
 func _init(
 		seed_value: int,
-		flow_id_value: StringName = DEFAULT_FLOW_ID,
+		flow_id_value: StringName = &"",
 		loadout: StartingLoadoutDef = null,
 	) -> void:
 	_seed = seed_value
@@ -37,7 +35,7 @@ func _init(
 
 
 static func create_default(
-		flow_id_value: StringName = DEFAULT_FLOW_ID,
+		flow_id_value: StringName = &"",
 		loadout: StartingLoadoutDef = null,
 	) -> GameConfig:
 	var rng := RandomNumberGenerator.new()
@@ -47,7 +45,7 @@ static func create_default(
 
 static func create_with_seed(
 		seed_value: int,
-		flow_id_value: StringName = DEFAULT_FLOW_ID,
+		flow_id_value: StringName = &"",
 		loadout: StartingLoadoutDef = null,
 	) -> GameConfig:
 	# Zero is a valid deterministic seed. Explicit seeds are never interpreted as

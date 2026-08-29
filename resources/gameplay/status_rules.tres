@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="StatusRulesDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/status/StatusRulesDef.gd" id="1_rules"]
+
+[resource]
+script = ExtResource("1_rules")
+wet_memory_seconds = 0.8
+oil_memory_seconds = 4.0
+base_burning_seconds = 3.0
+environment_ignite_seconds = 0.75
+wet_extinguish_rate_multiplier = 4.0
+wet_ignite_block_threshold = 0.15
+wet_burning_cap_seconds = 0.25
+oiled_burn_duration_multiplier = 1.75
+oiled_burn_damage_multiplier = 1.35
+burning_damage_per_second = 7.0
+fire_contact_damage_per_second = 5.0
+lava_contact_damage_per_second = 24.0
+toxic_contact_damage_per_second = 10.0
+damage_tick_interval = 0.25

@@ -1,9 +1,8 @@
 class_name SandSimulationConfigurator
 extends RefCounted
 
-const ELEMENT_RESOURCE_DIR := "res://painting/element_manager/element_material"
-
 static var _base_ready: bool = false
+static var _base_source_key: String = ""
 static var _base_flat: Dictionary = {}
 static var _base_gradient: Dictionary = {}
 static var _base_fluid: Dictionary = {}
@@ -21,7 +20,7 @@ static var _prepared_activity_modes: PackedInt32Array = PackedInt32Array()
 static func prepare(palette: MaterialPalette) -> void:
 	## Build immutable dictionaries once during world startup instead of duplicating and
 	## rebuilding them every time a nearby chunk starts warming.
-	_load_base_graphics()
+	_load_base_graphics(palette)
 	var palette_id: int = palette.get_instance_id() if palette != null else 0
 	if palette_id == _prepared_palette_id and not _prepared_flat.is_empty():
 		return
@@ -96,23 +95,35 @@ static func _custom_element_data(entry: MaterialEntry) -> Array:
 		0, 0, 0, 0, 0, 0
 	]
 
-static func _load_base_graphics() -> void:
-	if _base_ready:
+static func _load_base_graphics(palette: MaterialPalette) -> void:
+	var directories := PackedStringArray()
+	if palette != null:
+		directories = palette.base_element_resource_directories
+	var source_key := "|".join(directories)
+	if _base_ready and source_key == _base_source_key:
 		return
+	_base_source_key = source_key
 	_base_flat.clear()
 	_base_gradient.clear()
 	_base_fluid.clear()
 	_base_metal.clear()
-	var directory: DirAccess = DirAccess.open(ELEMENT_RESOURCE_DIR)
+	for resource_dir: String in directories:
+		_load_graphics_directory(resource_dir)
+	_base_ready = true
+
+
+static func _load_graphics_directory(resource_dir: String) -> void:
+	if resource_dir.is_empty():
+		return
+	var directory: DirAccess = DirAccess.open(resource_dir)
 	if directory == null:
-		push_error("Cannot open sand-slide element resource directory: %s" % ELEMENT_RESOURCE_DIR)
-		_base_ready = true
+		push_error("Cannot open configured sand-slide element resource directory: %s" % resource_dir)
 		return
 	for file_name: String in directory.get_files():
 		var clean_name: String = file_name.replace(".remap", "")
 		if not clean_name.ends_with(".tres"):
 			continue
-		var material: Resource = ResourceLoader.load("%s/%s" % [ELEMENT_RESOURCE_DIR, clean_name])
+		var material: Resource = ResourceLoader.load("%s/%s" % [resource_dir, clean_name])
 		if material == null:
 			continue
 		if material is FlatColor:
@@ -133,4 +144,4 @@ static func _load_base_graphics() -> void:
 			_base_metal[material.id] = [
 				material.color_a.to_rgba32(), material.color_b.to_rgba32()
 			]
-	_base_ready = true
+

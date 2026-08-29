@@ -1,16 +1,18 @@
 class_name GameplayUI
 extends CanvasLayer
 
+@export var spell_slot_scene: PackedScene
+@export var wand_row_scene: PackedScene
+@export var wand_quick_slot_scene: PackedScene
+@export var status_label_scene: PackedScene
+
+
 const SLOT := 38.0
 const QUICK_GAP := 6.0
 const SPELL_INVENTORY_COLUMNS := 12
 const WAND_SPELL_COLUMNS := 12
 const SPELL_SLOT_PITCH := 40.0
 const DRAG_OVERLAY_LAYER := 120
-const SPELL_SLOT_SCENE: PackedScene = preload("res://scenes/ui/shared/SpellSlot.tscn")
-const WAND_ROW_SCENE: PackedScene = preload("res://scenes/ui/shared/WandRowUI.tscn")
-const WAND_QUICK_SLOT_SCENE: PackedScene = preload("res://scenes/ui/shared/WandQuickSlot.tscn")
-const STATUS_LABEL_SCENE: PackedScene = preload("res://scenes/ui/shared/StatusLabel.tscn")
 
 var _player: Node
 var _health: HealthComponent
@@ -257,7 +259,7 @@ func _refresh_inventory_editor() -> void:
 	_show_wand_detail(_wand_for_detail())
 
 func _build_wand_row(index: int, wand: WandDef) -> Control:
-	var row: WandRowUI = WAND_ROW_SCENE.instantiate() as WandRowUI
+	var row: WandRowUI = wand_row_scene.instantiate() as WandRowUI
 	row.setup(
 		index,
 		wand,
@@ -281,14 +283,14 @@ func _select_wand_row(index: int) -> void:
 	_refresh_inventory_editor()
 
 func _make_wand_quick_slot(index: int, wand: WandDef, equipped: bool) -> Control:
-	var slot: WandQuickSlot = WAND_QUICK_SLOT_SCENE.instantiate() as WandQuickSlot
+	var slot: WandQuickSlot = wand_quick_slot_scene.instantiate() as WandQuickSlot
 	slot.setup(index, wand, equipped)
 	slot.wand_pressed.connect(_equip_wand_from_quickbar)
 	slot.wand_hover_changed.connect(_on_wand_row_hover)
 	return slot
 
 func _add_spell_slot(parent: Control, location: Dictionary, spell: SpellDef, index_text: String, compact: bool) -> void:
-	var slot: SpellSlot = SPELL_SLOT_SCENE.instantiate() as SpellSlot
+	var slot: SpellSlot = spell_slot_scene.instantiate() as SpellSlot
 	slot.setup(location, spell, index_text, compact)
 	parent.add_child(slot)
 	slot.set_selected(not _selected_location.is_empty() and _same_location(_selected_location, location))
@@ -496,7 +498,7 @@ func _on_status_changed(summary: String) -> void:
 	if summary.is_empty():
 		return
 	for part: String in summary.split(","):
-		var label: Label = STATUS_LABEL_SCENE.instantiate() as Label
+		var label: Label = status_label_scene.instantiate() as Label
 		label.text = part.strip_edges().to_upper()
 		_status_box.add_child(label)
 

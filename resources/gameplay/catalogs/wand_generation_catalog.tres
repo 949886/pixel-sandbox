@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="WandGenerationCatalog" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/WandGenerationCatalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://resources/gameplay/wand_generation/mine_common.tres" id="2_mine_common"]
+
+[resource]
+script = ExtResource("1_catalog")
+profiles = Array[Resource]([ExtResource("2_mine_common")])

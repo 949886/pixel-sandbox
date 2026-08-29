@@ -1,0 +1,57 @@
+[gd_resource type="Resource" script_class="CaveEyeTuningDef" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/enemies/CaveEyeTuningDef.gd" id="1_tuning"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/ProjectileDef.gd" id="2_projectile"]
+[ext_resource type="Script" path="res://scripts/gameplay/spells/effects/DamageEffect.gd" id="3_damage"]
+[ext_resource type="Resource" path="res://resources/gameplay/loot/cave_eye_loot.tres" id="4_loot"]
+
+[sub_resource type="Resource" id="Damage_cave_eye"]
+script = ExtResource("3_damage")
+amount = 8.0
+damage_type = 1
+tag = &"cave_eye_projectile"
+
+[sub_resource type="Resource" id="Projectile_cave_eye"]
+script = ExtResource("2_projectile")
+speed = 245.0
+lifetime = 2.5
+collision_query_mask = 3
+impact_effects = Array[Resource]([SubResource("Damage_cave_eye")])
+primary_color = Color(1, 0.35, 0.42, 1)
+secondary_color = Color(0.55, 0.2, 0.35, 1)
+core_pixel_size = 2.0
+trail_length = 6
+trail_spacing = 4.0
+impact_particle_count = 8
+impact_pixel_size = 2.0
+impact_particle_speed = 75.0
+trail_jitter = 0.8
+
+[resource]
+script = ExtResource("1_tuning")
+move_speed = 72.0
+acceleration = 240.0
+detection_range = 360.0
+preferred_distance = 145.0
+preferred_distance_dead_zone = 22.0
+retreat_speed_scale = 0.8
+hover_frequency = 2.1
+hover_vertical_speed = 20.0
+idle_horizontal_speed = 24.0
+idle_horizontal_frequency_scale = 0.55
+idle_vertical_speed = 12.0
+attack_range = 285.0
+shots_per_second = 0.85
+projectile_spawn_offset = 10.0
+projectile_def = SubResource("Projectile_cave_eye")
+loot_table = ExtResource("4_loot")
+body_radius = 9.0
+eye_radius = 6.0
+pupil_radius = 3.0
+highlight_radius = 1.0
+body_color = Color(0.35, 0.08, 0.14, 1)
+eye_color = Color(0.94, 0.72, 0.68, 1)
+pupil_color = Color(0.12, 0.03, 0.05, 1)
+highlight_color = Color(1, 1, 1, 1)
+health_bar_background = Color(0.12, 0.12, 0.12, 0.9)
+health_bar_foreground = Color(0.9, 0.2, 0.25, 1)

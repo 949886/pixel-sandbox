@@ -15,6 +15,7 @@ enum Tool {
 
 var selected_tool: int = Tool.SPAWN
 var selected_entity: CreativeEntityDef
+var _gameplay_content: GameplayContentDB
 var _mode_manager: GameModeManager
 var _interaction_enabled: bool = false
 var _spawn_cooldown: float = 0.0
@@ -22,7 +23,10 @@ var _last_preview_world: Vector2 = Vector2.INF
 
 func _ready() -> void:
 	add_to_group(&"creative_entity_controller")
-	var entities: Array[CreativeEntityDef] = CreativeEntityCatalog.all_entities()
+	_gameplay_content = GameplayContentAccess.find_from(self)
+	var entities: Array[CreativeEntityDef] = []
+	if _gameplay_content != null and _gameplay_content.creative_entity_catalog != null:
+		entities = _gameplay_content.creative_entity_catalog.all_entities()
 	if not entities.is_empty():
 		selected_entity = entities[0]
 	call_deferred("_bind_dependencies")

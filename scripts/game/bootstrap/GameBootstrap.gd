@@ -3,6 +3,7 @@ extends Node
 
 @export var world_scene: PackedScene
 @export var world_gen_config_template: WorldGenConfig
+@export var gameplay_content: GameplayContentDB
 
 var _game_manager: GameManager = null
 var _runtime_host: Node = null
@@ -12,7 +13,7 @@ var _active_game_id: int = GameManager.INVALID_GAME_ID
 var _world_ready: bool = false
 var _required_player_ids: Array[int] = []
 var _ready_player_ids: Dictionary = {}
-var _restart_flow_id: StringName = GameConfig.DEFAULT_FLOW_ID
+var _restart_flow_id: StringName = &""
 var _restart_starting_loadout: StartingLoadoutDef = null
 var _last_stopped_game_id: int = GameManager.INVALID_GAME_ID
 var _restart_generation: int = 0
@@ -213,6 +214,15 @@ func _instantiate_configured_world(config: GameConfig) -> Node:
 	if world == null:
 		push_error("GameBootstrap: Failed to instantiate World scene.")
 		return null
+	if gameplay_content == null or not gameplay_content.is_valid():
+		world.free()
+		push_error("GameBootstrap: GameplayContentDB is not configured or invalid.")
+		return null
+	if world.has_method(&"configure_gameplay_content"):
+		if not bool(world.call(&"configure_gameplay_content", gameplay_content)):
+			world.free()
+			push_error("GameBootstrap: World rejected GameplayContentDB configuration.")
+			return null
 
 	var runtime_config := create_runtime_world_config(world_gen_config_template, config.seed)
 	if runtime_config == null:
@@ -252,13 +262,10 @@ func _create_player_states(_game_id: int, player_ids: Array[int]) -> bool:
 
 
 func _create_flow(flow_id: StringName) -> GameFlow:
-	match flow_id:
-		&"normal":
-			var flow := NormalGameFlow.new()
-			flow.name = "NormalGameFlow"
-			return flow
-		_:
-			return null
+	if gameplay_content == null or gameplay_content.flow_catalog == null:
+		push_error("GameBootstrap: GameplayContentDB / GameFlowCatalog is not configured.")
+		return null
+	return gameplay_content.flow_catalog.instantiate_flow(flow_id)
 
 
 func _poll_world_ready() -> void:

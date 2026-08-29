@@ -4,3 +4,5 @@
 
 [node name="SpellPickup" type="Area2D"]
 script = ExtResource("1_pickup")
+pickup_delay = 0.15
+float_amplitude = 2.0

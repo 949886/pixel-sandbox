@@ -11,6 +11,7 @@ var damage_per_second: float = 10.0
 var move_speed: float = 0.0
 var pull_force: float = 0.0
 var terrain_radius: float = 0.0
+var material_element_id: int = -1
 var actor_collision_mask: int = 6
 var slow_factor: float = 0.35
 var status_duration: float = 0.5
@@ -31,6 +32,7 @@ func setup(
 	p_move_speed: float,
 	p_pull_force: float,
 	p_terrain_radius: float,
+	p_material_element_id: int,
 	p_primary: Color,
 	p_secondary: Color,
 	p_slow_factor: float = 0.35,
@@ -44,6 +46,7 @@ func setup(
 	move_speed = p_move_speed
 	pull_force = maxf(0.0, p_pull_force)
 	terrain_radius = maxf(0.0, p_terrain_radius)
+	material_element_id = p_material_element_id
 	primary = p_primary
 	secondary = p_secondary
 	slow_factor = clampf(p_slow_factor, 0.05, 1.0)
@@ -217,6 +220,8 @@ func _apply_cone_damage() -> void:
 		seen[health] = true
 
 func _paint_fire_cone() -> void:
+	if material_element_id < 0:
+		return
 	if context.world_interface == null or not context.world_interface.has_method("paint_material_circle"):
 		return
 	var caster := context.caster as Node2D
@@ -227,7 +232,7 @@ func _paint_fire_cone() -> void:
 		var perpendicular := Vector2(-context.direction.y, context.direction.x)
 		var jitter := perpendicular * _rng.randf_range(-distance * 0.16, distance * 0.16)
 		var point := caster.global_position + context.direction * distance + jitter
-		context.world_interface.call("paint_material_circle", point.round(), 1.5, GameplayMaterialRules.FIRE_ID, true)
+		context.world_interface.call("paint_material_circle", point.round(), 1.5, material_element_id, true)
 
 func _erode_terrain() -> void:
 	if terrain_radius <= 0.0 or context.world_interface == null or not context.world_interface.has_method("erase_material_circle"):

@@ -1,8 +1,6 @@
 class_name PaintingCreativeStyle
 extends RefCounted
 
-const BASE_THEME: Theme = preload("res://painting/ui/_theme/theme.tres")
-
 const PANEL_BG: Color = Color(0.509804, 0.517647, 0.560784, 1.0)
 const SURFACE: Color = Color(0.313726, 0.313726, 0.360784, 1.0)
 const SURFACE_HOVER: Color = Color(0.416687, 0.416761, 0.472713, 1.0)

@@ -22,7 +22,7 @@ func _test_context_lifecycle() -> void:
 	assert(context.is_persistent_ready())
 	assert(not context.has_game())
 
-	var config: GameConfig = GameConfig.create_with_seed(8181)
+	var config: GameConfig = GameConfig.create_with_seed(8181, &"test")
 	assert(config != null and config.is_valid())
 	var game_id: int = manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)

@@ -1,3 +1,4 @@
+class_name RuntimeRebuildTestWorld
 extends Node2D
 
 @export var world_gen_config: WorldGenConfig

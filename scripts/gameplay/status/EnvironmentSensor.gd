@@ -28,8 +28,10 @@ func sample_points(world_interface: Node, world_points: Array[Vector2]) -> void:
 		sample_count += 1
 		var element_id := int(world_interface.call("get_element_id_at_world_position", world_point))
 		contact_element_ids.append(element_id)
-		var entry: MaterialEntry = palette.entry_for_element_id(element_id) if palette != null else null
-		var tags := GameplayMaterialRules.tags_for(element_id, entry)
+		var semantic_tags: Array[StringName] = (
+			palette.gameplay_tags_for_element_id(element_id) if palette != null else []
+		)
+		var tags := GameplayMaterialRules.tags_for(semantic_tags)
 		if bool(tags["liquid"]):
 			liquid_count += 1
 		water_contact = water_contact or bool(tags["water"])

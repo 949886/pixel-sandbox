@@ -33,11 +33,7 @@ func get_biome(coord: Vector2i) -> StringName:
 				continue
 			if coord.y >= biome_config.depth_min and coord.y <= biome_config.depth_max:
 				return biome_config.id
-	if coord.y < 5:
-		return &"mine"
-	elif coord.y < 10:
-		return &"snow"
-	return &"deep"
+	return &""
 
 func get_main_path_x(y: int) -> int:
 	if world_structure != null:

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EnemyDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/EnemyDef.gd" id="1_def"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/CaveEye.tscn" id="2_scene"]
+
+[resource]
+script = ExtResource("1_def")
+enemy_id = &"cave_eye"
+display_name = "Cave Eye"
+scene = ExtResource("2_scene")
+threat_cost = 1.0
+placement_tags = Array[StringName]([&"air", &"ranged"])

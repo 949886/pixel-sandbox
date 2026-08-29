@@ -12,7 +12,7 @@ func _ready() -> void:
 
 
 func _test_explicit_zero_seed() -> void:
-	var config := GameConfig.create_with_seed(0)
+	var config := GameConfig.create_with_seed(0, &"test")
 	assert(config != null)
 	assert(config.is_valid())
 	assert(config.seed == 0)

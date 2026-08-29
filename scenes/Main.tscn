@@ -5,7 +5,7 @@
 [ext_resource type="Script" path="res://scripts/game/bootstrap/GameBootstrap.gd" id="3_game_bootstrap"]
 [ext_resource type="PackedScene" path="res://scenes/World.tscn" id="4_world"]
 [ext_resource type="Resource" path="res://resources/world_gen/default_world_gen_config.tres" id="5_world_config"]
-[ext_resource type="Resource" path="res://resources/gameplay/loadouts/default_starting_loadout.tres" id="6_starting_loadout"]
+[ext_resource type="Resource" path="res://resources/gameplay/gameplay_content.tres" id="6_gameplay_content"]
 [ext_resource type="Script" path="res://scripts/ui/GameUIManager.gd" id="7_ui_manager"]
 [ext_resource type="Script" path="res://scripts/game/state/GameSummary.gd" id="8_game_summary"]
 [ext_resource type="PackedScene" path="res://scenes/ui/GameFlowUI.tscn" id="9_game_flow_ui"]
@@ -14,7 +14,7 @@
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
-starting_loadout = ExtResource("6_starting_loadout")
+gameplay_content = ExtResource("6_gameplay_content")
 
 [node name="GameManager" type="Node" parent="."]
 script = ExtResource("2_game_manager")

@@ -7,8 +7,6 @@ extends Node2D
 # SpecialChunkPlanner, WorldSeamRegistry, 128px piece units, 4 socket slots per
 # chunk edge, actual/expected seam profiles, and non-destructive seam repair.
 
-const DEFAULT_CONFIG_PATH: String = "res://resources/world_gen/default_world_gen_config.tres"
-const DEFAULT_LIBRARY_PATH: String = "res://resources/pieces/piece_library.tres"
 const CHUNK_SIZE: int = PieceWorldConstants.CHUNK_SIZE
 const UNIT_SIZE: int = PieceWorldConstants.UNIT_SIZE
 const UNITS_PER_CHUNK: int = PieceWorldConstants.CHUNK_UNITS
@@ -166,19 +164,13 @@ func _restart_demo() -> void:
 	queue_redraw()
 
 func _load_config() -> WorldGenConfig:
-	if world_gen_config != null:
-		return world_gen_config
-	var loaded: WorldGenConfig = ResourceLoader.load(DEFAULT_CONFIG_PATH) as WorldGenConfig
-	return loaded
+	return world_gen_config
 
 func _load_piece_library() -> PieceLibrary:
 	if piece_library != null:
 		return piece_library.duplicate(false) as PieceLibrary
 	if active_config != null and active_config.piece_library != null:
 		return active_config.piece_library.duplicate(false) as PieceLibrary
-	var loaded: PieceLibrary = ResourceLoader.load(DEFAULT_LIBRARY_PATH) as PieceLibrary
-	if loaded != null:
-		return loaded.duplicate(false) as PieceLibrary
 	return null
 
 func _reset_display_image() -> void:

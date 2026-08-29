@@ -449,7 +449,7 @@ func _add_seam_repair_glue(data: PieceChunkData, unit_pos: Vector2i, rng: Random
 	var bottom_socket: PieceSocket.Socket = PieceSocket.from_value(sockets.get(&"bottom", PieceSocket.SOLID))
 	var left_socket: PieceSocket.Socket = PieceSocket.from_value(sockets.get(&"left", PieceSocket.SOLID))
 	var seed_value: int = int(_chunk_seed(data.coord) + unit_pos.x * 1009 + unit_pos.y * 9173 + 531441)
-	var glue: Image = GluePieceGenerator.generate(data.biome_id, top_socket, right_socket, bottom_socket, left_socket, seed_value)
+	var glue: Image = GluePieceGenerator.generate(_biome_config(data.biome_id), top_socket, right_socket, bottom_socket, left_socket, seed_value)
 	var rect: Rect2i = Rect2i(unit_pos * UNIT_SIZE, Vector2i.ONE * UNIT_SIZE)
 	data.visual_image.blit_rect(glue, Rect2i(Vector2i.ZERO, glue.get_size()), rect.position)
 	data.material_image.blit_rect(glue, Rect2i(Vector2i.ZERO, glue.get_size()), rect.position)
@@ -544,7 +544,7 @@ func _fill_glue(data: PieceChunkData, occupied: Array[bool], rng: RandomNumberGe
 			var right_socket: PieceSocket.Socket = PieceSocket.from_value(sockets[&"right"])
 			var bottom_socket: PieceSocket.Socket = PieceSocket.from_value(sockets[&"bottom"])
 			var left_socket: PieceSocket.Socket = PieceSocket.from_value(sockets[&"left"])
-			var glue: Image = GluePieceGenerator.generate(data.biome_id, top_socket, right_socket, bottom_socket, left_socket, int(_chunk_seed(data.coord) + x * 77 + y * 313))
+			var glue: Image = GluePieceGenerator.generate(_biome_config(data.biome_id), top_socket, right_socket, bottom_socket, left_socket, int(_chunk_seed(data.coord) + x * 77 + y * 313))
 			var rect: Rect2i = Rect2i(Vector2i(x, y) * UNIT_SIZE, Vector2i.ONE * UNIT_SIZE)
 			data.visual_image.blit_rect(glue, Rect2i(Vector2i.ZERO, glue.get_size()), rect.position)
 			data.material_image.blit_rect(glue, Rect2i(Vector2i.ZERO, glue.get_size()), rect.position)
@@ -726,3 +726,7 @@ func _estimate_air_units(data: PieceChunkData) -> int:
 
 func _chunk_seed(coord: Vector2i) -> int:
 	return int(world_seed + coord.x * 73856093 + coord.y * 19349663)
+
+
+func _biome_config(biome_id: StringName) -> BiomeConfig:
+	return config.get_biome_config(biome_id) if config != null else null

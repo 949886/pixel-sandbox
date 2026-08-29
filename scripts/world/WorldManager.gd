@@ -8,11 +8,6 @@ extends Node2D
 # - Background worker: PieceChunkData + visual/material Image composition.
 # - Main thread: scene-tree changes, ImageTexture upload, debug UI updates.
 
-const PlatformUtilsScript = preload("res://scripts/platform/PlatformUtils.gd")
-const DEFAULT_CONFIG_PATH: String = "res://resources/world_gen/default_world_gen_config.tres"
-const DEFAULT_MATERIAL_PALETTE_PATH: String = "res://resources/materials/default_material_palette.tres"
-const PC_RUNTIME_PROFILE_PATH: String = "res://resources/runtime_profiles/pc_runtime_profile.tres"
-const MOBILE_RUNTIME_PROFILE_PATH: String = "res://resources/runtime_profiles/mobile_runtime_profile.tres"
 const PROFILE_AUTO: int = 0
 const PROFILE_PC: int = 1
 const PROFILE_MOBILE: int = 2
@@ -21,6 +16,7 @@ const UNIT_SIZE: int = PieceWorldConstants.UNIT_SIZE
 const UNITS_PER_CHUNK: int = PieceWorldConstants.CHUNK_UNITS
 const CHUNK_SIZE: int = PieceWorldConstants.CHUNK_SIZE
 
+@export var gameplay_content: GameplayContentDB
 @export var world_gen_config: WorldGenConfig
 @export var piece_library: PieceLibrary
 @export var material_palette: MaterialPalette
@@ -130,9 +126,12 @@ var _last_pipeline_usec: int = 0
 
 func _ready() -> void:
 	process_physics_priority = -100
+	if gameplay_content == null or not gameplay_content.is_valid():
+		push_error("WorldManager: GameplayContentDB is missing or invalid.")
+		return
 	active_config = _load_config()
-	if active_config == null:
-		push_error("WorldManager: Unable to load WorldGenConfig.")
+	if active_config == null or not active_config.is_valid():
+		push_error("WorldManager: WorldGenConfig is missing or invalid.")
 		return
 	if override_seed:
 		active_config.world_seed = world_seed
@@ -235,30 +234,33 @@ func _stop_workers() -> void:
 	if special_chunk_manager != null:
 		special_chunk_manager.stop()
 
+func configure_gameplay_content(content: GameplayContentDB) -> bool:
+	if content == null or not content.is_valid():
+		return false
+	if is_inside_tree() and gameplay_content != null and gameplay_content != content:
+		return false
+	gameplay_content = content
+	return true
+
+
+func get_gameplay_content() -> GameplayContentDB:
+	return gameplay_content
+
+
 func _load_config() -> WorldGenConfig:
-	if world_gen_config != null:
-		return world_gen_config
-	var loaded: WorldGenConfig = ResourceLoader.load(DEFAULT_CONFIG_PATH) as WorldGenConfig
-	if loaded != null:
-		return loaded
-	return null
+	return world_gen_config
+
 
 func _load_piece_library() -> PieceLibrary:
 	if piece_library != null:
 		return piece_library.duplicate(false) as PieceLibrary
 	if active_config != null and active_config.piece_library != null:
 		return active_config.piece_library.duplicate(false) as PieceLibrary
-	var loaded: PieceLibrary = ResourceLoader.load("res://resources/pieces/piece_library.tres") as PieceLibrary
-	if loaded != null:
-		return loaded.duplicate(false) as PieceLibrary
-	var runtime_library: PieceLibrary = PieceLibrary.new()
-	runtime_library.load_from_default_dirs()
-	return runtime_library
+	return null
+
 
 func _load_material_palette() -> MaterialPalette:
-	if material_palette != null:
-		return material_palette
-	return ResourceLoader.load(DEFAULT_MATERIAL_PALETTE_PATH) as MaterialPalette
+	return material_palette
 
 
 func _resolve_runtime_profile() -> WorldRuntimeProfile:
@@ -267,31 +269,31 @@ func _resolve_runtime_profile() -> WorldRuntimeProfile:
 		mode = PROFILE_MOBILE if _is_mobile_platform() else PROFILE_PC
 	match mode:
 		PROFILE_PC:
-			return _load_runtime_profile(pc_runtime_profile, PC_RUNTIME_PROFILE_PATH)
+			return _profile_or_fallback(pc_runtime_profile, "PC")
 		PROFILE_MOBILE:
-			return _load_runtime_profile(mobile_runtime_profile, MOBILE_RUNTIME_PROFILE_PATH)
+			return _profile_or_fallback(mobile_runtime_profile, "Mobile")
 		PROFILE_CUSTOM:
 			if custom_runtime_profile != null:
 				return custom_runtime_profile
-			push_warning("WorldManager: Runtime profile mode is Custom, but no custom_runtime_profile is assigned. Falling back to PC profile.")
-			return _load_runtime_profile(pc_runtime_profile, PC_RUNTIME_PROFILE_PATH)
+			push_warning("WorldManager: Custom runtime profile is not assigned; using configured PC profile.")
+			return _profile_or_fallback(pc_runtime_profile, "PC")
 		_:
-			return _load_runtime_profile(pc_runtime_profile, PC_RUNTIME_PROFILE_PATH)
+			return _profile_or_fallback(pc_runtime_profile, "PC")
 
-func _load_runtime_profile(assigned_profile: WorldRuntimeProfile, fallback_path: String) -> WorldRuntimeProfile:
+
+func _profile_or_fallback(assigned_profile: WorldRuntimeProfile, label: String) -> WorldRuntimeProfile:
 	if assigned_profile != null:
 		return assigned_profile
-	var loaded: WorldRuntimeProfile = ResourceLoader.load(fallback_path) as WorldRuntimeProfile
-	if loaded != null:
-		return loaded
-	var fallback: WorldRuntimeProfile = WorldRuntimeProfile.new()
-	fallback.display_name = "Fallback"
+	push_warning("WorldManager: %s runtime profile is not configured; using neutral runtime defaults." % label)
+	var fallback := WorldRuntimeProfile.new()
+	fallback.display_name = "%s Fallback" % label
 	return fallback
+
 
 func _is_mobile_platform() -> bool:
 	# Share the same native/Web device classification as the touch UI so a
 	# mobile browser also receives the lower-cost mobile runtime profile.
-	return PlatformUtilsScript.is_mobile_platform()
+	return PlatformUtils.is_mobile_platform()
 
 func _apply_runtime_profile() -> void:
 	if runtime_profile == null:

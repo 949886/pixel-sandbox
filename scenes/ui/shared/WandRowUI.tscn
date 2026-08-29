@@ -1,7 +1,8 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/gameplay/WandRowUI.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/ui/shared/WandGlyph.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shared/SpellSlot.tscn" id="3_spell_slot"]
 
 [sub_resource type="StyleBoxFlat" id="Style_base"]
 bg_color = Color(0.018, 0.014, 0.014, 0.94)
@@ -24,6 +25,7 @@ custom_minimum_size = Vector2(770, 78)
 mouse_default_cursor_shape = 2
 theme_override_styles/panel = SubResource("Style_base")
 script = ExtResource("1")
+spell_slot_scene = ExtResource("3_spell_slot")
 
 [node name="Margin" type="MarginContainer" parent="."]
 layout_mode = 2

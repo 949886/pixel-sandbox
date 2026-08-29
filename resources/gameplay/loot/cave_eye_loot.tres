@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="LootTableDef" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/loot/LootTableDef.gd" id="1_table"]
+[ext_resource type="Script" path="res://scripts/gameplay/loot/GoldLootEntryDef.gd" id="2_gold_entry"]
+[ext_resource type="Script" path="res://scripts/gameplay/loot/SpellLootEntryDef.gd" id="3_spell_entry"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/GoldPickup.tscn" id="4_gold_scene"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/SpellPickup.tscn" id="5_spell_scene"]
+
+[sub_resource type="Resource" id="GoldEntry"]
+script = ExtResource("2_gold_entry")
+chance = 1.0
+drop_scene = ExtResource("4_gold_scene")
+payload_property = &"value"
+requires_payload = true
+value_min = 3
+value_max = 7
+
+[sub_resource type="Resource" id="SpellEntry"]
+script = ExtResource("3_spell_entry")
+chance = 0.35
+drop_scene = ExtResource("5_spell_scene")
+payload_property = &"spell"
+requires_payload = true
+offset_min = Vector2(-5, -8)
+offset_max = Vector2(5, -8)
+maximum_tier = 3
+
+[resource]
+script = ExtResource("1_table")
+loot_id = &"cave_eye"
+entries = Array[Resource]([SubResource("GoldEntry"), SubResource("SpellEntry")])

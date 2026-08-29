@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RewardCatalog" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/RewardCatalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://resources/gameplay/rewards/cave_eye_reward.tres" id="2_cave_eye"]
+
+[resource]
+script = ExtResource("1_catalog")
+rewards = Array[Resource]([ExtResource("2_cave_eye")])

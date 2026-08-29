@@ -33,6 +33,7 @@ enum FillMode {
 @export_enum("Treasure", "Shop", "Altar", "Portal", "Boss Entrance", "Puzzle", "Hall", "Shrine", "Decorative") var chunk_kind: int = ChunkKind.DECORATIVE
 @export var allowed_biomes: Array[StringName] = []
 @export var tags: Array[StringName] = []
+@export var spawn_anchors: Array[SpawnAnchorDef] = []
 @export var prefer_structure_tags: Array[StringName] = []
 @export var avoid_structure_tags: Array[StringName] = []
 @export var prefer_branch_end: bool = true
@@ -49,6 +50,12 @@ enum FillMode {
 @export var require_near_main_path: bool = false
 @export_enum("Rock", "Snow", "Deep", "Ruins") var transition_style: int = TransitionStyle.ROCK
 @export_enum("None", "Piece Border", "Piece Environment") var fill_mode: int = FillMode.PIECE_ENVIRONMENT
+
+@export_category("Generated fallback visuals")
+@export var generated_rock_color: Color = Color(0.2, 0.2, 0.2, 1.0)
+@export var generated_dark_color: Color = Color(0.1, 0.1, 0.1, 1.0)
+@export var generated_accent_color: Color = Color(0.5, 0.7, 0.8, 1.0)
+@export var generated_feature_color: Color = Color(0.5, 0.5, 0.5, 1.0)
 
 # Profiles are four 128px socket slots per chunk edge.
 # For a 2x1 chunk, top/bottom have 8 entries; left/right have 4 entries.

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="WandDef" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/spells/WandDef.gd" id="1_wand"]
+[ext_resource type="Texture2D" path="res://resources/gameplay/wands/wand.png" id="2_texture"]
+
+[resource]
+script = ExtResource("1_wand")
+wand_id = &"creative_blank_template"
+display_name = "Creative Wand"
+visual_texture = ExtResource("2_texture")
+visual_modulate = Color(0.7, 0.95, 1, 1)
+mana_max = 1000.0
+mana_recharge_per_second = 500.0
+cast_delay = 0.05
+recharge_time = 0.15
+multicast = 1
+capacity = 12
+shuffle = false
+spread_degrees = 0.0
+spells = Array[Resource]([])

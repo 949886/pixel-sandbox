@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dy2dmllmw3eqq"]
+[gd_scene load_steps=12 format=3 uid="uid://dy2dmllmw3eqq"]
 
 [ext_resource type="Script" path="res://scripts/player/Player.gd" id="1_player"]
 [ext_resource type="SpriteFrames" path="res://assets/player/player_sprite_frames.tres" id="2_body_frames"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scripts/gameplay/combat/HealthComponent.gd" id="5_health"]
 [ext_resource type="Script" path="res://scripts/gameplay/combat/FactionComponent.gd" id="6_faction"]
 [ext_resource type="Script" path="res://scripts/gameplay/status/StatusComponent.gd" id="7_status"]
+[ext_resource type="Resource" path="res://resources/gameplay/status_rules.tres" id="7_status_rules"]
 [ext_resource type="Script" path="res://scripts/gameplay/status/EnvironmentSensor.gd" id="8_sensor"]
 [ext_resource type="Script" path="res://scripts/gameplay/spells/WandController.gd" id="9_wand_controller"]
 [ext_resource type="Script" path="res://scripts/gameplay/items/PlayerInventory.gd" id="11_inventory"]
@@ -21,6 +22,36 @@ collision_mask = 1
 safe_margin = 0.01
 script = ExtResource("1_player")
 player_id = 1
+character_scale = 0.5
+walk_speed = 115.0
+sprint_speed = 165.0
+crouch_speed = 62.0
+ground_acceleration = 1050.0
+ground_deceleration = 1400.0
+air_acceleration = 520.0
+gravity = 760.0
+max_fall_speed = 440.0
+fast_fall_acceleration = 520.0
+max_step_height = 3.0
+step_floor_probe = 2.0
+jump_speed = 235.0
+coyote_time = 0.1
+jump_buffer_time = 0.12
+jetpack_acceleration = 660.0
+max_jetpack_rise_speed = 185.0
+maximum_flight_fuel = 1.0
+flight_fuel_burn_rate = 0.46
+grounded_fuel_recharge_rate = 1.7
+swimming_fuel_recharge_rate = 0.65
+swim_speed = 92.0
+swim_acceleration = 580.0
+swim_gravity_scale = 0.12
+liquid_sample_radius = 6.0
+starting_gold = 0
+zoom_step = 0.1
+min_zoom = 0.55
+max_zoom = 4.0
+virtual_aim_threshold = 0.18
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, -5.5)
@@ -37,6 +68,7 @@ faction = 1
 
 [node name="StatusComponent" type="Node" parent="."]
 script = ExtResource("7_status")
+rules = ExtResource("7_status_rules")
 
 [node name="EnvironmentSensor" type="Node" parent="."]
 script = ExtResource("8_sensor")

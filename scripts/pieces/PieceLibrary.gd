@@ -13,13 +13,14 @@ func prepare() -> void:
 			pieces_by_id[piece.id] = piece
 	print("PieceLibrary loaded ", pieces_by_id.size(), " piece defs")
 	if pieces_by_id.is_empty():
-		push_error("PieceLibrary loaded 0 piece defs. Check res://resources/pieces/piece_library.tres and its PieceDef references.")
+		push_error("PieceLibrary loaded 0 piece defs. Check the configured PieceLibrary resource references.")
 
-func load_from_default_dirs() -> void:
+func load_from_directories(directories: PackedStringArray) -> void:
 	pieces.clear()
 	pieces_by_id.clear()
-	_load_defs_recursive("res://resources/pieces/defs")
-	_load_defs_recursive("res://resources/generated_pieces/defs")
+	for directory_path: String in directories:
+		if not directory_path.is_empty():
+			_load_defs_recursive(directory_path)
 	prepare()
 
 func _load_defs_recursive(path: String) -> void:

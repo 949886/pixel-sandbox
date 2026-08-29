@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="WorldStructureProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/WorldStructureProfile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+min_x = -16
+max_x = 16
+min_y = 0
+max_y = 96
+main_path_min_x = -6
+main_path_max_x = 6
+shoulder_chance = 0.72
+branch_start_offset_y = 2
+branch_end_margin_y = 3
+branch_vertical_step_chance = 0.3
+branch_row_advance_min = 2
+branch_row_advance_max = 4
+loop_target_depth_min = 1
+loop_target_depth_max = 3
+chamber_start_offset_y = 4
+chamber_end_margin_y = 4
+chamber_row_step = 5
+chamber_horizontal_offset_min = 3
+chamber_horizontal_offset_max = 7
+chamber_vertical_jitter = 1

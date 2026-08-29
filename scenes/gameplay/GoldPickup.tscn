@@ -4,3 +4,5 @@
 
 [node name="GoldPickup" type="Area2D"]
 script = ExtResource("1")
+value = 5
+pickup_delay = 0.15

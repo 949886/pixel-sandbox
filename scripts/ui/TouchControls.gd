@@ -1,8 +1,6 @@
 class_name TouchControls
 extends CanvasLayer
 
-const PlatformUtilsScript = preload("res://scripts/platform/PlatformUtils.gd")
-
 ## Platform-aware touch HUD. The left joystick owns movement plus an upper
 ## 120-degree jump/flight sector. The right thumb is reserved for directional
 ## wand aiming and firing, eliminating the former jump-button conflict.
@@ -48,7 +46,7 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	if visibility_mode != VisibilityMode.AUTO or not PlatformUtilsScript.is_web_platform():
+	if visibility_mode != VisibilityMode.AUTO or not PlatformUtils.is_web_platform():
 		return
 	_web_recheck_timer -= delta
 	if _web_recheck_timer <= 0.0:
@@ -57,7 +55,7 @@ func _process(delta: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
-	if visibility_mode != VisibilityMode.AUTO or not PlatformUtilsScript.is_web_platform():
+	if visibility_mode != VisibilityMode.AUTO or not PlatformUtils.is_web_platform():
 		return
 	if event is InputEventScreenTouch and (event as InputEventScreenTouch).pressed and not _web_touch_observed:
 		_web_touch_observed = true
@@ -98,9 +96,9 @@ func _apply_platform_visibility() -> void:
 		VisibilityMode.ALWAYS_HIDE:
 			should_show = false
 		_:
-			should_show = PlatformUtilsScript.is_mobile_native_platform()
-			if PlatformUtilsScript.is_web_platform():
-				should_show = PlatformUtilsScript.is_mobile_web_browser() or _web_touch_observed
+			should_show = PlatformUtils.is_mobile_native_platform()
+			if PlatformUtils.is_web_platform():
+				should_show = PlatformUtils.is_mobile_web_browser() or _web_touch_observed
 	if should_show != _controls_visible or touch_root.visible != should_show:
 		set_controls_visible(should_show)
 
@@ -151,7 +149,7 @@ func _set_direction_button_geometry(button: VirtualDirectionButton, radius: floa
 
 func _safe_viewport_rect(viewport_size: Vector2) -> Rect2:
 	var fallback := Rect2(Vector2.ZERO, viewport_size)
-	if not PlatformUtilsScript.is_mobile_native_platform():
+	if not PlatformUtils.is_mobile_native_platform():
 		return fallback
 	var safe_pixels := DisplayServer.get_display_safe_area()
 	var window_size := Vector2(DisplayServer.window_get_size())
@@ -223,5 +221,5 @@ func _set_player_touch_mode(active: bool) -> void:
 
 func _on_viewport_size_changed() -> void:
 	_update_responsive_layout()
-	if PlatformUtilsScript.is_web_platform():
+	if PlatformUtils.is_web_platform():
 		_apply_platform_visibility()

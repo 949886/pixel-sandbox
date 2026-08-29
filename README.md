@@ -1,5 +1,8 @@
 # Pixel Sandbox
 
+> Gameplay 内容开发约束：[`GAMEPLAY_DATA_DRIVEN_RULES.md`](GAMEPLAY_DATA_DRIVEN_RULES.md)
+
+
 > 基于 Godot 4.7 与原生 falling-sand GDExtension 构建的横版像素沙盒 / Wand 组合玩法原型。
 
 

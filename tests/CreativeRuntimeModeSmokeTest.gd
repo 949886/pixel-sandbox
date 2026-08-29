@@ -38,7 +38,7 @@ func _ready() -> void:
 	manager.name = "GameManager"
 	add_child(manager)
 
-	var config := GameConfig.create_with_seed(3600)
+	var config := GameConfig.create_with_seed(3600, &"test")
 	var game_id := manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)
 
@@ -100,7 +100,7 @@ func _ready() -> void:
 	var mode_manager := GameModeManager.new()
 	mode_manager.name = "GameModeManager"
 	mode_manager.request_player_id = GameManager.LOCAL_PLAYER_ID
-	mode_manager.creative_rules = rules_template
+	mode_manager.creative_rules_override = rules_template
 	runtime.add_child(mode_manager)
 	mode_manager._bind_game_state()
 

@@ -10,6 +10,7 @@ mode = 2
 duration = 1.35
 radius = 82.0
 damage_per_second = 32.0
+material_element_id = 5
 primary_color = Color(1, 0.5, 0.05, 1)
 secondary_color = Color(1, 0.9, 0.25, 1)
 

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="CreativeEntityCatalog" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeEntityCatalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://resources/gameplay/creative/entities/cave_eye.tres" id="2_entity"]
+[ext_resource type="Resource" path="res://resources/gameplay/creative/entities/gold_pickup.tres" id="3_entity"]
+[ext_resource type="Resource" path="res://resources/gameplay/creative/entities/fireball_pickup.tres" id="4_entity"]
+
+[resource]
+script = ExtResource("1_catalog")
+entities = Array[CreativeEntityDef]([ExtResource("2_entity"), ExtResource("3_entity"), ExtResource("4_entity")])

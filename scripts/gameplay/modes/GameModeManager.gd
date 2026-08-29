@@ -5,7 +5,7 @@ signal mode_changed(mode: int)
 signal creative_rules_changed(rules: GameRules)
 
 @export var request_player_id: int = GameManager.LOCAL_PLAYER_ID
-@export var creative_rules: GameRules
+@export var creative_rules_override: GameRules
 
 var current_mode: int:
 	get:
@@ -21,10 +21,14 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	add_to_group(&"game_mode_manager")
 	_ensure_toggle_action()
-	if creative_rules != null:
-		# The exported Resource is a template. CreativeUI may change rule toggles
+	var rules_template: GameRules = creative_rules_override
+	if rules_template == null:
+		var content := GameplayContentAccess.find_from(self)
+		rules_template = content.creative_rules if content != null else null
+	if rules_template != null:
+		# GameplayContentDB owns the template. CreativeUI may change rule toggles
 		# during this Game, so keep those mutations runtime-local.
-		_runtime_creative_rules = creative_rules.duplicate(false) as GameRules
+		_runtime_creative_rules = rules_template.duplicate(false) as GameRules
 	call_deferred(&"_bind_game_state")
 
 

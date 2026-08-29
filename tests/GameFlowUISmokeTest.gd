@@ -157,7 +157,7 @@ func _test_flow_ui_and_summary_lifecycle() -> void:
 
 
 func _begin_game(manager: GameManager, runtime_host: Node, seed: int) -> Dictionary:
-	var config := GameConfig.create_with_seed(seed)
+	var config := GameConfig.create_with_seed(seed, &"test")
 	assert(config != null and config.is_valid())
 	var game_id := manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)

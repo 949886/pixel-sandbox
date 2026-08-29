@@ -156,7 +156,7 @@ func _create_normal_game(
 		seed: int,
 		player_ids: Array,
 	) -> Dictionary:
-	var config := GameConfig.create_with_seed(seed)
+	var config := GameConfig.create_with_seed(seed, &"test")
 	var game_id: int = manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)
 

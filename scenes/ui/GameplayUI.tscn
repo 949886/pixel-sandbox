@@ -1,6 +1,10 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/gameplay/GameplayUI.gd" id="1_ui"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shared/SpellSlot.tscn" id="2_spell_slot"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shared/WandRowUI.tscn" id="3_wand_row"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shared/WandQuickSlot.tscn" id="4_wand_quick"]
+[ext_resource type="PackedScene" path="res://scenes/ui/shared/StatusLabel.tscn" id="5_status_label"]
 
 [sub_resource type="StyleBoxFlat" id="Style_vitals"]
 bg_color = Color(0.012, 0.012, 0.012, 0.76)
@@ -63,6 +67,10 @@ border_color = Color(0.2, 0.105, 0.085, 0.95)
 [node name="GameplayUI" type="CanvasLayer"]
 layer = 40
 script = ExtResource("1_ui")
+spell_slot_scene = ExtResource("2_spell_slot")
+wand_row_scene = ExtResource("3_wand_row")
+wand_quick_slot_scene = ExtResource("4_wand_quick")
+status_label_scene = ExtResource("5_status_label")
 
 [node name="Root" type="Control" parent="."]
 unique_name_in_owner = true

@@ -9,6 +9,7 @@ extends GameplayEffect
 @export var move_speed: float = 0.0
 @export var pull_force: float = 0.0
 @export var terrain_radius: float = 0.0
+@export_range(-1, 4096, 1) var material_element_id: int = -1
 @export_range(0.05, 1.0, 0.05) var slow_factor: float = 0.35
 @export var status_duration: float = 0.5
 @export var primary_color := Color(0.7, 0.3, 1.0, 1.0)
@@ -23,4 +24,8 @@ func execute(context: CastContext) -> void:
 	var runtime := SpecialSpellRuntime.new()
 	parent.add_child(runtime)
 	runtime.global_position = (context.hit_position if spawn_at_hit_position else context.origin).round()
-	runtime.setup(mode, context, duration, radius, damage_per_second, move_speed, pull_force, terrain_radius, primary_color, secondary_color, slow_factor, status_duration)
+	runtime.setup(
+		mode, context, duration, radius, damage_per_second, move_speed, pull_force,
+		terrain_radius, material_element_id, primary_color, secondary_color,
+		slow_factor, status_duration,
+	)

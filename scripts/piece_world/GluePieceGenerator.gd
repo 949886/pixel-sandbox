@@ -3,12 +3,12 @@ extends RefCounted
 
 const UNIT_SIZE: int = PieceWorldConstants.UNIT_SIZE
 
-static func generate(biome_id: StringName, top: PieceSocket.Socket, right: PieceSocket.Socket, bottom: PieceSocket.Socket, left: PieceSocket.Socket, seed_value: int) -> Image:
+static func generate(biome_config: BiomeConfig, top: PieceSocket.Socket, right: PieceSocket.Socket, bottom: PieceSocket.Socket, left: PieceSocket.Socket, seed_value: int) -> Image:
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var img: Image = Image.create_empty(UNIT_SIZE, UNIT_SIZE, false, Image.FORMAT_RGBA8)
-	var rock: Color = _rock_color(biome_id)
-	var dark: Color = _dark_color(biome_id)
+	var rock: Color = biome_config.glue_rock_color if biome_config != null else Color(0.2, 0.2, 0.2, 1.0)
+	var dark: Color = biome_config.glue_dark_color if biome_config != null else Color(0.1, 0.1, 0.1, 1.0)
 	img.fill(rock)
 	_add_noise(img, rng, dark)
 	var open_sides: Array[StringName] = []
@@ -19,18 +19,6 @@ static func generate(biome_id: StringName, top: PieceSocket.Socket, right: Piece
 	if open_sides.size() > 0:
 		_carve_to_center(img, top, right, bottom, left)
 	return img
-
-static func _rock_color(biome_id: StringName) -> Color:
-	match biome_id:
-		&"snow": return Color8(170, 190, 214, 255)
-		&"deep": return Color8(48, 38, 58, 255)
-		_: return Color8(54, 50, 45, 255)
-
-static func _dark_color(biome_id: StringName) -> Color:
-	match biome_id:
-		&"snow": return Color8(70, 82, 112, 255)
-		&"deep": return Color8(24, 16, 32, 255)
-		_: return Color8(32, 28, 25, 255)
 
 static func _add_noise(img: Image, rng: RandomNumberGenerator, accent: Color) -> void:
 	for i: int in range(900):

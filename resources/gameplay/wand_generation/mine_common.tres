@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="WandGenerationProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/WandGenerationProfile.gd" id="1_profile"]
+
+[resource]
+script = ExtResource("1_profile")
+profile_id = &"mine_common"
+display_name = "Mine Common Wand"
+allowed_biomes = Array[StringName]([&"mine"])
+min_depth = 0
+max_depth = 4
+power_budget_min = 18.0
+power_budget_max = 42.0
+mana_min = 70.0
+mana_max = 180.0
+mana_recharge_min = 18.0
+mana_recharge_max = 65.0
+cast_delay_min = 0.08
+cast_delay_max = 0.38
+recharge_time_min = 0.28
+recharge_time_max = 0.95
+capacity_min = 3
+capacity_max = 7
+shuffle_probability = 0.45
+spread_min = -2.0
+spread_max = 10.0
+maximum_spell_tier = 3
+starting_spell_count_min = 1
+starting_spell_count_max = 4

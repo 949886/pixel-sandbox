@@ -1,10 +1,10 @@
 extends Node
 
 const TEST_WORLD_SCENE: PackedScene = preload("res://tests/fixtures/RuntimeRebuildTestWorld.tscn")
-const TEST_WORLD_SCRIPT = preload("res://tests/fixtures/RuntimeRebuildTestWorld.gd")
 const DEFAULT_LOADOUT: StartingLoadoutDef = preload(
 	"res://resources/gameplay/loadouts/default_starting_loadout.tres"
 )
+const GAMEPLAY_CONTENT: GameplayContentDB = preload("res://resources/gameplay/gameplay_content.tres")
 const RESTART_COUNT: int = 5
 
 
@@ -15,7 +15,7 @@ func _ready() -> void:
 
 
 func _run_runtime_rebuild_stress() -> void:
-	TEST_WORLD_SCRIPT.reset_probe()
+	RuntimeRebuildTestWorld.reset_probe()
 
 	var manager := GameManager.new()
 	manager.name = "GameManager"
@@ -25,6 +25,7 @@ func _run_runtime_rebuild_stress() -> void:
 	bootstrap.name = "GameBootstrap"
 	bootstrap.world_scene = TEST_WORLD_SCENE
 	bootstrap.world_gen_config_template = WorldGenConfig.new()
+	bootstrap.gameplay_content = GAMEPLAY_CONTENT
 	add_child(bootstrap)
 
 	var runtime_host := Node2D.new()
@@ -34,7 +35,7 @@ func _run_runtime_rebuild_stress() -> void:
 
 	var first_config := GameConfig.create_with_seed(
 		7001,
-		GameConfig.DEFAULT_FLOW_ID,
+		GAMEPLAY_CONTENT.default_flow_id,
 		DEFAULT_LOADOUT,
 	)
 	var first_game_id := bootstrap.start_game(first_config)
@@ -164,7 +165,7 @@ func _run_runtime_rebuild_stress() -> void:
 	# Every created test World reached _exit_tree before the test completed.
 	var ready_count := 0
 	var exit_count := 0
-	for event: Variant in TEST_WORLD_SCRIPT.event_log:
+	for event: Variant in RuntimeRebuildTestWorld.event_log:
 		var text := str(event)
 		if text.begins_with("ready:"):
 			ready_count += 1

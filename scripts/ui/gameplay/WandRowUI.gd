@@ -1,6 +1,8 @@
 class_name WandRowUI
 extends PanelContainer
 
+@export var spell_slot_scene: PackedScene
+
 signal row_pressed(index: int)
 signal hover_changed(index: int, hovering: bool)
 signal slot_pressed(location: Dictionary)
@@ -9,7 +11,6 @@ signal slot_hover_changed(spell: SpellDef, location: Dictionary, hovering: bool)
 signal quick_move_requested(location: Dictionary)
 signal drag_visual_started(spell: SpellDef)
 
-const SPELL_SLOT_SCENE: PackedScene = preload("res://scenes/ui/shared/SpellSlot.tscn")
 
 var wand_index: int = 0
 var wand: WandDef
@@ -53,7 +54,7 @@ func _refresh() -> void:
 	_clear_children(_spell_grid)
 	for slot_index: int in range(inventory.wand_capacity(wand_index)):
 		var location: Dictionary = {"area": &"wand", "wand": wand_index, "slot": slot_index}
-		var slot: SpellSlot = SPELL_SLOT_SCENE.instantiate() as SpellSlot
+		var slot: SpellSlot = spell_slot_scene.instantiate() as SpellSlot
 		slot.setup(location, inventory.wand_slot_spell(wand_index, slot_index), "", false)
 		slot.set_selected(not selected_location.is_empty() and _same_location(selected_location, location))
 		slot.slot_pressed.connect(func(loc: Dictionary) -> void: slot_pressed.emit(loc))

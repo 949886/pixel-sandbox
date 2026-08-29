@@ -1,12 +1,12 @@
 class_name SpawnMaterialEffect
 extends GameplayEffect
 
-@export var element_id: int = GameplayMaterialRules.FIRE_ID
+@export_range(-1, 4096, 1) var element_id: int = -1
 @export var radius: float = 2.5
 @export var only_replace_air: bool = true
 
 func execute(context: CastContext) -> void:
-	if context == null or context.world_interface == null:
+	if element_id < 0 or context == null or context.world_interface == null:
 		return
 	var resolved_radius := maxf(0.0, radius + (context.cast_state.radius_add if context.cast_state != null else 0.0))
 	if resolved_radius <= 0.0:

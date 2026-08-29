@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="EncounterCatalog" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/EncounterCatalog.gd" id="1_catalog"]
+[ext_resource type="Resource" path="res://resources/gameplay/encounters/mine_cave_eye.tres" id="2_mine_cave_eye"]
+
+[resource]
+script = ExtResource("1_catalog")
+encounters = Array[Resource]([ExtResource("2_mine_cave_eye")])

@@ -116,7 +116,7 @@ func _ready() -> void:
 
 	# A restart continuation creates a new Game identity and new public state.
 	# The actual per-game runtime root reconstruction is intentionally #4 scope.
-	var second_config := GameConfig.create_with_seed(4202)
+	var second_config := GameConfig.create_with_seed(4202, &"test")
 	var second_game_id := manager.start_game(second_config)
 	assert(second_game_id != GameManager.INVALID_GAME_ID)
 	assert(second_game_id != first_game_id)
@@ -138,7 +138,7 @@ func _ready() -> void:
 
 
 func _create_active_game(manager: GameManager, seed: int) -> Dictionary:
-	var config := GameConfig.create_with_seed(seed)
+	var config := GameConfig.create_with_seed(seed, &"test")
 	var game_id := manager.start_game(config)
 	assert(game_id != GameManager.INVALID_GAME_ID)
 

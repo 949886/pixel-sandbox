@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RewardProfile" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/gameplay/content/RewardProfile.gd" id="1_reward"]
+[ext_resource type="Resource" path="res://resources/gameplay/loot/cave_eye_loot.tres" id="2_loot"]
+
+[resource]
+script = ExtResource("1_reward")
+reward_id = &"cave_eye_reward"
+loot_table = ExtResource("2_loot")
+wand_roll_count = 0

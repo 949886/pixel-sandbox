@@ -15,11 +15,10 @@ static func build(placement: SpecialChunkPlacement) -> Image:
 	var size_px: Vector2i = placement.size_in_chunks * CHUNK_SIZE
 	var img: Image = Image.create_empty(size_px.x, size_px.y, false, Image.FORMAT_RGBA8)
 	img.fill(Color.TRANSPARENT)
-	var biome_id: StringName = placement.biome_id
 	var def: SpecialChunkDef = placement.chunk_def
-	var rock: Color = _rock_color(biome_id, def.transition_style)
-	var dark: Color = _dark_color(biome_id, def.transition_style)
-	var accent: Color = _accent_color(def)
+	var rock: Color = def.generated_rock_color
+	var dark: Color = def.generated_dark_color
+	var accent: Color = def.generated_accent_color
 	_fill_noise(img, rock, dark, placement)
 	_carve_room(img, def)
 	_draw_structure_details(img, def, accent, dark)
@@ -78,11 +77,11 @@ static func _draw_structure_details(img: Image, def: SpecialChunkDef, accent: Co
 	_draw_rect(img, Rect2i(Vector2i(int(w * 2.0 / 3.0), int(h / 2)), Vector2i(18, int(h / 4))), dark)
 	match def.chunk_kind:
 		SpecialChunkDef.ChunkKind.TREASURE:
-			_draw_rect(img, Rect2i(Vector2i(int(w / 2) - 28, int(h / 2) - 18), Vector2i(56, 36)), Color8(214, 154, 58, 255))
+			_draw_rect(img, Rect2i(Vector2i(int(w / 2) - 28, int(h / 2) - 18), Vector2i(56, 36)), def.generated_feature_color)
 		SpecialChunkDef.ChunkKind.SHRINE:
-			_draw_rect(img, Rect2i(Vector2i(int(w / 2) - 34, int(h / 2) - 48), Vector2i(68, 96)), Color8(185, 210, 235, 255))
+			_draw_rect(img, Rect2i(Vector2i(int(w / 2) - 34, int(h / 2) - 48), Vector2i(68, 96)), def.generated_feature_color)
 		SpecialChunkDef.ChunkKind.HALL:
-			_draw_rect(img, Rect2i(Vector2i(int(w / 2) - 90, int(h / 2) - 12), Vector2i(180, 24)), Color8(118, 98, 74, 255))
+			_draw_rect(img, Rect2i(Vector2i(int(w / 2) - 90, int(h / 2) - 12), Vector2i(180, 24)), def.generated_feature_color)
 		_:
 			_draw_rect(img, Rect2i(Vector2i(int(w / 2) - 24, int(h / 2) - 24), Vector2i(48, 48)), accent)
 
@@ -103,32 +102,3 @@ static func _draw_rect(img: Image, rect: Rect2i, color: Color) -> void:
 	for y: int in range(start_y, end_y):
 		for x: int in range(start_x, end_x):
 			img.set_pixel(x, y, color)
-
-static func _rock_color(biome_id: StringName, style: int) -> Color:
-	if style == SpecialChunkDef.TransitionStyle.SNOW or biome_id == &"snow":
-		return Color8(170, 190, 214, 255)
-	if style == SpecialChunkDef.TransitionStyle.DEEP or biome_id == &"deep":
-		return Color8(48, 38, 58, 255)
-	if style == SpecialChunkDef.TransitionStyle.RUINS:
-		return Color8(82, 70, 58, 255)
-	return Color8(54, 50, 45, 255)
-
-static func _dark_color(biome_id: StringName, style: int) -> Color:
-	if style == SpecialChunkDef.TransitionStyle.SNOW or biome_id == &"snow":
-		return Color8(70, 82, 112, 255)
-	if style == SpecialChunkDef.TransitionStyle.DEEP or biome_id == &"deep":
-		return Color8(24, 16, 32, 255)
-	if style == SpecialChunkDef.TransitionStyle.RUINS:
-		return Color8(45, 35, 30, 255)
-	return Color8(32, 28, 25, 255)
-
-static func _accent_color(def: SpecialChunkDef) -> Color:
-	match def.chunk_kind:
-		SpecialChunkDef.ChunkKind.TREASURE:
-			return Color8(208, 154, 62, 255)
-		SpecialChunkDef.ChunkKind.SHRINE:
-			return Color8(148, 190, 230, 255)
-		SpecialChunkDef.ChunkKind.HALL:
-			return Color8(135, 112, 82, 255)
-		_:
-			return Color8(132, 180, 210, 255)
