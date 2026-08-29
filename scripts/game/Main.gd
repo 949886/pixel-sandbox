@@ -9,10 +9,7 @@ extends Node
 
 
 func _ready() -> void:
-	if not _game_ui_manager.setup(
-			_game_manager,
-			Callable(self, "_request_shell_quit"),
-		):
+	if not _game_ui_manager.setup(_game_manager):
 		push_error("Failed to configure GameUIManager.")
 		return
 	if not _game_bootstrap.setup(_game_manager, _game_runtime_host):
@@ -24,16 +21,3 @@ func _ready() -> void:
 		return
 	if _game_bootstrap.start_game(config) == GameManager.INVALID_GAME_ID:
 		push_error("Failed to start the initial game runtime.")
-
-
-func _request_shell_quit(player_id: int) -> bool:
-	if _game_manager.lifecycle_state != GameManager.LifecycleState.ACTIVE:
-		return false
-	if _game_manager.game_state == null or not is_instance_valid(_game_manager.game_state):
-		return false
-	if _game_manager.game_state.phase != GameState.GamePhase.ENDED:
-		return false
-	if not _game_manager.has_player(player_id):
-		return false
-	get_tree().quit()
-	return true
