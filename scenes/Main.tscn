@@ -35,6 +35,4 @@ script = ExtResource("8_summary_store")
 
 [node name="PersistentUIHost" type="Node" parent="GameUIManager"]
 
-[node name="RuntimeUIHost" type="Node" parent="GameUIManager"]
-
 [node name="GameRuntimeHost" type="Node2D" parent="."]
