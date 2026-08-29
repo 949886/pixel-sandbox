@@ -1,0 +1,67 @@
+name: Apply data-driven gameplay patch
+
+on:
+  push:
+    branches:
+      - feature/gameplay-data-driven-content
+    paths:
+      - ".github/workflows/apply-data-driven-bootstrap.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/gameplay-data-driven-content
+          fetch-depth: 0
+
+      - name: Rebuild and apply patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .github/data-driven-bootstrap/*.part > /tmp/data-driven.patch.gz.b64
+          base64 -d /tmp/data-driven.patch.gz.b64 > /tmp/data-driven.patch.gz
+          gzip -dc /tmp/data-driven.patch.gz > /tmp/data-driven.patch
+
+          if git apply --check -p2 /tmp/data-driven.patch; then
+            git apply -p2 /tmp/data-driven.patch
+          else
+            git apply --3way -p2 /tmp/data-driven.patch
+          fi
+
+      - name: Preserve existing line endings
+        shell: python
+        run: |
+          import pathlib
+          import subprocess
+
+          changed = subprocess.check_output(["git", "diff", "--name-only"]).decode().splitlines()
+          for name in changed:
+              path = pathlib.Path(name)
+              if not path.is_file():
+                  continue
+              try:
+                  previous = subprocess.check_output(["git", "show", f"HEAD:{name}"])
+              except subprocess.CalledProcessError:
+                  continue
+              if b"\r\n" in previous:
+                  data = path.read_bytes().replace(b"\r\n", b"\n")
+                  path.write_bytes(data.replace(b"\n", b"\r\n"))
+
+      - name: Commit migrated project
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .github/data-driven-bootstrap
+          rm -f .github/workflows/apply-data-driven-bootstrap.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "refactor: make gameplay content data-driven"
+          git push origin HEAD:feature/gameplay-data-driven-content
