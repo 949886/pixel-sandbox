@@ -487,12 +487,17 @@ Region abstraction unless it later gains a genuinely independent lifecycle and r
   `if y > ...` biome selection in world generation. `WorldStructureProfile` must not define a second
   `min_x/max_x/min_y/max_y` world rectangle either; topology is clipped by the authored layout itself.
 - **Empty Biome cells mean VOID.** Runtime streaming/generation must respect the authored 2D shape.
-- **Tile IDs are not content IDs.** Tile source/atlas/alternative IDs are resolved only through
-  `BiomeTileBinding` / `ChunkTileBinding`; gameplay and generators must not compare numeric TileSet IDs.
-- **ChunkLayer is an override, not a biome replacement.** A fixed chunk keeps the underlying Biome
-  semantics and only owns its authored terrain/structure footprint.
-- **No worker may read TileMapLayer.** Compile editor layers on the main thread into a thread-readable
-  `WorldLayoutSnapshot` before starting background world generation.
+- **Biome Tile IDs are not content IDs.** `BiomeLayer` source/atlas/alternative IDs are resolved only
+  through `BiomeTileBinding`; gameplay and generators must not compare numeric TileSet IDs.
+- **ChunkLayer must not inherit `TileMapLayer`.** Runtime chunks are dynamic Piece-generation units, not
+  tiles. `ChunkLayer` is an independent `Node2D` authoring component that stores direct fixed
+  `SpecialChunkDef + origin` placement data. Do not reintroduce Chunk TileSets, Scene Tiles, atlas IDs,
+  or tile-to-chunk binding resources.
+- **Fixed ChunkLayer placements are protected overrides.** They reserve their full footprint before
+  random SpecialChunk/Piece planning and must never be overwritten by procedural generation. They keep
+  the underlying Biome semantics and only own their authored terrain/structure footprint.
+- **No worker may read editor layout nodes.** Compile `BiomeLayer` and independent `ChunkLayer` data on
+  the main thread into a thread-readable `WorldLayoutSnapshot` before background world generation.
 - **Important world positions are anchors, not coordinates.** Spawn, entrance and main-path endpoints are
   selected by `WorldDefinition` anchor IDs and authored as `WorldAnchor` nodes.
 - **Surface is content, not a code branch.** Surface ground/entrance behavior is selected by resource data

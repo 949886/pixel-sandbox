@@ -3,7 +3,7 @@ class_name WorldLayout
 extends Node2D
 
 ## Editor-authored macro world blueprint. BiomeLayer owns default generation
-## semantics; ChunkLayer only overrides selected cells with fixed authored chunks.
+## semantics; independent ChunkLayer stores only fixed authored SpecialChunk placements.
 @export var bootstrap_preset: WorldLayoutPreset
 @export var use_bootstrap_when_empty: bool = true
 
@@ -31,11 +31,17 @@ func _ready() -> void:
 
 
 func biome_layer() -> BiomeLayer:
-	return get_node_or_null("BiomeLayer") as BiomeLayer
+	for child: Node in get_children():
+		if child is BiomeLayer:
+			return child as BiomeLayer
+	return null
 
 
 func chunk_layer() -> ChunkLayer:
-	return get_node_or_null("ChunkLayer") as ChunkLayer
+	for child: Node in get_children():
+		if child is ChunkLayer:
+			return child as ChunkLayer
+	return null
 
 
 func ensure_bootstrap() -> bool:
@@ -46,7 +52,7 @@ func ensure_bootstrap() -> bool:
 	if biomes == null or chunks == null:
 		return false
 	var needs_biome_bootstrap: bool = biomes.get_used_cells().is_empty()
-	var needs_chunk_bootstrap: bool = chunks.get_used_cells().is_empty()
+	var needs_chunk_bootstrap: bool = chunks.is_empty()
 	if not needs_biome_bootstrap and not needs_chunk_bootstrap:
 		return true
 	if not bootstrap_preset.is_valid():
@@ -70,8 +76,8 @@ func build_snapshot(config: WorldGenConfig) -> WorldLayoutSnapshot:
 	if not biomes.validate_bindings(config.biome_configs):
 		push_error("WorldLayout: BiomeLayer bindings/cells are invalid.")
 		return null
-	if not chunks.validate_bindings(config.special_chunk_defs):
-		push_error("WorldLayout: ChunkLayer bindings/cells are invalid.")
+	if not chunks.validate_placements(config.special_chunk_defs):
+		push_error("WorldLayout: ChunkLayer fixed placements are invalid.")
 		return null
 
 	var snapshot := WorldLayoutSnapshot.new()

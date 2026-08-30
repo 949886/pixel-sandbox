@@ -1,8 +1,9 @@
 class_name ChunkPaintPlacementDef
 extends Resource
 
-## Bootstrap-only fixed chunk origin. Multi-cell occupancy is derived from the
-## referenced SpecialChunkDef instead of duplicating size data here.
+## Authoring data for one fixed SpecialChunk origin. ChunkLayer stores an array of
+## these resources directly; multi-cell occupancy is derived from the referenced
+## SpecialChunkDef instead of duplicating size data here.
 @export var chunk_def: SpecialChunkDef
 @export var origin: Vector2i = Vector2i.ZERO
 

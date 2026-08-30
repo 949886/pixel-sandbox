@@ -2,7 +2,7 @@ class_name WorldLayoutPreset
 extends Resource
 
 ## Optional bootstrap data for a new WorldLayout. It is deliberately not the
-## authoritative runtime format: saved TileMapLayer cells are authoritative.
+## authoritative runtime format: BiomeLayer cells and ChunkLayer placements are authoritative.
 @export var biome_rects: Array[BiomePaintRectDef] = []
 @export var fixed_chunks: Array[ChunkPaintPlacementDef] = []
 

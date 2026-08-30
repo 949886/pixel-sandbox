@@ -32,6 +32,8 @@ func _plan_chunks() -> void:
 	placement_by_chunk.clear()
 	if config == null:
 		return
+	# Authored ChunkLayer placements always reserve their footprint first. Random
+	# SpecialChunks and normal Piece generation are subordinate to these reservations.
 	_plan_authored_chunks()
 	for chunk_def: SpecialChunkDef in config.special_chunk_defs:
 		if chunk_def == null or not chunk_def.allow_random_placement:
@@ -202,6 +204,19 @@ func _neighbor_ring(origin: Vector2i, size_in_chunks: Vector2i) -> Array[Vector2
 	return result
 
 func _place(chunk_def: SpecialChunkDef, origin: Vector2i, index: int, authored: bool = false) -> void:
+	# Defense in depth: _can_place() already rejects occupied cells for procedural
+	# placements, and WorldLayout validates authored overlaps. Never let a later
+	# placement silently replace a fixed authored reservation if either invariant
+	# is violated by future code.
+	for yy: int in range(origin.y, origin.y + chunk_def.size_in_chunks.y):
+		for xx: int in range(origin.x, origin.x + chunk_def.size_in_chunks.x):
+			var coord := Vector2i(xx, yy)
+			if placement_by_chunk.has(coord):
+				push_error(
+					"SpecialChunkPlanner: refusing to overwrite reserved fixed chunk cell %s with '%s'."
+					% [str(coord), str(chunk_def.id)]
+				)
+				return
 	var placement: SpecialChunkPlacement = SpecialChunkPlacement.new()
 	placement.id = StringName("%s_%d_%d_%d" % [str(chunk_def.id), origin.x, origin.y, index])
 	placement.chunk_def = chunk_def

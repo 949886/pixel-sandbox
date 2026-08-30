@@ -40,6 +40,10 @@ window/handheld/orientation=4
 
 project/assembly_name="Pixel Piece World Integrated V2"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/world_layout/plugin.cfg")
+
 [input]
 
 screen_press={

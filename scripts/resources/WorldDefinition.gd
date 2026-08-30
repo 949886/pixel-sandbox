@@ -2,7 +2,8 @@ class_name WorldDefinition
 extends Resource
 
 ## Macro world composition. The layout scene is authored visually with
-## BiomeLayer/ChunkLayer; IDs select semantic anchors without script paths.
+## BiomeLayer plus the independent authored ChunkLayer; IDs select semantic anchors
+## without script paths.
 @export var id: StringName = &""
 @export var layout_scene: PackedScene
 @export var player_spawn_anchor_id: StringName = &""

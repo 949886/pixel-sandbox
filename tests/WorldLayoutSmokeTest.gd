@@ -13,6 +13,7 @@ func _ready() -> void:
 	assert(snapshot.chunk_size == PieceWorldConstants.CHUNK_SIZE)
 
 	_test_biome_layout(snapshot)
+	_test_chunk_layer_authoring_model(config)
 	_test_fixed_chunks(config, snapshot)
 	_test_anchors(config, snapshot)
 	_test_structure(config, snapshot)
@@ -34,6 +35,23 @@ func _test_biome_layout(snapshot: WorldLayoutSnapshot) -> void:
 	assert(not snapshot.has_world_cell(Vector2i(-11, 0)))
 	assert(not snapshot.has_world_cell(Vector2i(12, 20)))
 	assert(snapshot.has_world_cell(Vector2i(-10, 6)))
+
+
+func _test_chunk_layer_authoring_model(config: WorldGenConfig) -> void:
+	var layout_node: Node = config.world_definition.layout_scene.instantiate()
+	var layout := layout_node as WorldLayout
+	assert(layout != null)
+	var chunks: ChunkLayer = layout.chunk_layer()
+	assert(chunks != null)
+	assert(chunks is Node2D)
+	assert(not (chunks is TileMapLayer))
+	assert(chunks.palette_chunks.size() > 0)
+	assert(chunks.get_chunk_def_at_origin(Vector2i(-1, -1)) != null)
+	var entrance_placement: ChunkPaintPlacementDef = chunks.get_placement_at(Vector2i(1, 0))
+	assert(entrance_placement != null)
+	assert(entrance_placement.origin == Vector2i(1, -1))
+	assert(entrance_placement.chunk_def.id == &"surface_entrance_chunk")
+	layout.free()
 
 
 func _test_fixed_chunks(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -> void:
@@ -58,6 +76,15 @@ func _test_fixed_chunks(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -
 	assert(placement.authored)
 	assert(placement.origin_chunk == Vector2i(1, -1))
 	assert(placement.chunk_def == entrance)
+
+	# Every authored footprint cell must still resolve to the authored placement after
+	# random SpecialChunk planning. Procedural planning may never overwrite it.
+	for cell_value: Variant in snapshot.fixed_chunk_origin_by_cell.keys():
+		var cell: Vector2i = cell_value
+		var authored_placement: SpecialChunkPlacement = planner.get_chunk_at(cell)
+		assert(authored_placement != null)
+		assert(authored_placement.authored)
+		assert(authored_placement.origin_chunk == snapshot.get_fixed_chunk_origin(cell))
 
 
 func _test_anchors(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -> void:

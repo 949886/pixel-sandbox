@@ -37,6 +37,7 @@ enum LayoutStyle {
 @export var id: StringName = &""
 @export var display_name: String = ""
 @export var editor_color: Color = Color(0.75, 0.55, 0.2, 1.0)
+@export var editor_preview: Texture2D
 @export_enum("Treasure", "Shop", "Altar", "Portal", "Boss Entrance", "Puzzle", "Hall", "Shrine", "Decorative") var chunk_kind: int = ChunkKind.DECORATIVE
 @export var allowed_biomes: Array[StringName] = []
 @export var tags: Array[StringName] = []

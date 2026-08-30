@@ -947,6 +947,11 @@ func _obtain_chunk_renderer() -> PieceChunkRenderer:
 func _attach_chunk_renderer(data: PieceChunkData) -> void:
 	if data == null or loaded_chunks.has(data.coord):
 		return
+	# Fixed/authored SpecialChunk ownership has higher priority than any normal
+	# Piece result. This catches stale asynchronous results in addition to the
+	# request/result gates in the streaming pipeline.
+	if special_chunk_planner != null and special_chunk_planner.is_chunk_inside_special_chunk(data.coord):
+		return
 	var renderer: PieceChunkRenderer = _obtain_chunk_renderer()
 	var active: bool = simulation_enabled and _chunk_distance(data.coord, current_player_chunk) <= simulation_radius
 	renderer.setup(

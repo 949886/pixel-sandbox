@@ -2,8 +2,9 @@ class_name WorldLayoutSnapshot
 extends RefCounted
 
 ## Immutable-at-runtime, thread-readable macro world data compiled from the editor
-## TileMapLayers on the main thread. Background generation must only read this
-## snapshot, never TileMapLayer nodes.
+## editor authoring nodes on the main thread. BiomeLayer is TileMap-backed while
+## ChunkLayer is an independent fixed-placement component. Background generation
+## must only read this snapshot, never editor scene nodes.
 var biome_by_cell: Dictionary = {}
 var fixed_chunk_id_by_origin: Dictionary = {}
 var fixed_chunk_origin_by_cell: Dictionary = {}

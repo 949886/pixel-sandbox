@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=3]
+[gd_scene load_steps=43 format=3]
 
 [ext_resource type="Script" path="res://scripts/world_layout/WorldLayout.gd" id="1_layout"]
 [ext_resource type="Script" path="res://scripts/world_layout/BiomeLayer.gd" id="2_biome_layer"]
@@ -8,9 +8,7 @@
 [ext_resource type="Script" path="res://scripts/resources/BiomePaintRectDef.gd" id="6_biome_rect_script"]
 [ext_resource type="Script" path="res://scripts/resources/ChunkPaintPlacementDef.gd" id="7_chunk_place_script"]
 [ext_resource type="Script" path="res://scripts/resources/BiomeTileBinding.gd" id="8_biome_binding_script"]
-[ext_resource type="Script" path="res://scripts/resources/ChunkTileBinding.gd" id="9_chunk_binding_script"]
 [ext_resource type="TileSet" path="res://resources/world_layout/biome_tileset.tres" id="10_biome_tileset"]
-[ext_resource type="TileSet" path="res://resources/world_layout/chunk_tileset.tres" id="11_chunk_tileset"]
 [ext_resource type="Resource" path="res://resources/biomes/surface.tres" id="12_surface"]
 [ext_resource type="Resource" path="res://resources/biomes/mine.tres" id="13_mine"]
 [ext_resource type="Resource" path="res://resources/biomes/snow.tres" id="14_snow"]
@@ -47,47 +45,12 @@ biome = ExtResource("15_deep")
 source_id = 0
 atlas_coords = Vector2i(3, 0)
 
-[sub_resource type="Resource" id="ChunkBinding_ground"]
-script = ExtResource("9_chunk_binding_script")
-chunk_def = ExtResource("16_surface_ground")
-source_id = 0
-atlas_coords = Vector2i(0, 0)
 
-[sub_resource type="Resource" id="ChunkBinding_spawn"]
-script = ExtResource("9_chunk_binding_script")
-chunk_def = ExtResource("17_surface_spawn")
-source_id = 0
-atlas_coords = Vector2i(1, 0)
 
-[sub_resource type="Resource" id="ChunkBinding_entrance"]
-script = ExtResource("9_chunk_binding_script")
-chunk_def = ExtResource("18_surface_entrance")
-source_id = 0
-atlas_coords = Vector2i(2, 0)
 
-[sub_resource type="Resource" id="ChunkBinding_treasure"]
-script = ExtResource("9_chunk_binding_script")
-chunk_def = ExtResource("19_treasure")
-source_id = 0
-atlas_coords = Vector2i(3, 0)
 
-[sub_resource type="Resource" id="ChunkBinding_hall"]
-script = ExtResource("9_chunk_binding_script")
-chunk_def = ExtResource("20_hall")
-source_id = 0
-atlas_coords = Vector2i(4, 0)
 
-[sub_resource type="Resource" id="ChunkBinding_shrine"]
-script = ExtResource("9_chunk_binding_script")
-chunk_def = ExtResource("21_shrine")
-source_id = 0
-atlas_coords = Vector2i(5, 0)
 
-[sub_resource type="Resource" id="ChunkBinding_grotto"]
-script = ExtResource("9_chunk_binding_script")
-chunk_def = ExtResource("22_grotto")
-source_id = 0
-atlas_coords = Vector2i(6, 0)
 
 [sub_resource type="Resource" id="BiomeRect_surface"]
 script = ExtResource("6_biome_rect_script")
@@ -189,11 +152,11 @@ script = ExtResource("2_biome_layer")
 tile_set = ExtResource("10_biome_tileset")
 bindings = Array[BiomeTileBinding]([SubResource("BiomeBinding_surface"), SubResource("BiomeBinding_mine"), SubResource("BiomeBinding_snow"), SubResource("BiomeBinding_deep")])
 
-[node name="ChunkLayer" type="TileMapLayer" parent="."]
+[node name="ChunkLayer" type="Node2D" parent="."]
 z_index = 10
 script = ExtResource("3_chunk_layer")
-tile_set = ExtResource("11_chunk_tileset")
-bindings = Array[ChunkTileBinding]([SubResource("ChunkBinding_ground"), SubResource("ChunkBinding_spawn"), SubResource("ChunkBinding_entrance"), SubResource("ChunkBinding_treasure"), SubResource("ChunkBinding_hall"), SubResource("ChunkBinding_shrine"), SubResource("ChunkBinding_grotto")])
+palette_chunks = Array[SpecialChunkDef]([ExtResource("16_surface_ground"), ExtResource("17_surface_spawn"), ExtResource("18_surface_entrance"), ExtResource("19_treasure"), ExtResource("20_hall"), ExtResource("21_shrine"), ExtResource("22_grotto")])
+placements = Array[ChunkPaintPlacementDef]([SubResource("ChunkPlace_ground_m5"), SubResource("ChunkPlace_ground_m4"), SubResource("ChunkPlace_ground_m3"), SubResource("ChunkPlace_ground_m2"), SubResource("ChunkPlace_spawn"), SubResource("ChunkPlace_ground_0"), SubResource("ChunkPlace_entrance")])
 
 [node name="PlayerSpawn" type="Marker2D" parent="."]
 position = Vector2(-256, -199)
