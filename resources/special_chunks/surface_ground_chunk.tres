@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="SpecialChunkDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/SpecialChunkDef.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"surface_ground_chunk"
+display_name = "Surface Ground"
+editor_color = Color(0.24, 0.57, 0.18, 1)
+chunk_kind = 8
+allowed_biomes = Array[StringName]([&"surface"])
+tags = Array[StringName]([&"surface", &"ground"])
+prefer_structure_tags = Array[StringName]([])
+avoid_structure_tags = Array[StringName]([])
+prefer_branch_end = false
+prefer_chamber_edge = false
+avoid_chamber_interior = false
+placement_weight = 1.0
+size_in_chunks = Vector2i(1, 1)
+weight = 1.0
+target_count = 1
+allow_random_placement = false
+unique_per_world = false
+can_overlap_main_path = true
+require_near_main_path = false
+transition_style = 0
+fill_mode = 0
+layout_style = 1
+surface_ground_ratio = 0.62
+surface_height_variation = 0.045
+generated_rock_color = Color(0.211765, 0.196078, 0.176471, 1)
+generated_dark_color = Color(0.12549, 0.109804, 0.0980392, 1)
+generated_accent_color = Color(0.207843, 0.223529, 0.137255, 1)
+generated_feature_color = Color(0.207843, 0.223529, 0.137255, 1)
+top_profile = Array[int]([0, 0, 0, 0])
+right_profile = Array[int]([0, 0, 0, 0])
+bottom_profile = Array[int]([0, 0, 0, 0])
+left_profile = Array[int]([0, 0, 0, 0])

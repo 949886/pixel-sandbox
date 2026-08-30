@@ -30,6 +30,7 @@ const SOCKET_MARKER_RING_WIDTH: float = 2.0
 var library: PieceLibrary
 var active_config: WorldGenConfig
 var world_structure: WorldStructure
+var world_layout_snapshot: WorldLayoutSnapshot
 var special_chunk_planner: SpecialChunkPlanner
 var generator: PieceChunkGenerator
 var planned_data: PieceChunkData
@@ -148,12 +149,18 @@ func _restart_demo() -> void:
 	library.prepare()
 	world_structure = null
 	special_chunk_planner = null
+	world_layout_snapshot = WorldLayout.compile_snapshot(active_config) if active_config != null else null
+	if world_layout_snapshot == null:
+		push_error("PieceGenerationSequenceDemo: Unable to compile WorldLayout.")
+		return
 	if build_world_structure and active_config != null:
-		world_structure = WorldStructureBuilder.new(world_seed, active_config).build()
-		var planning_biome_map: BiomeMap = BiomeMap.new(world_seed, active_config)
+		world_structure = WorldStructureBuilder.new(world_seed, active_config, world_layout_snapshot).build()
+		var planning_biome_map: BiomeMap = BiomeMap.new(world_seed, active_config, world_layout_snapshot)
 		planning_biome_map.world_structure = world_structure
 		special_chunk_planner = SpecialChunkPlanner.new(world_seed, active_config, planning_biome_map, world_structure)
-	generator = PieceChunkGenerator.new(world_seed, library, active_config, special_chunk_planner, world_structure)
+	generator = PieceChunkGenerator.new(
+		world_seed, library, active_config, special_chunk_planner, world_structure, null, 1, 1, true, world_layout_snapshot
+	)
 	planned_data = generator.generate_chunk(chunk_coord)
 	_reset_display_image()
 	visible_placements.clear()

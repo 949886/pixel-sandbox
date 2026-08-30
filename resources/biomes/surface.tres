@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="BiomeConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/BiomeConfig.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"surface"
+display_name = "Surface"
+editor_color = Color(0.24, 0.57, 0.18, 1)
+open_chance_main_path = 0.9
+open_chance_special = 0.86
+open_chance_cave = 0.7
+open_chance_solid = 0.18
+glue_rock_color = Color(0.211765, 0.196078, 0.176471, 1)
+glue_dark_color = Color(0.12549, 0.109804, 0.0980392, 1)
+structure_main_path_wander_chance = 0.12
+structure_branch_chance = 0.18
+structure_branch_max_length = 3
+structure_loop_chance = 0.05
+structure_chamber_chance = 0.08
+structure_chamber_sizes = Array[Vector2i]([Vector2i(1, 1)])

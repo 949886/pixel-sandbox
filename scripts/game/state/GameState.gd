@@ -29,7 +29,7 @@ enum RuntimeMode {
 }
 
 const INVALID_GAME_ID: int = 0
-const DEFAULT_BIOME: StringName = &"mine"
+const DEFAULT_BIOME: StringName = &""
 
 var _initialized: bool = false
 var _game_id: int = INVALID_GAME_ID

@@ -1,16 +1,15 @@
 class_name BiomeConfig
 extends Resource
 
-@export var id: StringName = &"mine"
-@export var display_name: String = "Mine"
+@export var id: StringName = &""
+@export var display_name: String = ""
+@export var editor_color: Color = Color(0.45, 0.34, 0.18, 1.0)
 
 @export_range(0.0, 1.0) var open_chance_main_path: float = 0.82
 @export_range(0.0, 1.0) var open_chance_special: float = 0.64
 @export_range(0.0, 1.0) var open_chance_cave: float = 0.62
 @export_range(0.0, 1.0) var open_chance_solid: float = 0.28
 
-@export var depth_min: int = 0
-@export var depth_max: int = 999
 
 @export_category("Generated glue visuals")
 @export var glue_rock_color: Color = Color8(54, 50, 45, 255)
@@ -29,7 +28,7 @@ extends Resource
 ]
 
 func is_valid() -> bool:
-	if id == &"" or depth_max < depth_min:
+	if id == &"":
 		return false
 	if structure_branch_max_length < 2 or structure_chamber_sizes.is_empty():
 		return false

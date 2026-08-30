@@ -5,7 +5,7 @@ extends RefCounted
 # It stores the intended macro role before piece-level generation runs.
 
 var coord: Vector2i = Vector2i.ZERO
-var biome_id: StringName = &"mine"
+var biome_id: StringName = &""
 var chunk_type: int = BiomeMap.ChunkType.SOLID
 var structure_tags: Array[StringName] = []
 var intended_connections: Dictionary = {
@@ -27,7 +27,7 @@ var special_chunk_origin: Vector2i = Vector2i.ZERO
 var special_chunk_size: Vector2i = Vector2i.ONE
 var special_chunk_gateway_side: StringName = &""
 
-func _init(p_coord: Vector2i = Vector2i.ZERO, p_biome_id: StringName = &"mine", p_chunk_type: int = BiomeMap.ChunkType.SOLID) -> void:
+func _init(p_coord: Vector2i = Vector2i.ZERO, p_biome_id: StringName = &"", p_chunk_type: int = BiomeMap.ChunkType.SOLID) -> void:
 	coord = p_coord
 	biome_id = p_biome_id
 	chunk_type = p_chunk_type

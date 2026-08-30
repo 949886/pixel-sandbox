@@ -32,8 +32,9 @@ func _plan_chunks() -> void:
 	placement_by_chunk.clear()
 	if config == null:
 		return
+	_plan_authored_chunks()
 	for chunk_def: SpecialChunkDef in config.special_chunk_defs:
-		if chunk_def == null:
+		if chunk_def == null or not chunk_def.allow_random_placement:
 			continue
 		var count: int = maxi(1, chunk_def.target_count)
 		if chunk_def.unique_per_world:
@@ -41,34 +42,64 @@ func _plan_chunks() -> void:
 		for index: int in range(count):
 			_try_place_chunk(chunk_def, index)
 
+func _plan_authored_chunks() -> void:
+	if biome_map == null or biome_map.world_layout == null:
+		return
+	var origins: Array = biome_map.world_layout.fixed_chunk_id_by_origin.keys()
+	origins.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return a.y < b.y if a.y != b.y else a.x < b.x
+	)
+	var index: int = 0
+	for origin_value: Variant in origins:
+		var origin: Vector2i = origin_value
+		var chunk_id := biome_map.world_layout.get_fixed_chunk_id_at_origin(origin)
+		var chunk_def: SpecialChunkDef = config.get_special_chunk_def(chunk_id)
+		if chunk_def == null:
+			continue
+		_place(chunk_def, origin, index, true)
+		index += 1
+
+
 func _try_place_chunk(chunk_def: SpecialChunkDef, index: int) -> void:
-	var rng: RandomNumberGenerator = SeedUtil.rng(world_seed, "special_chunk_%s_%d" % [str(chunk_def.id), index])
-	var candidates: Array = []
-	for attempt: int in range(220):
-		var y: int = rng.randi_range(chunk_def.min_depth, chunk_def.max_depth)
-		var main_x: int = biome_map.get_main_path_x(y)
-		var search_radius: int = 7 if world_structure != null else 4
-		var x: int = main_x + rng.randi_range(-search_radius, search_radius)
-		var origin: Vector2i = Vector2i(x, y)
+	var cells: Array = []
+	if biome_map != null and biome_map.world_layout != null:
+		cells = biome_map.world_layout.biome_by_cell.keys()
+	elif world_structure != null:
+		cells = world_structure.nodes.keys()
+	cells.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return a.y < b.y if a.y != b.y else a.x < b.x
+	)
+	var candidates: Array[Dictionary] = []
+	for origin_value: Variant in cells:
+		var origin: Vector2i = origin_value
 		if not _can_place(chunk_def, origin):
 			continue
 		var score: float = _score_candidate(chunk_def, origin)
-		if score > 0.0:
-			candidates.append({"origin": origin, "score": score})
+		if score <= 0.0:
+			continue
+		# Deterministic per-cell jitter prevents the same highest-scoring authored
+		# topology position from winning every seed while remaining load-order safe.
+		var cell_rng: RandomNumberGenerator = SeedUtil.rng(
+			world_seed,
+			"special_chunk_candidate_%s_%d_%d_%d" % [str(chunk_def.id), index, origin.x, origin.y]
+		)
+		score *= lerpf(0.82, 1.18, cell_rng.randf())
+		candidates.append({&"origin": origin, &"score": score})
 	if candidates.is_empty():
 		return
 	var total: float = 0.0
 	for candidate: Dictionary in candidates:
-		total += float(candidate.get("score", 0.0))
+		total += float(candidate.get(&"score", 0.0))
+	if total <= 0.0:
+		return
+	var rng: RandomNumberGenerator = SeedUtil.rng(world_seed, "special_chunk_pick_%s_%d" % [str(chunk_def.id), index])
 	var roll: float = rng.randf() * total
 	for candidate: Dictionary in candidates:
-		roll -= float(candidate.get("score", 0.0))
+		roll -= float(candidate.get(&"score", 0.0))
 		if roll <= 0.0:
-			var chosen_origin: Vector2i = candidate.get("origin", Vector2i.ZERO)
-			_place(chunk_def, chosen_origin, index)
+			_place(chunk_def, candidate.get(&"origin", Vector2i.ZERO), index)
 			return
-	var fallback_origin: Vector2i = (candidates[candidates.size() - 1] as Dictionary).get("origin", Vector2i.ZERO)
-	_place(chunk_def, fallback_origin, index)
+	_place(chunk_def, (candidates[candidates.size() - 1] as Dictionary).get(&"origin", Vector2i.ZERO), index)
 
 func _can_place(chunk_def: SpecialChunkDef, origin: Vector2i) -> bool:
 	if chunk_def.size_in_chunks.x < 1 or chunk_def.size_in_chunks.y < 1:
@@ -76,6 +107,8 @@ func _can_place(chunk_def: SpecialChunkDef, origin: Vector2i) -> bool:
 	for yy: int in range(origin.y, origin.y + chunk_def.size_in_chunks.y):
 		for xx: int in range(origin.x, origin.x + chunk_def.size_in_chunks.x):
 			var coord: Vector2i = Vector2i(xx, yy)
+			if not biome_map.has_world_cell(coord):
+				return false
 			if placement_by_chunk.has(coord):
 				return false
 			var biome_id: StringName = biome_map.get_biome(coord)
@@ -83,7 +116,7 @@ func _can_place(chunk_def: SpecialChunkDef, origin: Vector2i) -> bool:
 				return false
 			if not chunk_def.can_overlap_main_path and biome_map.is_on_main_path(coord):
 				return false
-			if chunk_def.require_near_main_path and absi(coord.x - biome_map.get_main_path_x(coord.y)) > 7:
+			if chunk_def.require_near_main_path and _distance_to_main_path(coord) > 7:
 				return false
 			var node: WorldStructureNode = world_structure.get_node(coord) if world_structure != null else null
 			if node != null:
@@ -101,6 +134,17 @@ func _can_place(chunk_def: SpecialChunkDef, origin: Vector2i) -> bool:
 			and origin.y + chunk_def.size_in_chunks.y > expanded_origin.y:
 			return false
 	return true
+
+func _distance_to_main_path(coord: Vector2i) -> int:
+	if world_structure == null or world_structure.main_path_x_by_y.is_empty():
+		return 2147483647
+	var best: int = 2147483647
+	for y_value: Variant in world_structure.main_path_x_by_y.keys():
+		var y: int = int(y_value)
+		var path_coord := Vector2i(world_structure.get_main_path_x(y), y)
+		best = mini(best, absi(path_coord.x - coord.x) + absi(path_coord.y - coord.y))
+	return best
+
 
 func _score_candidate(chunk_def: SpecialChunkDef, origin: Vector2i) -> float:
 	var score: float = maxf(0.05, chunk_def.weight) * maxf(0.05, chunk_def.placement_weight)
@@ -157,7 +201,7 @@ func _neighbor_ring(origin: Vector2i, size_in_chunks: Vector2i) -> Array[Vector2
 		result.append(Vector2i(origin.x + size_in_chunks.x, y))
 	return result
 
-func _place(chunk_def: SpecialChunkDef, origin: Vector2i, index: int) -> void:
+func _place(chunk_def: SpecialChunkDef, origin: Vector2i, index: int, authored: bool = false) -> void:
 	var placement: SpecialChunkPlacement = SpecialChunkPlacement.new()
 	placement.id = StringName("%s_%d_%d_%d" % [str(chunk_def.id), origin.x, origin.y, index])
 	placement.chunk_def = chunk_def
@@ -165,6 +209,7 @@ func _place(chunk_def: SpecialChunkDef, origin: Vector2i, index: int) -> void:
 	placement.size_in_chunks = chunk_def.size_in_chunks
 	placement.biome_id = biome_map.get_biome(origin)
 	placement.seed = world_seed
+	placement.authored = authored
 	placements.append(placement)
 	for yy: int in range(origin.y, origin.y + placement.size_in_chunks.y):
 		for xx: int in range(origin.x, origin.x + placement.size_in_chunks.x):

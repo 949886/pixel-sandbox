@@ -2,7 +2,7 @@ class_name PieceChunkData
 extends RefCounted
 
 var coord: Vector2i = Vector2i.ZERO
-var biome_id: StringName = &"mine"
+var biome_id: StringName = &""
 var chunk_type: int = BiomeMap.ChunkType.CAVE
 var structure_tags: Array[StringName] = []
 var structure_source: String = "fallback"

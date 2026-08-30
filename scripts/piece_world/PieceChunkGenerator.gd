@@ -14,6 +14,7 @@ var biome_map: BiomeMap
 var socket_profile_planner: SocketProfilePlanner
 var seam_registry: WorldSeamRegistry
 var material_palette: MaterialPalette
+var world_layout: WorldLayoutSnapshot
 var collision_cell_size: int = 1
 var preview_downscale_factor: int = 1
 var bake_collision_data: bool = true
@@ -27,7 +28,8 @@ func _init(
 	p_material_palette: MaterialPalette = null,
 	p_collision_cell_size: int = 1,
 	p_preview_downscale_factor: int = 1,
-	p_bake_collision_data: bool = true
+	p_bake_collision_data: bool = true,
+	p_world_layout: WorldLayoutSnapshot = null
 ) -> void:
 	world_seed = p_seed
 	library = p_library
@@ -38,13 +40,16 @@ func _init(
 	collision_cell_size = maxi(1, p_collision_cell_size)
 	preview_downscale_factor = maxi(1, p_preview_downscale_factor)
 	bake_collision_data = p_bake_collision_data
-	biome_map = BiomeMap.new(world_seed, config)
+	world_layout = p_world_layout
+	biome_map = BiomeMap.new(world_seed, config, world_layout)
 	biome_map.world_structure = world_structure
 	biome_map.special_chunk_planner = special_chunk_planner
 	socket_profile_planner = SocketProfilePlanner.new(world_seed, biome_map, special_chunk_planner)
 	seam_registry = WorldSeamRegistry.new(socket_profile_planner)
 
 func generate_chunk(coord: Vector2i, create_texture: bool = true) -> PieceChunkData:
+	if world_layout != null and not world_layout.has_world_cell(coord):
+		return null
 	var data: PieceChunkData = PieceChunkData.new(coord)
 	data.biome_id = biome_map.get_biome(coord)
 	data.chunk_type = biome_map.get_chunk_type(coord)

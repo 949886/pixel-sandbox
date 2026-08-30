@@ -244,6 +244,10 @@ func _instantiate_configured_world(config: GameConfig) -> Node:
 			push_error("GameBootstrap: Failed to create per-game MaterialPalette.")
 			return null
 		world.set(&"material_palette", runtime_palette)
+	if world.has_method(&"prepare_world_layout") and not bool(world.call(&"prepare_world_layout")):
+		world.free()
+		push_error("GameBootstrap: WorldLayout preparation failed.")
+		return null
 	return world
 
 

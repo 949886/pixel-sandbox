@@ -4,12 +4,6 @@
 
 [resource]
 script = ExtResource("1")
-min_x = -16
-max_x = 16
-min_y = 0
-max_y = 96
-main_path_min_x = -6
-main_path_max_x = 6
 shoulder_chance = 0.72
 branch_start_offset_y = 2
 branch_end_margin_y = 3

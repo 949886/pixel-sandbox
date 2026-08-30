@@ -17,23 +17,27 @@ var world_seed: int = 12345
 var config: WorldGenConfig
 var special_chunk_planner: SpecialChunkPlanner
 var world_structure: WorldStructure
+var world_layout: WorldLayoutSnapshot
 
-func _init(p_world_seed: int = 12345, p_config: WorldGenConfig = null) -> void:
+func _init(p_world_seed: int = 12345, p_config: WorldGenConfig = null, p_world_layout: WorldLayoutSnapshot = null) -> void:
 	world_seed = p_world_seed
 	config = p_config
+	world_layout = p_world_layout
 
 func get_biome(coord: Vector2i) -> StringName:
+	if world_layout != null:
+		return world_layout.get_biome_id(coord)
 	if world_structure != null:
 		var node: WorldStructureNode = world_structure.get_node(coord)
 		if node != null:
 			return node.biome_id
-	if config != null and config.biome_configs.size() > 0:
-		for biome_config: BiomeConfig in config.biome_configs:
-			if biome_config == null:
-				continue
-			if coord.y >= biome_config.depth_min and coord.y <= biome_config.depth_max:
-				return biome_config.id
 	return &""
+
+
+func has_world_cell(coord: Vector2i) -> bool:
+	if world_layout != null:
+		return world_layout.has_world_cell(coord)
+	return get_biome(coord) != &""
 
 func get_main_path_x(y: int) -> int:
 	if world_structure != null:
@@ -58,6 +62,8 @@ func is_special_chunk(coord: Vector2i) -> bool:
 	return false
 
 func get_chunk_type(coord: Vector2i) -> int:
+	if not has_world_cell(coord):
+		return ChunkType.SOLID
 	if is_special_chunk(coord):
 		return ChunkType.SPECIAL
 	if world_structure != null:

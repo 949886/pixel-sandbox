@@ -1,0 +1,228 @@
+[gd_scene load_steps=52 format=3]
+
+[ext_resource type="Script" path="res://scripts/world_layout/WorldLayout.gd" id="1_layout"]
+[ext_resource type="Script" path="res://scripts/world_layout/BiomeLayer.gd" id="2_biome_layer"]
+[ext_resource type="Script" path="res://scripts/world_layout/ChunkLayer.gd" id="3_chunk_layer"]
+[ext_resource type="Script" path="res://scripts/world_layout/WorldAnchor.gd" id="4_anchor"]
+[ext_resource type="Script" path="res://scripts/resources/WorldLayoutPreset.gd" id="5_preset_script"]
+[ext_resource type="Script" path="res://scripts/resources/BiomePaintRectDef.gd" id="6_biome_rect_script"]
+[ext_resource type="Script" path="res://scripts/resources/ChunkPaintPlacementDef.gd" id="7_chunk_place_script"]
+[ext_resource type="Script" path="res://scripts/resources/BiomeTileBinding.gd" id="8_biome_binding_script"]
+[ext_resource type="Script" path="res://scripts/resources/ChunkTileBinding.gd" id="9_chunk_binding_script"]
+[ext_resource type="TileSet" path="res://resources/world_layout/biome_tileset.tres" id="10_biome_tileset"]
+[ext_resource type="TileSet" path="res://resources/world_layout/chunk_tileset.tres" id="11_chunk_tileset"]
+[ext_resource type="Resource" path="res://resources/biomes/surface.tres" id="12_surface"]
+[ext_resource type="Resource" path="res://resources/biomes/mine.tres" id="13_mine"]
+[ext_resource type="Resource" path="res://resources/biomes/snow.tres" id="14_snow"]
+[ext_resource type="Resource" path="res://resources/biomes/deep.tres" id="15_deep"]
+[ext_resource type="Resource" path="res://resources/special_chunks/surface_ground_chunk.tres" id="16_surface_ground"]
+[ext_resource type="Resource" path="res://resources/special_chunks/surface_spawn_chunk.tres" id="17_surface_spawn"]
+[ext_resource type="Resource" path="res://resources/special_chunks/surface_entrance_chunk.tres" id="18_surface_entrance"]
+[ext_resource type="Resource" path="res://resources/special_chunks/mine_treasure_chunk.tres" id="19_treasure"]
+[ext_resource type="Resource" path="res://resources/special_chunks/ancient_hall_2x1_chunk.tres" id="20_hall"]
+[ext_resource type="Resource" path="res://resources/special_chunks/snow_shrine_chunk.tres" id="21_shrine"]
+[ext_resource type="Resource" path="res://resources/special_chunks/crystal_grotto_chunk.tres" id="22_grotto"]
+
+[sub_resource type="Resource" id="BiomeBinding_surface"]
+script = ExtResource("8_biome_binding_script")
+biome = ExtResource("12_surface")
+source_id = 0
+atlas_coords = Vector2i(0, 0)
+
+[sub_resource type="Resource" id="BiomeBinding_mine"]
+script = ExtResource("8_biome_binding_script")
+biome = ExtResource("13_mine")
+source_id = 0
+atlas_coords = Vector2i(1, 0)
+
+[sub_resource type="Resource" id="BiomeBinding_snow"]
+script = ExtResource("8_biome_binding_script")
+biome = ExtResource("14_snow")
+source_id = 0
+atlas_coords = Vector2i(2, 0)
+
+[sub_resource type="Resource" id="BiomeBinding_deep"]
+script = ExtResource("8_biome_binding_script")
+biome = ExtResource("15_deep")
+source_id = 0
+atlas_coords = Vector2i(3, 0)
+
+[sub_resource type="Resource" id="ChunkBinding_ground"]
+script = ExtResource("9_chunk_binding_script")
+chunk_def = ExtResource("16_surface_ground")
+source_id = 0
+atlas_coords = Vector2i(0, 0)
+
+[sub_resource type="Resource" id="ChunkBinding_spawn"]
+script = ExtResource("9_chunk_binding_script")
+chunk_def = ExtResource("17_surface_spawn")
+source_id = 0
+atlas_coords = Vector2i(1, 0)
+
+[sub_resource type="Resource" id="ChunkBinding_entrance"]
+script = ExtResource("9_chunk_binding_script")
+chunk_def = ExtResource("18_surface_entrance")
+source_id = 0
+atlas_coords = Vector2i(2, 0)
+
+[sub_resource type="Resource" id="ChunkBinding_treasure"]
+script = ExtResource("9_chunk_binding_script")
+chunk_def = ExtResource("19_treasure")
+source_id = 0
+atlas_coords = Vector2i(3, 0)
+
+[sub_resource type="Resource" id="ChunkBinding_hall"]
+script = ExtResource("9_chunk_binding_script")
+chunk_def = ExtResource("20_hall")
+source_id = 0
+atlas_coords = Vector2i(4, 0)
+
+[sub_resource type="Resource" id="ChunkBinding_shrine"]
+script = ExtResource("9_chunk_binding_script")
+chunk_def = ExtResource("21_shrine")
+source_id = 0
+atlas_coords = Vector2i(5, 0)
+
+[sub_resource type="Resource" id="ChunkBinding_grotto"]
+script = ExtResource("9_chunk_binding_script")
+chunk_def = ExtResource("22_grotto")
+source_id = 0
+atlas_coords = Vector2i(6, 0)
+
+[sub_resource type="Resource" id="BiomeRect_surface"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("12_surface")
+rect = Rect2i(-5, -1, 7, 1)
+
+[sub_resource type="Resource" id="BiomeRect_mine_main"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("13_mine")
+rect = Rect2i(-8, 0, 17, 16)
+
+[sub_resource type="Resource" id="BiomeRect_mine_left"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("13_mine")
+rect = Rect2i(-11, 4, 3, 7)
+
+[sub_resource type="Resource" id="BiomeRect_mine_right"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("13_mine")
+rect = Rect2i(9, 6, 4, 6)
+
+[sub_resource type="Resource" id="BiomeRect_snow_main"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("14_snow")
+rect = Rect2i(-8, 16, 17, 12)
+
+[sub_resource type="Resource" id="BiomeRect_snow_upper_right"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("14_snow")
+rect = Rect2i(4, 13, 5, 3)
+
+[sub_resource type="Resource" id="BiomeRect_snow_right"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("14_snow")
+rect = Rect2i(9, 18, 3, 7)
+
+[sub_resource type="Resource" id="BiomeRect_deep_main"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("15_deep")
+rect = Rect2i(-9, 28, 19, 21)
+
+[sub_resource type="Resource" id="BiomeRect_deep_upper_left"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("15_deep")
+rect = Rect2i(-8, 25, 5, 3)
+
+[sub_resource type="Resource" id="BiomeRect_deep_right"]
+script = ExtResource("6_biome_rect_script")
+biome = ExtResource("15_deep")
+rect = Rect2i(10, 34, 3, 10)
+
+[sub_resource type="Resource" id="ChunkPlace_ground_m5"]
+script = ExtResource("7_chunk_place_script")
+chunk_def = ExtResource("16_surface_ground")
+origin = Vector2i(-5, -1)
+
+[sub_resource type="Resource" id="ChunkPlace_ground_m4"]
+script = ExtResource("7_chunk_place_script")
+chunk_def = ExtResource("16_surface_ground")
+origin = Vector2i(-4, -1)
+
+[sub_resource type="Resource" id="ChunkPlace_ground_m3"]
+script = ExtResource("7_chunk_place_script")
+chunk_def = ExtResource("16_surface_ground")
+origin = Vector2i(-3, -1)
+
+[sub_resource type="Resource" id="ChunkPlace_ground_m2"]
+script = ExtResource("7_chunk_place_script")
+chunk_def = ExtResource("16_surface_ground")
+origin = Vector2i(-2, -1)
+
+[sub_resource type="Resource" id="ChunkPlace_spawn"]
+script = ExtResource("7_chunk_place_script")
+chunk_def = ExtResource("17_surface_spawn")
+origin = Vector2i(-1, -1)
+
+[sub_resource type="Resource" id="ChunkPlace_ground_0"]
+script = ExtResource("7_chunk_place_script")
+chunk_def = ExtResource("16_surface_ground")
+origin = Vector2i(0, -1)
+
+[sub_resource type="Resource" id="ChunkPlace_entrance"]
+script = ExtResource("7_chunk_place_script")
+chunk_def = ExtResource("18_surface_entrance")
+origin = Vector2i(1, -1)
+
+[sub_resource type="Resource" id="WorldLayoutPreset_default"]
+script = ExtResource("5_preset_script")
+biome_rects = Array[BiomePaintRectDef]([SubResource("BiomeRect_surface"), SubResource("BiomeRect_mine_main"), SubResource("BiomeRect_mine_left"), SubResource("BiomeRect_mine_right"), SubResource("BiomeRect_snow_main"), SubResource("BiomeRect_snow_upper_right"), SubResource("BiomeRect_snow_right"), SubResource("BiomeRect_deep_main"), SubResource("BiomeRect_deep_upper_left"), SubResource("BiomeRect_deep_right")])
+fixed_chunks = Array[ChunkPaintPlacementDef]([SubResource("ChunkPlace_ground_m5"), SubResource("ChunkPlace_ground_m4"), SubResource("ChunkPlace_ground_m3"), SubResource("ChunkPlace_ground_m2"), SubResource("ChunkPlace_spawn"), SubResource("ChunkPlace_ground_0"), SubResource("ChunkPlace_entrance")])
+
+[node name="DefaultWorldLayout" type="Node2D"]
+script = ExtResource("1_layout")
+bootstrap_preset = SubResource("WorldLayoutPreset_default")
+
+[node name="BiomeLayer" type="TileMapLayer" parent="."]
+z_index = -10
+script = ExtResource("2_biome_layer")
+tile_set = ExtResource("10_biome_tileset")
+bindings = Array[BiomeTileBinding]([SubResource("BiomeBinding_surface"), SubResource("BiomeBinding_mine"), SubResource("BiomeBinding_snow"), SubResource("BiomeBinding_deep")])
+
+[node name="ChunkLayer" type="TileMapLayer" parent="."]
+z_index = 10
+script = ExtResource("3_chunk_layer")
+tile_set = ExtResource("11_chunk_tileset")
+bindings = Array[ChunkTileBinding]([SubResource("ChunkBinding_ground"), SubResource("ChunkBinding_spawn"), SubResource("ChunkBinding_entrance"), SubResource("ChunkBinding_treasure"), SubResource("ChunkBinding_hall"), SubResource("ChunkBinding_shrine"), SubResource("ChunkBinding_grotto")])
+
+[node name="PlayerSpawn" type="Marker2D" parent="."]
+position = Vector2(-256, -199)
+script = ExtResource("4_anchor")
+anchor_id = &"player_spawn"
+tags = Array[StringName]([&"player_spawn", &"surface", &"safe_start"])
+clearance_radius = 12.0
+clearance_offset = Vector2(0, -8)
+
+[node name="MainEntrance" type="Marker2D" parent="."]
+position = Vector2(768, -184)
+script = ExtResource("4_anchor")
+anchor_id = &"main_entrance"
+tags = Array[StringName]([&"main_entrance", &"surface"])
+clearance_radius = 0.0
+clearance_offset = Vector2(0, 0)
+
+[node name="MainPathStart" type="Marker2D" parent="."]
+position = Vector2(768, 768)
+script = ExtResource("4_anchor")
+anchor_id = &"main_path_start"
+tags = Array[StringName]([&"main_path", &"mine"])
+clearance_radius = 0.0
+clearance_offset = Vector2(0, 0)
+
+[node name="MainPathEnd" type="Marker2D" parent="."]
+position = Vector2(256, 24832)
+script = ExtResource("4_anchor")
+anchor_id = &"main_path_end"
+tags = Array[StringName]([&"main_path", &"deep"])
+clearance_radius = 0.0
+clearance_offset = Vector2(0, 0)

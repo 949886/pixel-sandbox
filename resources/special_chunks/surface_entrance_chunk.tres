@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="SpecialChunkDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/SpecialChunkDef.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"surface_entrance_chunk"
+display_name = "Surface Mine Entrance"
+editor_color = Color(0.72, 0.34, 0.14, 1)
+chunk_kind = 8
+allowed_biomes = Array[StringName]([&"surface", &"mine"])
+tags = Array[StringName]([&"surface", &"main_entrance"])
+prefer_structure_tags = Array[StringName]([])
+avoid_structure_tags = Array[StringName]([])
+prefer_branch_end = false
+prefer_chamber_edge = false
+avoid_chamber_interior = false
+placement_weight = 1.0
+size_in_chunks = Vector2i(1, 2)
+weight = 1.0
+target_count = 1
+allow_random_placement = false
+unique_per_world = true
+can_overlap_main_path = true
+require_near_main_path = false
+transition_style = 0
+fill_mode = 0
+layout_style = 2
+surface_ground_ratio = 0.62
+surface_height_variation = 0.045
+entrance_opening_ratio = 0.58
+entrance_slope_width_ratio = 0.42
+generated_rock_color = Color(0.211765, 0.196078, 0.176471, 1)
+generated_dark_color = Color(0.12549, 0.109804, 0.0980392, 1)
+generated_accent_color = Color(0.815686, 0.603922, 0.243137, 1)
+generated_feature_color = Color(0.207843, 0.223529, 0.137255, 1)
+top_profile = Array[int]([0, 0, 0, 0])
+right_profile = Array[int]([0, 0, 0, 0, 0, 0, 0, 0])
+bottom_profile = Array[int]([0, 3, 3, 0])
+left_profile = Array[int]([0, 0, 0, 0, 0, 0, 0, 0])

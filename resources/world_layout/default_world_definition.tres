@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="WorldDefinition" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/WorldDefinition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://scenes/world_layout/DefaultWorldLayout.tscn" id="2_layout"]
+
+[resource]
+script = ExtResource("1")
+id = &"default_world"
+layout_scene = ExtResource("2_layout")
+player_spawn_anchor_id = &"player_spawn"
+main_entrance_anchor_id = &"main_entrance"
+main_path_start_anchor_id = &"main_path_start"
+main_path_end_anchor_id = &"main_path_end"

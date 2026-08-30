@@ -1,14 +1,9 @@
 class_name WorldStructureProfile
 extends Resource
 
-## Global structure-generation tuning shared by biomes. Biome-specific chances
-## remain on BiomeConfig.
-@export var min_x: int = -16
-@export var max_x: int = 16
-@export var min_y: int = 0
-@export var max_y: int = 96
-@export var main_path_min_x: int = -6
-@export var main_path_max_x: int = 6
+## Global topology tuning shared by biomes. Spatial ownership/bounds are authored
+## exclusively by WorldLayout/BiomeLayer; this profile must not define another
+## world rectangle.
 @export_range(0.0, 1.0, 0.01) var shoulder_chance: float = 0.72
 @export var branch_start_offset_y: int = 2
 @export var branch_end_margin_y: int = 3
@@ -26,10 +21,15 @@ extends Resource
 
 
 func is_valid() -> bool:
-	return max_x >= min_x \
-		and max_y >= min_y \
-		and main_path_max_x >= main_path_min_x \
+	return branch_start_offset_y >= 0 \
+		and branch_end_margin_y >= 0 \
+		and branch_row_advance_min > 0 \
 		and branch_row_advance_max >= branch_row_advance_min \
+		and loop_target_depth_min >= 0 \
 		and loop_target_depth_max >= loop_target_depth_min \
+		and chamber_start_offset_y >= 0 \
+		and chamber_end_margin_y >= 0 \
+		and chamber_horizontal_offset_min >= 0 \
 		and chamber_horizontal_offset_max >= chamber_horizontal_offset_min \
+		and chamber_vertical_jitter >= 0 \
 		and chamber_row_step > 0

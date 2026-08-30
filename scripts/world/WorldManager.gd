@@ -97,6 +97,11 @@ var special_chunk_manager: SpecialChunkManager
 var special_chunks_parent: Node2D
 var chunk_renderers_parent: Node2D
 var world_structure: WorldStructure
+var world_layout_snapshot: WorldLayoutSnapshot
+var _initial_spawn_anchor_id: StringName = &""
+var _initial_spawn_clearance_radius: float = 0.0
+var _initial_spawn_clearance_offset: Vector2 = Vector2.ZERO
+var _initial_spawn_clearance_pending: bool = false
 var debug_update_accum: float = 999.0
 var cached_seam_debug: Dictionary = {}
 var seam_debug_dirty: bool = true
@@ -124,6 +129,40 @@ var _pipeline_deadline_usec: int = 0
 var _critical_collision_deadline_usec: int = 0
 var _last_pipeline_usec: int = 0
 
+func _enter_tree() -> void:
+	# Build the editor-authored layout before Player._ready() captures its spawn.
+	# GameBootstrap also calls this off-tree, so this is an idempotent direct-run fallback.
+	if world_layout_snapshot == null and world_gen_config != null:
+		prepare_world_layout()
+
+
+func prepare_world_layout() -> bool:
+	if world_layout_snapshot != null:
+		return true
+	var config: WorldGenConfig = world_gen_config
+	if config == null or config.world_definition == null or not config.world_definition.is_valid():
+		return false
+	world_layout_snapshot = WorldLayout.compile_snapshot(config)
+	if world_layout_snapshot == null or not world_layout_snapshot.is_valid():
+		push_error("WorldManager: Failed to compile WorldLayout snapshot.")
+		world_layout_snapshot = null
+		return false
+	var spawn_id: StringName = config.world_definition.player_spawn_anchor_id
+	var spawn_position: Variant = world_layout_snapshot.get_anchor_position(spawn_id)
+	if not spawn_position is Vector2:
+		push_error("WorldManager: Player spawn anchor '%s' is missing." % str(spawn_id))
+		world_layout_snapshot = null
+		return false
+	var player_node := get_node_or_null("Player") as Node2D
+	if player_node != null:
+		player_node.position = spawn_position
+	_initial_spawn_anchor_id = spawn_id
+	_initial_spawn_clearance_radius = world_layout_snapshot.get_anchor_clearance_radius(spawn_id)
+	_initial_spawn_clearance_offset = world_layout_snapshot.get_anchor_clearance_offset(spawn_id)
+	_initial_spawn_clearance_pending = _initial_spawn_clearance_radius > 0.0
+	return true
+
+
 func _ready() -> void:
 	process_physics_priority = -100
 	if gameplay_content == null or not gameplay_content.is_valid():
@@ -132,6 +171,9 @@ func _ready() -> void:
 	active_config = _load_config()
 	if active_config == null or not active_config.is_valid():
 		push_error("WorldManager: WorldGenConfig is missing or invalid.")
+		return
+	if world_layout_snapshot == null and not prepare_world_layout():
+		push_error("WorldManager: WorldLayout is missing or invalid.")
 		return
 	if override_seed:
 		active_config.world_seed = world_seed
@@ -173,8 +215,8 @@ func _exit_tree() -> void:
 	_stop_workers()
 
 func _build_world_runtime() -> void:
-	world_structure = WorldStructureBuilder.new(world_seed, active_config).build()
-	var planning_biome_map: BiomeMap = BiomeMap.new(world_seed, active_config)
+	world_structure = WorldStructureBuilder.new(world_seed, active_config, world_layout_snapshot).build()
+	var planning_biome_map: BiomeMap = BiomeMap.new(world_seed, active_config, world_layout_snapshot)
 	planning_biome_map.world_structure = world_structure
 	special_chunk_planner = SpecialChunkPlanner.new(world_seed, active_config, planning_biome_map, world_structure)
 	special_chunks_parent = get_node_or_null("SpecialChunks") as Node2D
@@ -211,7 +253,8 @@ func _build_world_runtime() -> void:
 		material_palette,
 		collision_cell_size,
 		visual_texture_downscale_factor,
-		generate_static_collision
+		generate_static_collision,
+		world_layout_snapshot
 	)
 	_start_chunk_worker()
 
@@ -359,6 +402,7 @@ func _apply_runtime_profile_to_debug_nodes() -> void:
 			world_debug_drawer.show_piece_bounds = runtime_profile.show_world_debug_piece_bounds
 
 func _process(delta: float) -> void:
+	_try_clear_initial_spawn_space()
 	var pipeline_started_usec: int = Time.get_ticks_usec()
 	_last_collision_shape_count = 0
 	var prewarm_direction: Vector2i = _current_prewarm_direction()
@@ -617,7 +661,7 @@ func biome_map_name(coord: Vector2i) -> StringName:
 	# fallback text when the current chunk has not arrived yet.
 	if active_config == null:
 		return &"unknown"
-	var map: BiomeMap = BiomeMap.new(world_seed, active_config)
+	var map: BiomeMap = BiomeMap.new(world_seed, active_config, world_layout_snapshot)
 	map.world_structure = world_structure
 	map.special_chunk_planner = special_chunk_planner
 	return map.get_biome(coord)
@@ -658,11 +702,34 @@ func _regenerate_world(advance_seed: bool) -> void:
 	if library != null:
 		library.prepare()
 	_build_world_runtime()
+	_initial_spawn_clearance_pending = _initial_spawn_clearance_radius > 0.0
 	seam_debug_dirty = true
 	debug_update_accum = debug_update_interval
 	_border_exchange_accumulator = 0.0
 	_border_exchange_phase = 0
 	_update_loaded_chunks(true)
+
+func _try_clear_initial_spawn_space() -> void:
+	if not _initial_spawn_clearance_pending or player == null or world_layout_snapshot == null:
+		return
+	var spawn_position: Variant = world_layout_snapshot.get_anchor_position(_initial_spawn_anchor_id)
+	if not spawn_position is Vector2:
+		_initial_spawn_clearance_pending = false
+		return
+	var clearance_center: Vector2 = spawn_position + _initial_spawn_clearance_offset
+	if _canvas_for_chunk(world_pos_to_chunk(clearance_center)) == null:
+		return
+	erase_material_circle(clearance_center, _initial_spawn_clearance_radius)
+	_initial_spawn_clearance_pending = false
+
+
+func has_world_cell(coord: Vector2i) -> bool:
+	return world_layout_snapshot != null and world_layout_snapshot.has_world_cell(coord)
+
+
+func get_world_layout_snapshot() -> WorldLayoutSnapshot:
+	return world_layout_snapshot
+
 
 func world_pos_to_chunk(pos: Vector2) -> Vector2i:
 	return Vector2i(floori(pos.x / float(CHUNK_SIZE)), floori(pos.y / float(CHUNK_SIZE)))
@@ -769,6 +836,8 @@ func _update_loaded_chunks(force: bool) -> void:
 	for y: int in range(center.y - load_radius, center.y + load_radius + 1):
 		for x: int in range(center.x - load_radius, center.x + load_radius + 1):
 			var coord: Vector2i = Vector2i(x, y)
+			if world_layout_snapshot != null and not world_layout_snapshot.has_world_cell(coord):
+				continue
 			needed[coord] = true
 			if special_chunk_planner != null and special_chunk_planner.is_chunk_inside_special_chunk(coord):
 				if not loaded_chunks.has(coord):

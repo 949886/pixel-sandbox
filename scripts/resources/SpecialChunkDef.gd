@@ -28,8 +28,15 @@ enum FillMode {
 	PIECE_ENVIRONMENT,
 }
 
+enum LayoutStyle {
+	ROOM,
+	SURFACE_GROUND,
+	SURFACE_ENTRANCE,
+}
+
 @export var id: StringName = &""
 @export var display_name: String = ""
+@export var editor_color: Color = Color(0.75, 0.55, 0.2, 1.0)
 @export_enum("Treasure", "Shop", "Altar", "Portal", "Boss Entrance", "Puzzle", "Hall", "Shrine", "Decorative") var chunk_kind: int = ChunkKind.DECORATIVE
 @export var allowed_biomes: Array[StringName] = []
 @export var tags: Array[StringName] = []
@@ -43,13 +50,19 @@ enum FillMode {
 @export var size_in_chunks: Vector2i = Vector2i.ONE
 @export var weight: float = 1.0
 @export var target_count: int = 1
+@export var allow_random_placement: bool = true
 @export var unique_per_world: bool = false
-@export var min_depth: int = 0
-@export var max_depth: int = 999
 @export var can_overlap_main_path: bool = false
 @export var require_near_main_path: bool = false
 @export_enum("Rock", "Snow", "Deep", "Ruins") var transition_style: int = TransitionStyle.ROCK
 @export_enum("None", "Piece Border", "Piece Environment") var fill_mode: int = FillMode.PIECE_ENVIRONMENT
+
+@export_category("Authored layout")
+@export_enum("Room", "Surface Ground", "Surface Entrance") var layout_style: int = LayoutStyle.ROOM
+@export_range(0.15, 0.9, 0.01) var surface_ground_ratio: float = 0.62
+@export_range(0.0, 0.35, 0.01) var surface_height_variation: float = 0.06
+@export_range(0.2, 0.9, 0.01) var entrance_opening_ratio: float = 0.58
+@export_range(0.1, 0.8, 0.01) var entrance_slope_width_ratio: float = 0.42
 
 @export_category("Generated fallback visuals")
 @export var generated_rock_color: Color = Color(0.2, 0.2, 0.2, 1.0)

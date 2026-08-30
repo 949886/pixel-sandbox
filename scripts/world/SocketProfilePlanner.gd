@@ -31,6 +31,8 @@ func get_vertical_profile(edge_x: int, chunk_y: int) -> Array[PieceSocket.Socket
 		return make_chamber_internal_profile()
 	var left_coord: Vector2i = Vector2i(edge_x - 1, chunk_y)
 	var right_coord: Vector2i = Vector2i(edge_x, chunk_y)
+	if not biome_map.has_world_cell(left_coord) or not biome_map.has_world_cell(right_coord):
+		return _solid_profile()
 	var openness: float = biome_map.openness_between(
 		biome_map.get_chunk_type(left_coord),
 		biome_map.get_chunk_type(right_coord),
@@ -50,6 +52,8 @@ func get_horizontal_profile(chunk_x: int, edge_y: int) -> Array[PieceSocket.Sock
 		return make_chamber_internal_profile()
 	var up_coord: Vector2i = Vector2i(chunk_x, edge_y - 1)
 	var down_coord: Vector2i = Vector2i(chunk_x, edge_y)
+	if not biome_map.has_world_cell(up_coord) or not biome_map.has_world_cell(down_coord):
+		return _solid_profile()
 	var openness: float = biome_map.openness_between(
 		biome_map.get_chunk_type(up_coord),
 		biome_map.get_chunk_type(down_coord),
@@ -59,6 +63,13 @@ func get_horizontal_profile(chunk_x: int, edge_y: int) -> Array[PieceSocket.Sock
 	var seed: int = SeedUtil.horizontal_edge_seed(world_seed, chunk_x, edge_y)
 	var required_connection: bool = biome_map.is_horizontal_connection_required(chunk_x, edge_y)
 	return make_segmented_profile(seed, openness, required_connection)
+
+
+func _solid_profile() -> Array[PieceSocket.Socket]:
+	var profile: Array[PieceSocket.Socket] = []
+	for _i: int in range(SLOTS_PER_CHUNK):
+		profile.append(PieceSocket.SOLID)
+	return profile
 
 func make_chamber_internal_profile() -> Array[PieceSocket.Socket]:
 	var profile: Array[PieceSocket.Socket] = []
