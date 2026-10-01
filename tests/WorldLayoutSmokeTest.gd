@@ -16,6 +16,7 @@ func _ready() -> void:
 	_test_serialized_authoring_data(config)
 	_test_biome_layout(snapshot)
 	_test_chunk_layer_authoring_model(config)
+	_test_special_chunk_palette(config)
 	_test_fixed_chunks(config, snapshot)
 	_test_surface_entrance_clearance(config)
 	_test_surface_foliage_material()
@@ -43,6 +44,7 @@ func _test_editor_tool_dependency_closure(config: WorldGenConfig) -> void:
 		BiomeTileBinding.new(),
 		ChunkPaintPlacementDef.new(),
 		SpawnAnchorDef.new(),
+		SpecialChunkPalettePanel.new(),
 	]
 	for biome: BiomeConfig in config.biome_configs:
 		instances.append(biome)
@@ -112,6 +114,47 @@ func _test_chunk_layer_authoring_model(config: WorldGenConfig) -> void:
 	assert(entrance_placement != null)
 	assert(entrance_placement.origin == Vector2i(1, -1))
 	assert(entrance_placement.chunk_def.id == &"surface_entrance_chunk")
+	layout.free()
+
+
+func _test_special_chunk_palette(config: WorldGenConfig) -> void:
+	var layout_node: Node = config.world_definition.layout_scene.instantiate()
+	var layout: WorldLayout = layout_node as WorldLayout
+	assert(layout != null)
+	var chunks: ChunkLayer = layout.chunk_layer()
+	assert(chunks != null)
+
+	var panel: SpecialChunkPalettePanel = SpecialChunkPalettePanel.new()
+	panel.set_chunks(chunks.palette_chunks)
+	assert(panel.selected_chunk() != null)
+	var tags: Array[StringName] = panel.available_tags()
+	assert(tags.has(&"surface"))
+	assert(tags.has(&"reward"))
+	assert(tags.has(&"shrine"))
+
+	var reward_filter: Array[StringName] = [&"reward"]
+	panel.set_tag_filter(reward_filter, SpecialChunkPalettePanel.TagMatchMode.ANY)
+	var reward_ids: Array[StringName] = panel.visible_chunk_ids()
+	assert(reward_ids.has(&"mine_treasure_chunk"))
+	assert(reward_ids.has(&"crystal_grotto_chunk"))
+	assert(reward_ids.has(&"snow_shrine_chunk"))
+	assert(not reward_ids.has(&"surface_spawn_chunk"))
+
+	var surface_ground_filter: Array[StringName] = [&"surface", &"ground"]
+	panel.set_tag_filter(surface_ground_filter, SpecialChunkPalettePanel.TagMatchMode.ALL)
+	var surface_ground_ids: Array[StringName] = panel.visible_chunk_ids()
+	assert(surface_ground_ids.has(&"surface_ground_chunk"))
+	assert(surface_ground_ids.has(&"surface_grove_chunk"))
+	assert(not surface_ground_ids.has(&"surface_spawn_chunk"))
+
+	panel.clear_filters()
+	panel.set_search_text("entrance")
+	var entrance_ids: Array[StringName] = panel.visible_chunk_ids()
+	assert(entrance_ids.has(&"surface_entrance_chunk"))
+	assert(entrance_ids.has(&"surface_east_ground_chunk"))
+	assert(not entrance_ids.has(&"mine_treasure_chunk"))
+
+	panel.free()
 	layout.free()
 
 

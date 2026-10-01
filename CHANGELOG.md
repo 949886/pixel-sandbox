@@ -1,3 +1,5 @@
+> **Gameplay V5.0 SpecialChunk Bottom Palette：** 为独立 `ChunkLayer` 增加类似 TileMap 的底部 SpecialChunk 画笔面板。面板使用 Godot 4.7 transient bottom `EditorDock`，仅在选中 `ChunkLayer` 时打开；以缩略图网格展示 `palette_chunks`，支持名称/ID/Biome/Tag 搜索、多 Tag 的 Any/All 筛选、选中即进入 Paint、Pick 反向同步、双击/Inspect 打开 `SpecialChunkDef`。Palette 内容只来自 `ChunkLayer.palette_chunks`，不扫描目录、不硬编码资源路径。插件版本更新为 2.4.0。详见 `docs/SPECIAL_CHUNK_PALETTE_AUTHORING.md`。
+
 > **Gameplay V5.0 Chunk Grid Selection Hotfix：** 调整 World Layout 编辑器 Overlay 的显示语义。固定 SpecialChunk 的完整色块、透明预览、footprint 边框和标签仍会在 WorldLayout 打开后默认显示，但橙色 Chunk 网格现在只在 Scene Tree 中选中对应 `ChunkLayer` 时绘制；选中 BiomeLayer、Anchor 或 WorldLayout 根节点时不会再显示网格。Dock 文案同步为 “Fixed chunks (grid when selected)”，插件版本更新为 2.3.3。
 
 > **Gameplay V5.0 Chunk Overlay Default Visibility Hotfix：** 修复固定 Chunk 屏幕空间 Overlay 只有在 `ChunkLayer` 成为当前编辑对象后才开始绘制、打开 WorldLayout 时默认看不到 Chunk 的问题。World Layout Editor 现在启用 Godot 的 force canvas overlay forwarding，并通过 `_forward_canvas_force_draw_over_viewport()` 在 WorldLayout 打开后立即绘制固定 Chunk、网格、边框和标签，不依赖当前选中节点；`ChunkLayer` 仍保持纯 `Node2D` placement data。插件版本更新为 2.3.2。

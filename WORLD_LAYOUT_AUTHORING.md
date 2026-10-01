@@ -37,7 +37,7 @@ If neither the dock nor the toolbar group appears, the editor plugin did not com
 The same 2D toolbar group is visible from `Main`/`World` and opens the configured layout. When a `WorldLayout` scene is already open, it changes focus inside that scene and exposes:
 
 - **Biomes** — selects `BiomeLayer` and uses Godot's normal TileMap tools.
-- **Fixed Chunks** — selects the independent `ChunkLayer` and enables Select/Paint/Erase/Pick tools. In Select mode, click a fixed Chunk to highlight its complete footprint and show its authoring data in the World Layout Dock; double-click or use **Inspect SpecialChunkDef** to open the resource Inspector.
+- **Fixed Chunks** — selects the independent `ChunkLayer`, opens the bottom **Special Chunks** palette, and enables Select/Paint/Erase/Pick tools. In Select mode, click a fixed Chunk to highlight its complete footprint and show its authoring data in the World Layout Dock; double-click or use **Inspect SpecialChunkDef** to open the resource Inspector.
 - **Anchors** — selects the semantic `WorldAnchor` nodes.
 - **Validate** — compiles a snapshot using an open matching `WorldGenConfig` context.
 
@@ -138,7 +138,11 @@ The custom editor tools provide TileMap-like interaction without TileMap storage
 - Paint (W)
 - Erase (E)
 - Pick (R)
-- SpecialChunk palette
+- transient bottom **Special Chunks** palette
+- thumbnail grid sourced from `ChunkLayer.palette_chunks`
+- search by display name, content ID, allowed Biome, or Tag
+- multi-Tag filters with **Match any / Match all**
+- Pick tool synchronization back to the palette
 - multi-cell footprint preview
 - overlap/VOID/allowed-biome checks
 - Undo/Redo
@@ -149,6 +153,23 @@ attachment performs additional guards so an asynchronous procedural result canno
 
 There is deliberately no `ChunkTileBinding`, Chunk TileSet, scene tile, source ID, atlas coordinate,
 or alternative-tile protocol for fixed chunks.
+
+### SpecialChunk bottom palette
+
+Selecting `ChunkLayer` opens a transient bottom `EditorDock`, matching the workflow of Godot's TileMap tools without using TileMap storage. The panel is the authoritative brush selector for fixed chunks:
+
+```text
+ChunkLayer.palette_chunks
+  -> SpecialChunkPalettePanel
+      -> thumbnail ItemList
+      -> text search
+      -> tag filter (Any / All)
+      -> selected SpecialChunk brush
+```
+
+The palette must never scan a directory or infer content from file paths. Designers explicitly add resources to `ChunkLayer.palette_chunks`; the panel reads `SpecialChunkDef.display_name`, `id`, `editor_preview`, `editor_color`, `allowed_biomes`, `size_in_chunks`, and `tags`. Selecting an item switches the editor to Paint mode. The Pick tool clears incompatible filters when necessary and reveals the picked resource. Double-clicking a palette item or pressing **Inspect** opens the resource Inspector.
+
+Tag filtering is content data, not editor code. Add reusable semantic tags such as `surface`, `ground`, `reward`, `shrine`, `large`, or `ruins` directly to `SpecialChunkDef.tags`. Do not add tag-to-resource switch statements in the plugin.
 
 ## WorldAnchor
 

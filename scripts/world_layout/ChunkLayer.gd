@@ -8,6 +8,8 @@ extends Node2D
 ## chunk contents are generated dynamically by the Piece system. ChunkLayer stores
 ## only authored SpecialChunk origins that must reserve their footprint and override
 ## procedural generation at those cells.
+# Explicit, data-driven source for the TileMap-like bottom brush palette.
+# The editor never scans folders or infers resource paths.
 @export var palette_chunks: Array[SpecialChunkDef] = []
 @export var placements: Array[ChunkPaintPlacementDef] = []
 

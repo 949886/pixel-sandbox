@@ -29,7 +29,11 @@ var _select_button: Button = null
 var _paint_button: Button = null
 var _erase_button: Button = null
 var _pick_button: Button = null
-var _palette: OptionButton = null
+var _palette_dock: EditorDock = null
+var _palette_panel: SpecialChunkPalettePanel = null
+var _palette_button: Button = null
+var _brush_label: Label = null
+var _paint_chunk: SpecialChunkDef = null
 var _chunk_status: Label = null
 var _mode: int = ToolMode.SELECT
 var _last_drag_cell: Variant = null
@@ -75,6 +79,9 @@ func _enter_tree() -> void:
 
 	_build_dock()
 	add_dock(_editor_dock)
+	_build_palette_dock()
+	add_dock(_palette_dock)
+	_palette_dock.close()
 	add_tool_menu_item(TOOL_MENU_OPEN, _on_open_layout_pressed)
 
 	if not scene_changed.is_connected(_on_scene_changed):
@@ -110,15 +117,21 @@ func _exit_tree() -> void:
 	if _layout_toolbar != null:
 		remove_control_from_container(EditorPlugin.CONTAINER_CANVAS_EDITOR_MENU, _layout_toolbar)
 		_layout_toolbar.queue_free()
+	if _palette_dock != null:
+		remove_dock(_palette_dock)
+		_palette_dock.queue_free()
 	if _editor_dock != null:
 		remove_dock(_editor_dock)
 		_editor_dock.queue_free()
 
 	_chunk_toolbar = null
 	_layout_toolbar = null
+	_palette_dock = null
+	_palette_panel = null
 	_editor_dock = null
 	_dock_content = null
 	_active_layer = null
+	_paint_chunk = null
 
 
 func _make_world_layout_dock_visible() -> void:
@@ -139,11 +152,16 @@ func _edit(object: Object) -> void:
 	_refresh_palette()
 	_update_chunk_toolbar_state()
 	update_overlays()
+	call_deferred(&"_show_palette_dock")
 
 
 func _make_visible(visible: bool) -> void:
 	if _chunk_toolbar != null:
 		_chunk_toolbar.visible = visible and _active_layer != null
+	if visible and _active_layer != null:
+		call_deferred(&"_show_palette_dock")
+	elif _palette_dock != null:
+		_palette_dock.close()
 	if not visible and _active_layer != null and is_instance_valid(_active_layer):
 		_active_layer.clear_editor_preview()
 	update_overlays()
@@ -603,6 +621,55 @@ func _build_dock() -> void:
 	_dock_content.add_child(_dock_status)
 
 
+func _build_palette_dock() -> void:
+	_palette_dock = EditorDock.new()
+	_palette_dock.name = "SpecialChunkPaletteDock"
+	_palette_dock.title = "Special Chunks"
+	_palette_dock.layout_key = "pixel_sandbox_special_chunk_palette"
+	_palette_dock.default_slot = EditorDock.DOCK_SLOT_BOTTOM
+	_palette_dock.available_layouts = EditorDock.DOCK_LAYOUT_HORIZONTAL | EditorDock.DOCK_LAYOUT_FLOATING
+	_palette_dock.transient = true
+	_palette_dock.set_global(false)
+	_palette_dock.force_show_icon = true
+	_palette_dock.icon_name = &"TileMap"
+
+	_palette_panel = SpecialChunkPalettePanel.new()
+	_palette_panel.chunk_selected.connect(_on_palette_chunk_selected)
+	_palette_panel.chunk_activated.connect(_on_palette_chunk_activated)
+	_palette_panel.inspect_requested.connect(_on_palette_inspect_requested)
+	_palette_dock.add_child(_palette_panel)
+
+
+func _show_palette_dock() -> void:
+	if _palette_dock == null or _active_layer == null or not is_instance_valid(_active_layer):
+		return
+	_palette_dock.make_visible()
+
+
+func _on_palette_chunk_selected(chunk_def: SpecialChunkDef) -> void:
+	_paint_chunk = chunk_def
+	_set_mode(ToolMode.PAINT)
+	_update_brush_label()
+	if _active_layer != null and is_instance_valid(_active_layer):
+		_active_layer.set_editor_preview(_hover_cell, chunk_def)
+	update_overlays()
+
+
+func _on_palette_chunk_activated(chunk_def: SpecialChunkDef) -> void:
+	_paint_chunk = chunk_def
+	_set_mode(ToolMode.PAINT)
+	_update_brush_label()
+
+
+func _on_palette_inspect_requested(chunk_def: SpecialChunkDef) -> void:
+	if chunk_def != null:
+		EditorInterface.edit_resource(chunk_def)
+
+
+func _on_open_palette_pressed() -> void:
+	_show_palette_dock()
+
+
 func _build_layout_toolbar() -> void:
 	_layout_toolbar = HBoxContainer.new()
 	_layout_toolbar.name = "WorldLayoutNavigationTools"
@@ -897,11 +964,17 @@ func _build_chunk_toolbar() -> void:
 
 	var separator: VSeparator = VSeparator.new()
 	_chunk_toolbar.add_child(separator)
-	_palette = OptionButton.new()
-	_palette.custom_minimum_size = Vector2(190.0, 0.0)
-	_palette.tooltip_text = "Fixed SpecialChunk palette"
-	_palette.item_selected.connect(_on_palette_selected)
-	_chunk_toolbar.add_child(_palette)
+
+	_palette_button = Button.new()
+	_palette_button.text = "Special Chunks"
+	_palette_button.tooltip_text = "Open the TileMap-like SpecialChunk brush palette"
+	_palette_button.pressed.connect(_on_open_palette_pressed)
+	_chunk_toolbar.add_child(_palette_button)
+
+	_brush_label = Label.new()
+	_brush_label.text = "Brush: —"
+	_brush_label.custom_minimum_size = Vector2(160.0, 0.0)
+	_chunk_toolbar.add_child(_brush_label)
 
 	_chunk_status = Label.new()
 	_chunk_status.text = "Fixed chunks only"
@@ -932,42 +1005,51 @@ func _set_mode(mode: int) -> void:
 		_pick_button.set_pressed_no_signal(mode == ToolMode.PICK)
 	if _active_layer != null and is_instance_valid(_active_layer):
 		_active_layer.set_editor_preview(_hover_cell, _selected_chunk() if mode == ToolMode.PAINT else null)
+	_update_brush_label()
 	_update_chunk_status()
 
 
 func _refresh_palette() -> void:
-	if _palette == null:
+	if _palette_panel == null:
 		return
-	_palette.clear()
 	if _active_layer == null or not is_instance_valid(_active_layer):
-		_palette.disabled = true
+		var empty_chunks: Array[SpecialChunkDef] = []
+		_palette_panel.set_chunks(empty_chunks, null)
+		_paint_chunk = null
+		_update_brush_label()
 		return
-	for chunk_def: SpecialChunkDef in _active_layer.palette_chunks:
-		if chunk_def == null:
-			continue
-		var label: String = chunk_def.display_name.strip_edges()
-		if label.is_empty():
-			label = str(chunk_def.id)
-		var index: int = _palette.get_item_count()
-		_palette.add_item(label)
-		_palette.set_item_metadata(index, chunk_def)
-	_palette.disabled = _palette.get_item_count() == 0
-	if _palette.get_item_count() > 0:
-		_palette.select(0)
+	if _paint_chunk == null or not _active_layer.palette_chunks.has(_paint_chunk):
+		_paint_chunk = null
+		for chunk_def: SpecialChunkDef in _active_layer.palette_chunks:
+			if chunk_def != null:
+				_paint_chunk = chunk_def
+				break
+	_palette_panel.set_chunks(_active_layer.palette_chunks, _paint_chunk)
+	_paint_chunk = _palette_panel.selected_chunk()
+	_update_brush_label()
 
 
 func _selected_chunk() -> SpecialChunkDef:
-	if _palette == null or _palette.get_item_count() <= 0 or _palette.get_selected() < 0:
-		return null
-	return _palette.get_item_metadata(_palette.get_selected()) as SpecialChunkDef
+	return _paint_chunk
 
 
-func _on_palette_selected(_index: int) -> void:
-	if _mode == ToolMode.SELECT:
-		_set_mode(ToolMode.PAINT)
-	elif _active_layer != null and is_instance_valid(_active_layer):
-		_active_layer.queue_redraw()
-	_update_chunk_status()
+func _update_brush_label() -> void:
+	if _brush_label == null:
+		return
+	if _paint_chunk == null:
+		_brush_label.text = "Brush: —"
+		_brush_label.tooltip_text = "Choose a SpecialChunk in the bottom palette"
+		return
+	var label: String = _paint_chunk.display_name.strip_edges()
+	if label.is_empty():
+		label = str(_paint_chunk.id)
+	_brush_label.text = "Brush: %s" % label
+	_brush_label.tooltip_text = "%s\nID: %s\nFootprint: %d × %d" % [
+		label,
+		str(_paint_chunk.id),
+		_paint_chunk.size_in_chunks.x,
+		_paint_chunk.size_in_chunks.y,
+	]
 
 
 func _update_chunk_toolbar_state() -> void:
@@ -975,6 +1057,7 @@ func _update_chunk_toolbar_state() -> void:
 		return
 	_chunk_toolbar.visible = _active_layer != null
 	_refresh_palette()
+	_update_brush_label()
 	_update_chunk_status()
 
 
@@ -1121,12 +1204,12 @@ func _pick_at(cell: Vector2i) -> void:
 	if hit == null or hit.chunk_def == null:
 		_update_chunk_status("No fixed chunk at %s" % str(cell))
 		return
-	for index: int in range(_palette.get_item_count()):
-		if _palette.get_item_metadata(index) == hit.chunk_def:
-			_palette.select(index)
-			_set_mode(ToolMode.PAINT)
-			_update_chunk_status("Picked %s" % str(hit.chunk_def.id))
-			return
+	if _palette_panel != null and _palette_panel.select_chunk(hit.chunk_def, true, false):
+		_paint_chunk = hit.chunk_def
+		_set_mode(ToolMode.PAINT)
+		_show_palette_dock()
+		_update_chunk_status("Picked %s" % str(hit.chunk_def.id))
+		return
 	_update_chunk_status("Chunk is not in this layer palette")
 
 
