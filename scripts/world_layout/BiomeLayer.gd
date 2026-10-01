@@ -8,8 +8,11 @@ extends TileMapLayer
 
 
 func _ready() -> void:
-	# The macro layout is editor data, not runtime world rendering.
-	visible = Engine.is_editor_hint()
+	# The macro layout is editor data, not runtime world rendering. Preserve the
+	# scene author's visibility choice in the editor instead of forcing hidden
+	# layers visible again whenever the scene or selection refreshes.
+	if not Engine.is_editor_hint():
+		visible = false
 
 
 func get_biome_config(cell: Vector2i) -> BiomeConfig:

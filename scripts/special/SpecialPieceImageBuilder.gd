@@ -13,9 +13,18 @@ static func build(placement: SpecialChunkPlacement) -> Image:
 	if placement == null or placement.chunk_def == null:
 		return Image.create_empty(CHUNK_SIZE, CHUNK_SIZE, false, Image.FORMAT_RGBA8)
 	var size_px: Vector2i = placement.size_in_chunks * CHUNK_SIZE
+	var def: SpecialChunkDef = placement.chunk_def
+	if placement.authored_material_image != null and not placement.authored_material_image.is_empty():
+		var authored: Image = placement.authored_material_image.duplicate() as Image
+		if authored != null and authored.get_size() == size_px:
+			if authored.get_format() != Image.FORMAT_RGBA8:
+				authored.convert(Image.FORMAT_RGBA8)
+			return authored
 	var img: Image = Image.create_empty(size_px.x, size_px.y, false, Image.FORMAT_RGBA8)
 	img.fill(Color.TRANSPARENT)
-	var def: SpecialChunkDef = placement.chunk_def
+	if def.require_material_layout:
+		push_error("SpecialPieceImageBuilder: required authored material layout is unavailable for '%s'." % str(def.id))
+		return img
 	var rock: Color = def.generated_rock_color
 	var dark: Color = def.generated_dark_color
 	var accent: Color = def.generated_accent_color

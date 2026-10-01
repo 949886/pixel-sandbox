@@ -1,3 +1,15 @@
+> **Gameplay V5.0 Chunk Grid Selection Hotfix：** 调整 World Layout 编辑器 Overlay 的显示语义。固定 SpecialChunk 的完整色块、透明预览、footprint 边框和标签仍会在 WorldLayout 打开后默认显示，但橙色 Chunk 网格现在只在 Scene Tree 中选中对应 `ChunkLayer` 时绘制；选中 BiomeLayer、Anchor 或 WorldLayout 根节点时不会再显示网格。Dock 文案同步为 “Fixed chunks (grid when selected)”，插件版本更新为 2.3.3。
+
+> **Gameplay V5.0 Chunk Overlay Default Visibility Hotfix：** 修复固定 Chunk 屏幕空间 Overlay 只有在 `ChunkLayer` 成为当前编辑对象后才开始绘制、打开 WorldLayout 时默认看不到 Chunk 的问题。World Layout Editor 现在启用 Godot 的 force canvas overlay forwarding，并通过 `_forward_canvas_force_draw_over_viewport()` 在 WorldLayout 打开后立即绘制固定 Chunk、网格、边框和标签，不依赖当前选中节点；`ChunkLayer` 仍保持纯 `Node2D` placement data。插件版本更新为 2.3.2。
+
+> **Gameplay V5.0 Chunk Overlay Zoom Hotfix：** 修复固定 SpecialChunk 在 World Layout 缩放后只显示材质 PNG 的局部不透明区域、边框随缩放变细或被 CanvasItem bounds 裁剪的问题。固定 Chunk 的完整色块、透明预览图、边框、标签、选中手柄和 Hover footprint 全部迁移到 EditorPlugin 的屏幕空间 Overlay；每个 authored footprint 始终先绘制完整 `editor_color` 背板，再叠加透明美术预览，网格和边框维持稳定屏幕像素宽度。`ChunkLayer` 保持纯 `Node2D` placement data，插件版本更新为 2.3.1。
+
+> **Gameplay V5.0 World Layout Scale / Surface Simulation Refinement：** `ChunkLayer` 的网格从 Node2D 世界绘制迁移到 EditorPlugin 的屏幕空间 Overlay，线宽不再随缩放衰减，并按当前 2D 视口裁剪后完整覆盖 `BiomeLayer` authored bounds；默认地表 18,585 个装饰草像素改用独立 `surface_foliage` 惰性材质，保留可燃表现但不再触发 autonomous 生长；默认地下宏观地图从 49 行压缩为 26 行，并同步下移/更新 Mine、Snow、Deep 过渡和 `main_path_end` Anchor。World Layout Editor 版本更新为 2.3.0。
+
+> **Gameplay V5.0 Surface / World Layout Usability Fix：** 修复地表矿井入口装饰支撑梁阻断玩家碰撞体的问题，入口从地表到 `OPEN_LARGE` 底部 Socket 现在具有连续安全净空；默认世界背景改为紫灰色系，与蓝青色 Water 明显区分。World Layout 编辑器不再在选中 `BiomeLayer` 时强制恢复可见性，Scene Tree 眼睛与 Dock Overlay 会双向同步；`ChunkLayer` Select 模式现在可点击固定 Chunk，高亮 footprint、在 Dock 显示 ID/Origin/Size/Biomes/Tags/Resource，并支持双击或按钮打开 `SpecialChunkDef` Inspector。插件版本更新为 2.2.0。
+
+> **Gameplay V5.0 Surface Opening Pass：** 地表出生段改为真正的美术预制像素世界。`SpecialChunkDef` 新增数据驱动 `material_layout`，固定 Surface Chunk 直接消费 512×512 / 512×1024 精确材质色图，不再由运行时公式临时生成；默认世界现在由 Left Boundary / Ground / Grove / Approach / Spawn / East Ground / 1×2 Mine Entrance 七个固定 Chunk 连成连续地表，入口底部与 `OPEN_LARGE` Piece Socket 精确对齐。新增 `WorldPresentationProfile + WorldBackdrop`，用 Resource 控制天空、地下渐变和远近山体轮廓。美术布局在主线程转换为 `Image` 后交给 Worker，后台线程不读取 Texture2D。
+
 > **Gameplay V5.0 World Layout Tool-Mode Hotfix：** 修复 `ChunkPaintPlacementDef` 在编辑器中被加载为 placeholder、导致 `ChunkLayer._draw_placement()` 调用 `is_valid()` 失败的问题。World Layout 编辑器执行链上的数据脚本现在全部显式声明 `@tool`（WorldGenConfig / WorldDefinition / BiomeConfig / BiomeTileBinding / WorldLayoutPreset / ChunkPaintPlacementDef / SpecialChunkDef / SpawnAnchorDef / WorldStructureProfile / WorldLayoutSnapshot 等）；ChunkLayer 增加 placeholder 防御检查，Smoke Test 增加 `Script.is_tool()` 闭包断言，插件版本更新为 2.1.1。应用后需完整重启 Godot 以清除已缓存的 placeholder 实例。
 
 > **Gameplay V5.0 World Layout Editor Hotfix：** 修复 Godot 4.7 warnings-as-errors 下的三组项目解析失败（WeakRef 类型推导、SpecialSpellRuntime 测试参数迁移、ChunkLayer/TileMap 类型断言）；World Layout 插件迁移到 Godot 4.7 `EditorDock + add_dock()`，加载后主动显示 Dock，并在 Main/World 的 2D 顶部工具栏始终提供 Open / Biomes / Fixed Chunks / Anchors / Validate 入口。Main 中央画布仍是运行时 Bootstrap，世界地图通过数据链打开，不嵌入 Main。

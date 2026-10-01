@@ -98,6 +98,7 @@ var special_chunks_parent: Node2D
 var chunk_renderers_parent: Node2D
 var world_structure: WorldStructure
 var world_layout_snapshot: WorldLayoutSnapshot
+var world_backdrop: WorldBackdrop
 var _initial_spawn_anchor_id: StringName = &""
 var _initial_spawn_clearance_radius: float = 0.0
 var _initial_spawn_clearance_offset: Vector2 = Vector2.ZERO
@@ -178,6 +179,7 @@ func _ready() -> void:
 	if override_seed:
 		active_config.world_seed = world_seed
 	world_seed = active_config.world_seed
+	_configure_world_presentation()
 	runtime_profile = _resolve_runtime_profile()
 	_apply_runtime_profile()
 	library = _load_piece_library()
@@ -213,6 +215,17 @@ func _ready() -> void:
 
 func _exit_tree() -> void:
 	_stop_workers()
+
+func _configure_world_presentation() -> void:
+	world_backdrop = get_node_or_null("WorldBackdrop") as WorldBackdrop
+	if world_backdrop == null:
+		return
+	var profile: WorldPresentationProfile = null
+	if active_config != null and active_config.world_definition != null:
+		profile = active_config.world_definition.presentation_profile
+	if not world_backdrop.configure(world_layout_snapshot, profile, world_seed):
+		push_warning("WorldManager: World presentation profile could not be configured.")
+
 
 func _build_world_runtime() -> void:
 	world_structure = WorldStructureBuilder.new(world_seed, active_config, world_layout_snapshot).build()
@@ -699,6 +712,7 @@ func _regenerate_world(advance_seed: bool) -> void:
 	runtime_profile = _resolve_runtime_profile()
 	_apply_runtime_profile()
 	_apply_runtime_profile_to_debug_nodes()
+	_configure_world_presentation()
 	if library != null:
 		library.prepare()
 	_build_world_runtime()

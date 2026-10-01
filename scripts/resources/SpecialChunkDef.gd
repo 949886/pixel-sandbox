@@ -59,7 +59,16 @@ enum LayoutStyle {
 @export_enum("Rock", "Snow", "Deep", "Ruins") var transition_style: int = TransitionStyle.ROCK
 @export_enum("None", "Piece Border", "Piece Environment") var fill_mode: int = FillMode.PIECE_ENVIRONMENT
 
-@export_category("Authored layout")
+@export_category("Authored material layout")
+## Optional exact material-color image used by fixed authored chunks. The image size
+## must equal size_in_chunks * PieceWorldConstants.CHUNK_SIZE. Transparent pixels are
+## air; opaque colors are resolved through MaterialPalette.
+@export var material_layout: Texture2D
+## Fixed art-critical chunks should enable this so a missing/invalid source image
+## fails validation instead of silently falling back to procedural placeholder art.
+@export var require_material_layout: bool = false
+
+@export_category("Generated layout fallback")
 @export_enum("Room", "Surface Ground", "Surface Entrance") var layout_style: int = LayoutStyle.ROOM
 @export_range(0.15, 0.9, 0.01) var surface_ground_ratio: float = 0.62
 @export_range(0.0, 0.35, 0.01) var surface_height_variation: float = 0.06
@@ -78,6 +87,34 @@ enum LayoutStyle {
 @export var right_profile: Array[int] = []
 @export var bottom_profile: Array[int] = []
 @export var left_profile: Array[int] = []
+
+func expected_material_size() -> Vector2i:
+	return size_in_chunks * PieceWorldConstants.CHUNK_SIZE
+
+
+func has_valid_material_layout() -> bool:
+	if material_layout == null:
+		return not require_material_layout
+	return Vector2i(material_layout.get_size()) == expected_material_size()
+
+
+func create_authored_material_image() -> Image:
+	if material_layout == null:
+		return null
+	var source: Image = material_layout.get_image()
+	if source == null or source.is_empty() or source.get_size() != expected_material_size():
+		return null
+	var image: Image = source.duplicate() as Image
+	if image == null:
+		return null
+	if image.is_compressed():
+		var decompress_error: Error = image.decompress()
+		if decompress_error != OK:
+			return null
+	if image.get_format() != Image.FORMAT_RGBA8:
+		image.convert(Image.FORMAT_RGBA8)
+	return image
+
 
 func profile_length_top_bottom(slots_per_chunk: int) -> int:
 	return size_in_chunks.x * slots_per_chunk

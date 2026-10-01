@@ -15,9 +15,10 @@ extends Marker2D
 
 
 func _ready() -> void:
-	visible = Engine.is_editor_hint()
 	if Engine.is_editor_hint():
 		queue_redraw()
+	else:
+		visible = false
 
 
 func is_valid() -> bool:

@@ -18,27 +18,22 @@ extends Node2D
 @export_range(0.0, 1.0, 0.05) var fixed_chunk_alpha: float = 0.28
 @export_range(0.0, 1.0, 0.05) var hover_alpha: float = 0.18
 @export var grid_color: Color = Color(0.95, 0.55, 0.15, 0.52)
-@export var grid_line_width: float = 1.0
+@export_range(1.0, 6.0, 0.5) var grid_line_width: float = 1.5
 @export var fixed_chunk_border_width: float = 3.0
+@export var selected_chunk_border_color: Color = Color(1.0, 0.88, 0.24, 1.0)
+@export var selected_chunk_border_width: float = 6.0
 
 var _editor_hover_cell: Variant = null
 var _editor_preview_chunk: SpecialChunkDef = null
-var _editor_redraw_accumulator: float = 0.0
+var _editor_selected_origin: Variant = null
 
 
 func _ready() -> void:
-	visible = Engine.is_editor_hint()
-	set_process(Engine.is_editor_hint())
-	queue_redraw()
-
-
-func _process(delta: float) -> void:
+	# Keep the author's editor visibility state. Runtime never renders this
+	# authoring-only layer. All authoring graphics are drawn by the EditorPlugin
+	# in viewport/screen space so they remain complete at every zoom level.
 	if not Engine.is_editor_hint():
-		return
-	_editor_redraw_accumulator += delta
-	if _editor_redraw_accumulator >= 0.2:
-		_editor_redraw_accumulator = 0.0
-		queue_redraw()
+		visible = false
 
 
 func chunk_size() -> int:
@@ -242,79 +237,44 @@ func clear_editor_preview() -> void:
 	queue_redraw()
 
 
+func set_editor_selected_origin(origin: Variant) -> void:
+	_editor_selected_origin = origin
+	queue_redraw()
+
+
+func clear_editor_selection() -> void:
+	_editor_selected_origin = null
+	queue_redraw()
+
+
 func _draw() -> void:
-	if not Engine.is_editor_hint():
-		return
-	if draw_grid:
-		_draw_grid()
-	if draw_fixed_chunks:
-		for placement: ChunkPaintPlacementDef in placements:
-			_draw_placement(placement)
-	_draw_hover_preview()
+	# Intentionally empty. Fixed-chunk fills, previews, outlines, labels, selection,
+	# hover footprint, and the Chunk grid are all editor viewport overlays. Keeping
+	# them out of Node2D custom drawing avoids CanvasItem bounds clipping and
+	# zoom-scaled line widths. ChunkLayer remains only the authored placement data.
+	pass
 
 
-func _draw_grid() -> void:
-	var rect: Rect2i = _editor_grid_rect()
-	if rect.size.x <= 0 or rect.size.y <= 0:
-		return
-	var size: float = float(chunk_size())
-	var left: float = float(rect.position.x) * size
-	var right: float = float(rect.end.x) * size
-	var top: float = float(rect.position.y) * size
-	var bottom: float = float(rect.end.y) * size
-	for x: int in range(rect.position.x, rect.end.x + 1):
-		var px: float = float(x) * size
-		draw_line(Vector2(px, top), Vector2(px, bottom), grid_color, grid_line_width)
-	for y: int in range(rect.position.y, rect.end.y + 1):
-		var py: float = float(y) * size
-		draw_line(Vector2(left, py), Vector2(right, py), grid_color, grid_line_width)
+func editor_grid_rect() -> Rect2i:
+	## Authoring bounds used by the screen-space editor grid. The public query keeps
+	## the EditorPlugin independent from BiomeLayer's TileMap storage details.
+	return _editor_grid_rect()
 
 
-func _draw_placement(placement: ChunkPaintPlacementDef) -> void:
-	if not _placement_is_valid(placement):
-		return
-	var chunk_def: SpecialChunkDef = placement.chunk_def
-	var rect: Rect2 = cell_rect(placement.origin, chunk_def.size_in_chunks)
-	var fill: Color = chunk_def.editor_color
-	fill.a = fixed_chunk_alpha
-	if chunk_def.editor_preview != null:
-		draw_texture_rect(chunk_def.editor_preview, rect, false, Color(1.0, 1.0, 1.0, maxf(fixed_chunk_alpha, 0.72)))
-	else:
-		draw_rect(rect, fill, true)
-	var border: Color = chunk_def.editor_color
-	border.a = 0.96
-	draw_rect(rect, border, false, fixed_chunk_border_width)
-	if draw_labels:
-		_draw_chunk_label(rect, chunk_def)
+func editor_hover_cell() -> Variant:
+	return _editor_hover_cell
 
 
-func _draw_hover_preview() -> void:
-	if not _editor_hover_cell is Vector2i:
-		return
-	var cell: Vector2i = _editor_hover_cell
-	var size_in_chunks: Vector2i = Vector2i.ONE
-	var preview_color: Color = Color(0.9, 0.9, 0.9, hover_alpha)
-	if _editor_preview_chunk != null:
-		size_in_chunks = _editor_preview_chunk.size_in_chunks
-		preview_color = _editor_preview_chunk.editor_color
-		preview_color.a = hover_alpha
-	var rect: Rect2 = cell_rect(cell, size_in_chunks)
-	draw_rect(rect, preview_color, true)
-	var border: Color = preview_color
-	border.a = 0.9
-	draw_rect(rect, border, false, 2.0)
+func editor_preview_chunk() -> SpecialChunkDef:
+	return _editor_preview_chunk
 
 
-func _draw_chunk_label(rect: Rect2, chunk_def: SpecialChunkDef) -> void:
-	var text: String = chunk_def.display_name.strip_edges()
-	if text.is_empty():
-		text = str(chunk_def.id)
-	if text.is_empty():
-		return
-	var font: Font = ThemeDB.fallback_font
-	var font_size: int = maxi(16, ThemeDB.fallback_font_size)
-	var baseline: Vector2 = rect.position + Vector2(10.0, float(font_size) + 8.0)
-	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 20.0, font_size, Color(1, 1, 1, 0.95))
+func editor_selected_origin() -> Variant:
+	return _editor_selected_origin
+
+
+func editor_placement_is_valid(placement: ChunkPaintPlacementDef) -> bool:
+	return _placement_is_valid(placement)
 
 
 func _editor_grid_rect() -> Rect2i:

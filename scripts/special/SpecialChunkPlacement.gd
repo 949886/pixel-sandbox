@@ -10,6 +10,9 @@ var size_in_chunks: Vector2i = Vector2i.ONE
 var biome_id: StringName = &""
 var seed: int = 0
 var authored: bool = false
+## Main-thread extracted copy of SpecialChunkDef.material_layout. Background workers
+## only touch this Image and never access Texture2D/ResourceServer objects.
+var authored_material_image: Image
 
 func contains_chunk(coord: Vector2i) -> bool:
 	return coord.x >= origin_chunk.x \

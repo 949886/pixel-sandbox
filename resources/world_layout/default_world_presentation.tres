@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="WorldPresentationProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/WorldPresentationProfile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"default_world_presentation"
+surface_reference_anchor_id = &"player_spawn"
+surface_y_offset = 5.0
+horizontal_margin_chunks = 4
+top_margin_chunks = 4
+bottom_margin_chunks = 3
+sky_top_color = Color(0.0314, 0.0353, 0.0745, 1)
+sky_horizon_color = Color(0.2353, 0.1333, 0.1804, 1)
+underground_color = Color(0.0196, 0.0157, 0.0314, 1)
+gradient_bands = 14
+underground_transition_depth = 896.0
+draw_surface_silhouettes = true
+far_silhouette_color = Color(0.1098, 0.0784, 0.1373, 1)
+near_silhouette_color = Color(0.0627, 0.0471, 0.0863, 1)
+far_mountain_height = 192.0
+near_mountain_height = 112.0
+mountain_step = 224.0

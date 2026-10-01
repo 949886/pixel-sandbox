@@ -1,17 +1,17 @@
 [gd_resource type="Resource" script_class="SpecialChunkDef" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/SpecialChunkDef.gd" id="1"]
-[ext_resource type="Texture2D" path="res://resources/special_chunks/layouts/surface_ground_west.png" id="2_layout"]
+[ext_resource type="Texture2D" path="res://resources/special_chunks/layouts/surface_ground_approach.png" id="2_layout"]
 
 [resource]
 script = ExtResource("1")
-id = &"surface_ground_chunk"
-display_name = "Surface Ground West"
-editor_color = Color(0.24, 0.57, 0.18, 1)
+id = &"surface_approach_chunk"
+display_name = "Surface Approach"
+editor_color = Color(0.36, 0.58, 0.20, 1)
 editor_preview = ExtResource("2_layout")
 chunk_kind = 8
 allowed_biomes = Array[StringName]([&"surface"])
-tags = Array[StringName]([&"surface", &"ground"])
+tags = Array[StringName]([&"surface", &"ground", &"approach"])
 prefer_structure_tags = Array[StringName]([])
 avoid_structure_tags = Array[StringName]([])
 prefer_branch_end = false
@@ -22,7 +22,7 @@ size_in_chunks = Vector2i(1, 1)
 weight = 1.0
 target_count = 1
 allow_random_placement = false
-unique_per_world = false
+unique_per_world = true
 can_overlap_main_path = true
 require_near_main_path = false
 transition_style = 0

@@ -21,6 +21,7 @@ enum FocusTarget {
 }
 
 const TOOL_MENU_OPEN: String = "Open Current World Layout"
+const GRID_VIEW_MARGIN_CELLS: int = 2
 
 var _active_layer: ChunkLayer = null
 var _chunk_toolbar: HBoxContainer = null
@@ -33,6 +34,8 @@ var _chunk_status: Label = null
 var _mode: int = ToolMode.SELECT
 var _last_drag_cell: Variant = null
 var _hover_cell: Variant = null
+var _selected_placement_origin: Variant = null
+var _selected_chunk_def: SpecialChunkDef = null
 
 var _layout_toolbar: HBoxContainer = null
 var _editor_dock: EditorDock = null
@@ -49,11 +52,19 @@ var _validate_button: Button = null
 var _show_biomes: CheckBox = null
 var _show_chunks: CheckBox = null
 var _show_anchors: CheckBox = null
+var _selected_chunk_info: Label = null
+var _inspect_selected_chunk_button: Button = null
 var _pending_focus: int = FocusTarget.LAYOUT
 var _pending_open_focus: bool = false
 
 
 func _enter_tree() -> void:
+	# Fixed Chunk previews are project-level authoring overlays, not gizmos owned
+	# by the currently selected node. Force canvas overlay forwarding so authored
+	# footprints remain visible whenever a WorldLayout scene is open. The orange
+	# Chunk grid is intentionally gated by the actual ChunkLayer selection.
+	set_force_draw_over_forwarding_enabled()
+
 	_build_chunk_toolbar()
 	add_control_to_container(EditorPlugin.CONTAINER_CANVAS_EDITOR_MENU, _chunk_toolbar)
 	_chunk_toolbar.visible = false
@@ -92,6 +103,7 @@ func _exit_tree() -> void:
 	remove_tool_menu_item(TOOL_MENU_OPEN)
 	if _active_layer != null and is_instance_valid(_active_layer):
 		_active_layer.clear_editor_preview()
+		_active_layer.clear_editor_selection()
 	if _chunk_toolbar != null:
 		remove_control_from_container(EditorPlugin.CONTAINER_CANVAS_EDITOR_MENU, _chunk_toolbar)
 		_chunk_toolbar.queue_free()
@@ -121,9 +133,12 @@ func _handles(object: Object) -> bool:
 func _edit(object: Object) -> void:
 	if _active_layer != null and is_instance_valid(_active_layer):
 		_active_layer.clear_editor_preview()
+		_active_layer.clear_editor_selection()
 	_active_layer = object as ChunkLayer
+	_clear_selected_chunk()
 	_refresh_palette()
 	_update_chunk_toolbar_state()
+	update_overlays()
 
 
 func _make_visible(visible: bool) -> void:
@@ -131,6 +146,272 @@ func _make_visible(visible: bool) -> void:
 		_chunk_toolbar.visible = visible and _active_layer != null
 	if not visible and _active_layer != null and is_instance_valid(_active_layer):
 		_active_layer.clear_editor_preview()
+	update_overlays()
+
+
+func _forward_canvas_force_draw_over_viewport(viewport_control: Control) -> void:
+	var layer: ChunkLayer = _grid_layer_for_current_layout()
+	if layer == null or not is_instance_valid(layer) or not layer.visible:
+		return
+
+	var editor_viewport: SubViewport = EditorInterface.get_editor_viewport_2d()
+	if editor_viewport == null:
+		return
+	var local_to_screen: Transform2D = editor_viewport.global_canvas_transform * layer.get_global_transform()
+	if is_zero_approx(local_to_screen.determinant()):
+		return
+	var screen_to_local: Transform2D = local_to_screen.affine_inverse()
+	var viewport_rect: Rect2 = Rect2(Vector2.ZERO, viewport_control.size)
+	var local_view_rect: Rect2 = _screen_rect_to_local_bounds(viewport_rect, screen_to_local)
+
+	# Base fills and art previews are drawn first. Every authored footprint receives
+	# a complete color backing even when editor_preview contains transparent air.
+	# This prevents terrain-only PNG previews from looking like partial Chunk cells.
+	if layer.draw_fixed_chunks:
+		_draw_fixed_chunk_bases(viewport_control, layer, local_to_screen, local_view_rect, viewport_rect)
+
+	# Grid lines are an editing aid, not part of the persistent world preview.
+	# Keep authored Fixed Chunks visible at all times, but draw the orange grid
+	# only while this exact ChunkLayer is selected in the Scene dock.
+	if layer.draw_grid and _is_chunk_layer_selected(layer):
+		_draw_chunk_grid(viewport_control, layer, local_to_screen, local_view_rect)
+
+	# Outlines, labels, selection and hover are last so they stay readable.
+	if layer.draw_fixed_chunks:
+		_draw_fixed_chunk_foreground(viewport_control, layer, local_to_screen, local_view_rect, viewport_rect)
+	_draw_chunk_hover(viewport_control, layer, local_to_screen, viewport_rect)
+
+
+func _screen_rect_to_local_bounds(screen_rect: Rect2, screen_to_local: Transform2D) -> Rect2:
+	var corners: PackedVector2Array = PackedVector2Array([
+		screen_to_local * screen_rect.position,
+		screen_to_local * Vector2(screen_rect.end.x, screen_rect.position.y),
+		screen_to_local * screen_rect.end,
+		screen_to_local * Vector2(screen_rect.position.x, screen_rect.end.y),
+	])
+	var min_local: Vector2 = corners[0]
+	var max_local: Vector2 = corners[0]
+	for corner: Vector2 in corners:
+		min_local.x = minf(min_local.x, corner.x)
+		min_local.y = minf(min_local.y, corner.y)
+		max_local.x = maxf(max_local.x, corner.x)
+		max_local.y = maxf(max_local.y, corner.y)
+	return Rect2(min_local, max_local - min_local)
+
+
+func _local_rect_to_screen_bounds(local_rect: Rect2, local_to_screen: Transform2D) -> Rect2:
+	var corners: PackedVector2Array = PackedVector2Array([
+		local_to_screen * local_rect.position,
+		local_to_screen * Vector2(local_rect.end.x, local_rect.position.y),
+		local_to_screen * local_rect.end,
+		local_to_screen * Vector2(local_rect.position.x, local_rect.end.y),
+	])
+	var min_screen: Vector2 = corners[0]
+	var max_screen: Vector2 = corners[0]
+	for corner: Vector2 in corners:
+		min_screen.x = minf(min_screen.x, corner.x)
+		min_screen.y = minf(min_screen.y, corner.y)
+		max_screen.x = maxf(max_screen.x, corner.x)
+		max_screen.y = maxf(max_screen.y, corner.y)
+	return Rect2(min_screen, max_screen - min_screen)
+
+
+func _draw_fixed_chunk_bases(
+	viewport_control: Control,
+	layer: ChunkLayer,
+	local_to_screen: Transform2D,
+	local_view_rect: Rect2,
+	viewport_rect: Rect2
+) -> void:
+	for placement: ChunkPaintPlacementDef in layer.placements:
+		if not layer.editor_placement_is_valid(placement):
+			continue
+		var chunk_def: SpecialChunkDef = placement.chunk_def
+		var local_rect: Rect2 = layer.cell_rect(placement.origin, chunk_def.size_in_chunks)
+		if not local_rect.grow(float(layer.chunk_size())).intersects(local_view_rect):
+			continue
+		var screen_rect: Rect2 = _local_rect_to_screen_bounds(local_rect, local_to_screen)
+		if not screen_rect.grow(8.0).intersects(viewport_rect):
+			continue
+
+		var fill: Color = chunk_def.editor_color
+		fill.a = layer.fixed_chunk_alpha
+		viewport_control.draw_rect(screen_rect, fill, true)
+
+		# Art previews often contain a large transparent air area. The full-footprint
+		# fill above remains visible beneath that transparency. At sub-pixel sizes the
+		# preview is skipped so a stable authored-cell color is shown instead.
+		if chunk_def.editor_preview != null and screen_rect.size.x >= 2.0 and screen_rect.size.y >= 2.0:
+			var preview_modulate: Color = Color(1.0, 1.0, 1.0, maxf(layer.fixed_chunk_alpha, 0.82))
+			viewport_control.draw_texture_rect(chunk_def.editor_preview, screen_rect, false, preview_modulate)
+
+
+func _draw_chunk_grid(
+	viewport_control: Control,
+	layer: ChunkLayer,
+	local_to_screen: Transform2D,
+	local_view_rect: Rect2
+) -> void:
+	var grid_rect: Rect2i = layer.editor_grid_rect()
+	if grid_rect.size.x <= 0 or grid_rect.size.y <= 0:
+		return
+
+	var cell_size: float = float(layer.chunk_size())
+	var visible_start: Vector2i = Vector2i(
+		floori(local_view_rect.position.x / cell_size) - GRID_VIEW_MARGIN_CELLS,
+		floori(local_view_rect.position.y / cell_size) - GRID_VIEW_MARGIN_CELLS
+	)
+	var visible_end: Vector2i = Vector2i(
+		ceili(local_view_rect.end.x / cell_size) + GRID_VIEW_MARGIN_CELLS,
+		ceili(local_view_rect.end.y / cell_size) + GRID_VIEW_MARGIN_CELLS
+	)
+	var start_x: int = maxi(grid_rect.position.x, visible_start.x)
+	var end_x: int = mini(grid_rect.end.x, visible_end.x)
+	var start_y: int = maxi(grid_rect.position.y, visible_start.y)
+	var end_y: int = mini(grid_rect.end.y, visible_end.y)
+	if start_x > end_x or start_y > end_y:
+		return
+
+	var grid_left: float = float(grid_rect.position.x) * cell_size
+	var grid_right: float = float(grid_rect.end.x) * cell_size
+	var grid_top: float = float(grid_rect.position.y) * cell_size
+	var grid_bottom: float = float(grid_rect.end.y) * cell_size
+	var margin_world: float = float(GRID_VIEW_MARGIN_CELLS) * cell_size
+	var visible_left: float = maxf(grid_left, local_view_rect.position.x - margin_world)
+	var visible_right: float = minf(grid_right, local_view_rect.end.x + margin_world)
+	var visible_top: float = maxf(grid_top, local_view_rect.position.y - margin_world)
+	var visible_bottom: float = minf(grid_bottom, local_view_rect.end.y + margin_world)
+	var line_width: float = maxf(1.0, layer.grid_line_width)
+	for x: int in range(start_x, end_x + 1):
+		var local_x: float = float(x) * cell_size
+		viewport_control.draw_line(
+			local_to_screen * Vector2(local_x, visible_top),
+			local_to_screen * Vector2(local_x, visible_bottom),
+			layer.grid_color,
+			line_width,
+			true
+		)
+	for y: int in range(start_y, end_y + 1):
+		var local_y: float = float(y) * cell_size
+		viewport_control.draw_line(
+			local_to_screen * Vector2(visible_left, local_y),
+			local_to_screen * Vector2(visible_right, local_y),
+			layer.grid_color,
+			line_width,
+			true
+		)
+
+
+func _draw_fixed_chunk_foreground(
+	viewport_control: Control,
+	layer: ChunkLayer,
+	local_to_screen: Transform2D,
+	local_view_rect: Rect2,
+	viewport_rect: Rect2
+) -> void:
+	var selected_origin: Variant = layer.editor_selected_origin()
+	for placement: ChunkPaintPlacementDef in layer.placements:
+		if not layer.editor_placement_is_valid(placement):
+			continue
+		var chunk_def: SpecialChunkDef = placement.chunk_def
+		var local_rect: Rect2 = layer.cell_rect(placement.origin, chunk_def.size_in_chunks)
+		if not local_rect.grow(float(layer.chunk_size())).intersects(local_view_rect):
+			continue
+		var screen_rect: Rect2 = _local_rect_to_screen_bounds(local_rect, local_to_screen)
+		if not screen_rect.grow(12.0).intersects(viewport_rect):
+			continue
+
+		var border: Color = chunk_def.editor_color
+		border.a = 0.98
+		viewport_control.draw_rect(screen_rect, border, false, maxf(1.0, layer.fixed_chunk_border_width), true)
+
+		if selected_origin is Vector2i and placement.origin == selected_origin:
+			var selection_width: float = maxf(2.0, layer.selected_chunk_border_width)
+			viewport_control.draw_rect(screen_rect, layer.selected_chunk_border_color, false, selection_width, true)
+			var handle_radius: float = maxf(3.0, selection_width * 0.75)
+			var corners: PackedVector2Array = PackedVector2Array([
+				screen_rect.position,
+				Vector2(screen_rect.end.x, screen_rect.position.y),
+				screen_rect.end,
+				Vector2(screen_rect.position.x, screen_rect.end.y),
+			])
+			for corner: Vector2 in corners:
+				viewport_control.draw_circle(corner, handle_radius, layer.selected_chunk_border_color)
+
+		if layer.draw_labels and screen_rect.size.x >= 72.0 and screen_rect.size.y >= 28.0:
+			_draw_chunk_label_overlay(viewport_control, screen_rect, chunk_def)
+
+
+func _draw_chunk_label_overlay(viewport_control: Control, screen_rect: Rect2, chunk_def: SpecialChunkDef) -> void:
+	var text: String = chunk_def.display_name.strip_edges()
+	if text.is_empty():
+		text = str(chunk_def.id)
+	if text.is_empty():
+		return
+	var font: Font = ThemeDB.fallback_font
+	var font_size: int = maxi(12, ThemeDB.fallback_font_size)
+	var baseline: Vector2 = screen_rect.position + Vector2(6.0, float(font_size) + 5.0)
+	viewport_control.draw_string(
+		font,
+		baseline,
+		text,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		maxf(0.0, screen_rect.size.x - 12.0),
+		font_size,
+		Color(1.0, 1.0, 1.0, 0.96)
+	)
+
+
+func _draw_chunk_hover(
+	viewport_control: Control,
+	layer: ChunkLayer,
+	local_to_screen: Transform2D,
+	viewport_rect: Rect2
+) -> void:
+	var hover_cell: Variant = layer.editor_hover_cell()
+	if not hover_cell is Vector2i:
+		return
+	var size_in_chunks: Vector2i = Vector2i.ONE
+	var preview_color: Color = Color(0.9, 0.9, 0.9, layer.hover_alpha)
+	var preview_chunk: SpecialChunkDef = layer.editor_preview_chunk()
+	if preview_chunk != null:
+		size_in_chunks = preview_chunk.size_in_chunks
+		preview_color = preview_chunk.editor_color
+		preview_color.a = layer.hover_alpha
+	var local_rect: Rect2 = layer.cell_rect(hover_cell, size_in_chunks)
+	var screen_rect: Rect2 = _local_rect_to_screen_bounds(local_rect, local_to_screen)
+	if not screen_rect.grow(8.0).intersects(viewport_rect):
+		return
+	viewport_control.draw_rect(screen_rect, preview_color, true)
+	var border: Color = preview_color
+	border.a = 0.95
+	viewport_control.draw_rect(screen_rect, border, false, 2.0, true)
+
+
+func _is_chunk_layer_selected(layer: ChunkLayer) -> bool:
+	if layer == null or not is_instance_valid(layer):
+		return false
+	var selection: EditorSelection = EditorInterface.get_selection()
+	if selection == null:
+		return false
+	for selected_node: Node in selection.get_selected_nodes():
+		if selected_node == layer:
+			return true
+	return false
+
+
+func _grid_layer_for_current_layout() -> ChunkLayer:
+	# Prefer the ChunkLayer owned by the scene that is currently edited. The
+	# inspector can temporarily keep an object from the previous scene active,
+	# which must never leak its grid overlay into another canvas.
+	var root: WorldLayout = EditorInterface.get_edited_scene_root() as WorldLayout
+	if root != null:
+		var current_layer: ChunkLayer = root.chunk_layer()
+		if current_layer != null:
+			return current_layer
+	if _active_layer != null and is_instance_valid(_active_layer) and _active_layer.is_inside_tree():
+		return _active_layer
+	return null
 
 
 func _forward_canvas_gui_input(event: InputEvent) -> bool:
@@ -144,6 +425,7 @@ func _forward_canvas_gui_input(event: InputEvent) -> bool:
 		var cell: Vector2i = _event_to_cell(motion.position)
 		_hover_cell = cell
 		_active_layer.set_editor_preview(cell, _selected_chunk() if _mode == ToolMode.PAINT else null)
+		update_overlays()
 		if motion.button_mask & MOUSE_BUTTON_MASK_LEFT:
 			if _last_drag_cell != cell:
 				_last_drag_cell = cell
@@ -172,6 +454,9 @@ func _forward_canvas_gui_input(event: InputEvent) -> bool:
 
 		_last_drag_cell = cell
 		match _mode:
+			ToolMode.SELECT:
+				_select_at(cell, button.double_click)
+				return true
 			ToolMode.PAINT:
 				_place_at(cell)
 				return true
@@ -279,7 +564,7 @@ func _build_dock() -> void:
 	_show_biomes.toggled.connect(_on_overlay_toggled)
 	_dock_content.add_child(_show_biomes)
 	_show_chunks = CheckBox.new()
-	_show_chunks.text = "Fixed chunks + grid"
+	_show_chunks.text = "Fixed chunks (grid when selected)"
 	_show_chunks.button_pressed = true
 	_show_chunks.toggled.connect(_on_overlay_toggled)
 	_dock_content.add_child(_show_chunks)
@@ -288,6 +573,24 @@ func _build_dock() -> void:
 	_show_anchors.button_pressed = true
 	_show_anchors.toggled.connect(_on_overlay_toggled)
 	_dock_content.add_child(_show_anchors)
+
+	var selection_separator: HSeparator = HSeparator.new()
+	_dock_content.add_child(selection_separator)
+	var selected_title: Label = Label.new()
+	selected_title.text = "Selected fixed chunk"
+	selected_title.add_theme_font_size_override("font_size", 15)
+	_dock_content.add_child(selected_title)
+	_selected_chunk_info = Label.new()
+	_selected_chunk_info.text = "No fixed chunk selected. Choose Select (Q), then click a fixed chunk."
+	_selected_chunk_info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_selected_chunk_info.custom_minimum_size = Vector2(0.0, 112.0)
+	_dock_content.add_child(_selected_chunk_info)
+	_inspect_selected_chunk_button = Button.new()
+	_inspect_selected_chunk_button.text = "Inspect SpecialChunkDef"
+	_inspect_selected_chunk_button.disabled = true
+	_inspect_selected_chunk_button.tooltip_text = "Open the selected SpecialChunkDef in the Inspector"
+	_inspect_selected_chunk_button.pressed.connect(_on_inspect_selected_chunk_pressed)
+	_dock_content.add_child(_inspect_selected_chunk_button)
 
 	_validate_button = Button.new()
 	_validate_button.text = "Validate Layout"
@@ -338,6 +641,7 @@ func _on_layout_target_pressed(target: int) -> void:
 
 func _on_scene_changed(_scene_root: Node) -> void:
 	_refresh_editor_context()
+	update_overlays()
 	if _pending_open_focus:
 		var target: int = _pending_focus
 		_pending_focus = FocusTarget.LAYOUT
@@ -351,6 +655,7 @@ func _on_scene_saved(_path: String) -> void:
 
 func _on_selection_changed() -> void:
 	_refresh_editor_context()
+	update_overlays()
 
 
 func _refresh_editor_context() -> void:
@@ -380,8 +685,8 @@ func _refresh_editor_context() -> void:
 	if _dock_status == null:
 		return
 	if is_layout:
-		_apply_overlay_visibility(root as WorldLayout)
-		_dock_status.text = "Layout is open. Biome, fixed chunk, and anchor overlays are live together."
+		_sync_overlay_controls(root as WorldLayout)
+		_dock_status.text = "Layout is open. Overlay visibility follows the scene eye icons and dock toggles."
 	elif not layout_path.is_empty():
 		_dock_status.text = "World resolved. Use Open World Layout or jump directly to an authoring layer."
 	else:
@@ -491,6 +796,24 @@ func _on_overlay_toggled(_pressed: bool) -> void:
 	var root: WorldLayout = EditorInterface.get_edited_scene_root() as WorldLayout
 	if root != null:
 		_apply_overlay_visibility(root)
+	update_overlays()
+
+
+func _sync_overlay_controls(layout: WorldLayout) -> void:
+	if layout == null:
+		return
+	var biomes: BiomeLayer = layout.biome_layer()
+	if _show_biomes != null and biomes != null:
+		_show_biomes.set_pressed_no_signal(biomes.visible)
+	var chunks: ChunkLayer = layout.chunk_layer()
+	if _show_chunks != null and chunks != null:
+		_show_chunks.set_pressed_no_signal(chunks.visible)
+	var anchors: Array[WorldAnchor] = layout.get_world_anchors()
+	if _show_anchors != null and not anchors.is_empty():
+		var any_visible: bool = false
+		for anchor: WorldAnchor in anchors:
+			any_visible = any_visible or anchor.visible
+		_show_anchors.set_pressed_no_signal(any_visible)
 
 
 func _apply_overlay_visibility(layout: WorldLayout) -> void:
@@ -663,7 +986,7 @@ func _update_chunk_status(message: String = "") -> void:
 		return
 	match _mode:
 		ToolMode.SELECT:
-			_chunk_status.text = "Select mode"
+			_chunk_status.text = "Select fixed chunk (double-click to inspect)"
 		ToolMode.PAINT:
 			var chunk_def: SpecialChunkDef = _selected_chunk()
 			_chunk_status.text = "Paint: %s" % (str(chunk_def.id) if chunk_def != null else "<empty palette>")
@@ -678,6 +1001,73 @@ func _event_to_cell(event_position: Vector2) -> Vector2i:
 	var canvas_position: Vector2 = viewport.global_canvas_transform.affine_inverse() * event_position
 	var layer_local: Vector2 = _active_layer.get_global_transform().affine_inverse() * canvas_position
 	return _active_layer.world_to_cell(layer_local)
+
+
+func _select_at(cell: Vector2i, inspect_resource: bool = false) -> void:
+	var hit: ChunkPaintPlacementDef = _active_layer.get_placement_at(cell)
+	if hit == null or hit.chunk_def == null:
+		_clear_selected_chunk()
+		_update_chunk_status("No fixed chunk at %s" % str(cell))
+		return
+	_selected_placement_origin = hit.origin
+	_selected_chunk_def = hit.chunk_def
+	_active_layer.set_editor_selected_origin(hit.origin)
+	update_overlays()
+	_update_selected_chunk_info(hit)
+	_update_chunk_status("Selected %s @ %s" % [str(hit.chunk_def.id), str(hit.origin)])
+	if inspect_resource:
+		EditorInterface.edit_resource(hit.chunk_def)
+
+
+func _clear_selected_chunk() -> void:
+	_selected_placement_origin = null
+	_selected_chunk_def = null
+	if _active_layer != null and is_instance_valid(_active_layer):
+		_active_layer.clear_editor_selection()
+	update_overlays()
+	if _selected_chunk_info != null:
+		_selected_chunk_info.text = "No fixed chunk selected. Choose Select (Q), then click a fixed chunk."
+	if _inspect_selected_chunk_button != null:
+		_inspect_selected_chunk_button.disabled = true
+
+
+func _update_selected_chunk_info(placement: ChunkPaintPlacementDef) -> void:
+	if _selected_chunk_info == null or placement == null or placement.chunk_def == null:
+		return
+	var chunk_def: SpecialChunkDef = placement.chunk_def
+	var display_name: String = chunk_def.display_name.strip_edges()
+	if display_name.is_empty():
+		display_name = str(chunk_def.id)
+	var allowed: String = _string_names_text(chunk_def.allowed_biomes)
+	var tags: String = _string_names_text(chunk_def.tags)
+	var source_path: String = chunk_def.resource_path
+	if source_path.is_empty():
+		source_path = "<embedded resource>"
+	_selected_chunk_info.text = "%s\nID: %s\nOrigin: %s\nFootprint: %d × %d chunks\nBiomes: %s\nTags: %s\nResource: %s" % [
+		display_name,
+		str(chunk_def.id),
+		str(placement.origin),
+		chunk_def.size_in_chunks.x,
+		chunk_def.size_in_chunks.y,
+		allowed,
+		tags,
+		source_path,
+	]
+	_inspect_selected_chunk_button.disabled = false
+
+
+func _string_names_text(values: Array[StringName]) -> String:
+	if values.is_empty():
+		return "<any>"
+	var texts: PackedStringArray = PackedStringArray()
+	for value: StringName in values:
+		texts.append(str(value))
+	return ", ".join(texts)
+
+
+func _on_inspect_selected_chunk_pressed() -> void:
+	if _selected_chunk_def != null:
+		EditorInterface.edit_resource(_selected_chunk_def)
 
 
 func _place_at(cell: Vector2i) -> void:
@@ -707,6 +1097,7 @@ func _place_at(cell: Vector2i) -> void:
 	if _placements_equal(before, after):
 		return
 	_commit_placement_change("Place Fixed Chunk", before, after)
+	_select_at(cell)
 	_update_chunk_status("Placed %s @ %s" % [str(chunk_def.id), str(cell)])
 
 
@@ -720,6 +1111,8 @@ func _erase_at(cell: Vector2i) -> void:
 		if placement != null and placement.origin != hit.origin:
 			after.append(_copy_placement(placement))
 	_commit_placement_change("Erase Fixed Chunk", before, after)
+	if _selected_placement_origin is Vector2i and _selected_placement_origin == hit.origin:
+		_clear_selected_chunk()
 	_update_chunk_status("Erased fixed chunk @ %s" % str(hit.origin))
 
 

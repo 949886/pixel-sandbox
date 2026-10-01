@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://resources/gameplay/gameplay_content.tres" id="17_gameplay_content"]
 [ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeBrushController.gd" id="18_creative_brush"]
 [ext_resource type="Script" path="res://scripts/gameplay/creative/CreativeEntityController.gd" id="20_creative_entities"]
+[ext_resource type="Script" path="res://scripts/world/WorldBackdrop.gd" id="21_world_backdrop"]
 
 [node name="World" type="Node2D" unique_id=1354663026]
 script = ExtResource("1")
@@ -24,6 +25,10 @@ piece_library = ExtResource("6")
 material_palette = ExtResource("9")
 pc_runtime_profile = ExtResource("7")
 mobile_runtime_profile = ExtResource("8")
+
+[node name="WorldBackdrop" type="Node2D" parent="."]
+z_index = -1000
+script = ExtResource("21_world_backdrop")
 
 [node name="ChunkRenderers" type="Node2D" parent="." unique_id=135106713]
 

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="MaterialPalette" load_steps=29 format=3]
+[gd_resource type="Resource" script_class="MaterialPalette" load_steps=30 format=3]
 
 [ext_resource type="Script" path="res://scripts/materials/MaterialPalette.gd" id="1_palette"]
 [ext_resource type="Script" path="res://scripts/materials/MaterialEntry.gd" id="2_entry"]
@@ -202,6 +202,20 @@ density = 0.8
 viscosity = 0.5
 durability = 0.4
 
+[sub_resource type="Resource" id="MaterialEntry_surface_foliage"]
+script = ExtResource("2_entry")
+id = &"surface_foliage"
+color = Color(0.18039216, 0.36078431, 0.16470588, 1)
+engine_element_id = 2058
+simulation_state = 1
+activity_mode = 1
+solid = false
+liquid = false
+flammable = true
+density = 0.25
+viscosity = 0.5
+durability = 0.25
+
 [sub_resource type="Resource" id="MaterialEntry_blood"]
 script = ExtResource("2_entry")
 id = &"blood"
@@ -298,7 +312,7 @@ tags = Array[StringName]([&"oil", &"fire", &"liquid"])
 
 [resource]
 script = ExtResource("1_palette")
-entries = Array[Resource]([SubResource("MaterialEntry_air"), SubResource("MaterialEntry_rock"), SubResource("MaterialEntry_mine_dark"), SubResource("MaterialEntry_snow"), SubResource("MaterialEntry_deep"), SubResource("MaterialEntry_snow_dark"), SubResource("MaterialEntry_deep_dark"), SubResource("MaterialEntry_metal"), SubResource("MaterialEntry_wood"), SubResource("MaterialEntry_water"), SubResource("MaterialEntry_oil"), SubResource("MaterialEntry_lava"), SubResource("MaterialEntry_crystal"), SubResource("MaterialEntry_organic"), SubResource("MaterialEntry_blood"), SubResource("MaterialEntry_ruins"), SubResource("MaterialEntry_gold"), SubResource("MaterialEntry_shrine")])
+entries = Array[Resource]([SubResource("MaterialEntry_air"), SubResource("MaterialEntry_rock"), SubResource("MaterialEntry_mine_dark"), SubResource("MaterialEntry_snow"), SubResource("MaterialEntry_deep"), SubResource("MaterialEntry_snow_dark"), SubResource("MaterialEntry_deep_dark"), SubResource("MaterialEntry_metal"), SubResource("MaterialEntry_wood"), SubResource("MaterialEntry_water"), SubResource("MaterialEntry_oil"), SubResource("MaterialEntry_lava"), SubResource("MaterialEntry_crystal"), SubResource("MaterialEntry_organic"), SubResource("MaterialEntry_surface_foliage"), SubResource("MaterialEntry_blood"), SubResource("MaterialEntry_ruins"), SubResource("MaterialEntry_gold"), SubResource("MaterialEntry_shrine")])
 gameplay_bindings = Array[MaterialGameplayBinding]([SubResource("GameplayBinding_water"), SubResource("GameplayBinding_fire"), SubResource("GameplayBinding_lava"), SubResource("GameplayBinding_acid"), SubResource("GameplayBinding_blue_fire"), SubResource("GameplayBinding_oil"), SubResource("GameplayBinding_burning_oil")])
 base_element_resource_directories = PackedStringArray("res://painting/element_manager/element_material")
 transparent_alpha_threshold = 0.05

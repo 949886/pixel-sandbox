@@ -354,7 +354,6 @@ MaterialPalette
 
 Biome 特有参数属于 `BiomeConfig.tres`：
 
-- depth range
 - openness
 - generated glue colors
 - main-path wander chance
@@ -399,10 +398,11 @@ Builder 可以根据 `ChunkKind` 执行不同算法形态，但不能通过具�
 
 ### 新增 Biome
 
-1. 创建 `BiomeConfig.tres`。
-2. 配置 depth、openness、structure、generated visual 参数。
-3. 加入 `WorldGenConfig.biome_configs`。
-4. 禁止在 generator 中增加 `if biome_id == ...`。
+1. 创建 `BiomeConfig.tres`，只描述该 Biome 的生成、Gameplay 与表现规则。
+2. 加入 `WorldGenConfig.biome_configs`。
+3. 在 Biome TileSet 中增加编辑代理，并用 `BiomeTileBinding` 映射到该 Resource。
+4. 在 `BiomeLayer` 中绘制实际二维分布；不要把空间边界重新写回 `BiomeConfig`。
+5. 禁止在 generator 中增加 `if biome_id == ...` 或深度阈值路由。
 
 ---
 
@@ -495,6 +495,7 @@ Region abstraction unless it later gains a genuinely independent lifecycle and r
 - **ChunkLayer is an override, not a biome replacement.** A fixed chunk keeps the underlying Biome
   semantics and only owns its authored terrain/structure footprint. Authored footprints have priority
   over random special chunks and Piece-generated chunks and must never be overwritten by async results.
+- **All ChunkLayer authoring visualization belongs to the EditorPlugin.** `ChunkLayer` remains a pure Node2D placement data component; do not move the zoom-sensitive grid, fixed-Chunk fill/preview, footprint border, labels, selection, or hover rendering back into `_draw()`, and do not store editor grid cells as runtime data. Every fixed footprint must receive a complete `editor_color` backing before an optional transparent art preview is composited. Fixed-Chunk previews may remain visible while editing other WorldLayout nodes, but the orange Chunk grid is an active editing aid and must only be drawn while the exact `ChunkLayer` node is selected. The overlay may query authored bounds but must not create a second world boundary.
 - **The editor authoring dependency graph must be tool-enabled.** Every instantiated GDScript object whose
   members or methods are used by `WorldLayout`, `BiomeLayer`, `ChunkLayer`, or the editor plugin must
   declare `@tool`; otherwise Godot loads it as a placeholder and editor method calls fail. Static-only
@@ -504,4 +505,15 @@ Region abstraction unless it later gains a genuinely independent lifecycle and r
 - **Important world positions are anchors, not coordinates.** Spawn, entrance and main-path endpoints are
   selected by `WorldDefinition` anchor IDs and authored as `WorldAnchor` nodes.
 - **Surface is content, not a code branch.** Surface ground/entrance behavior is selected by resource data
-  (`SpecialChunkDef.layout_style` and fixed placement), never by hard-coded scene/resource paths.
+  and fixed placement, never by hard-coded scene/resource paths.
+- **Art-critical fixed chunks use authored material layouts.** `SpecialChunkDef.material_layout` directly
+  references a palette-colored Texture2D whose dimensions match `size_in_chunks * CHUNK_SIZE`. Set
+  `require_material_layout = true` for spawn, entrances, boss arenas, shops, shrines, and other content that
+  must never silently degrade to a generated fallback.
+- **Material layout textures are data, not runtime paths.** Runtime code must not call `load()`/`preload()`
+  for authored chunk images. The Resource holds the texture reference; the planner extracts an `Image` on the
+  main thread before workers start. Worker threads may read only that image copy.
+- **World atmosphere is selected by `WorldPresentationProfile`.** Sky, underground color, transition depth,
+  margins and silhouettes belong to the WorldDefinition data graph. Do not add world-ID branches to the
+  backdrop or WorldManager.
+- **Visual decoration must not accidentally opt into expensive simulation.** Large authored areas that only need the appearance of grass, moss, dust, etc. must use a dedicated inert/movable palette entry instead of an autonomous native element. Autonomous materials are reserved for intentional time-based gameplay behavior.

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="WorldGenConfig" load_steps=16 format=3]
+[gd_resource type="Resource" script_class="WorldGenConfig" load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/WorldGenConfig.gd" id="1"]
 [ext_resource type="Resource" path="res://resources/biomes/mine.tres" id="2"]
@@ -15,6 +15,10 @@
 [ext_resource type="Resource" path="res://resources/special_chunks/surface_spawn_chunk.tres" id="13_surface_spawn"]
 [ext_resource type="Resource" path="res://resources/special_chunks/surface_entrance_chunk.tres" id="14_surface_entrance"]
 [ext_resource type="Resource" path="res://resources/world_layout/default_world_definition.tres" id="15_world_definition"]
+[ext_resource type="Resource" path="res://resources/special_chunks/surface_left_boundary_chunk.tres" id="16_surface_left"]
+[ext_resource type="Resource" path="res://resources/special_chunks/surface_grove_chunk.tres" id="17_surface_grove"]
+[ext_resource type="Resource" path="res://resources/special_chunks/surface_approach_chunk.tres" id="18_surface_approach"]
+[ext_resource type="Resource" path="res://resources/special_chunks/surface_east_ground_chunk.tres" id="19_surface_east"]
 
 [resource]
 script = ExtResource("1")
@@ -26,4 +30,4 @@ world_definition = ExtResource("15_world_definition")
 piece_library = ExtResource("9")
 structure_profile = ExtResource("10")
 biome_configs = Array[Resource]([ExtResource("11_surface"), ExtResource("2"), ExtResource("3"), ExtResource("4")])
-special_chunk_defs = Array[Resource]([ExtResource("12_surface_ground"), ExtResource("13_surface_spawn"), ExtResource("14_surface_entrance"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8")])
+special_chunk_defs = Array[Resource]([ExtResource("16_surface_left"), ExtResource("12_surface_ground"), ExtResource("17_surface_grove"), ExtResource("18_surface_approach"), ExtResource("13_surface_spawn"), ExtResource("19_surface_east"), ExtResource("14_surface_entrance"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8")])

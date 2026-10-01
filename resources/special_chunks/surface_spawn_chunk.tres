@@ -1,12 +1,14 @@
-[gd_resource type="Resource" script_class="SpecialChunkDef" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SpecialChunkDef" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/resources/SpecialChunkDef.gd" id="1"]
+[ext_resource type="Texture2D" path="res://resources/special_chunks/layouts/surface_spawn.png" id="2_layout"]
 
 [resource]
 script = ExtResource("1")
 id = &"surface_spawn_chunk"
 display_name = "Surface Spawn"
 editor_color = Color(0.82, 0.7, 0.18, 1)
+editor_preview = ExtResource("2_layout")
 chunk_kind = 8
 allowed_biomes = Array[StringName]([&"surface"])
 tags = Array[StringName]([&"surface", &"spawn", &"safe_start"])
@@ -25,12 +27,16 @@ can_overlap_main_path = true
 require_near_main_path = false
 transition_style = 0
 fill_mode = 0
+material_layout = ExtResource("2_layout")
+require_material_layout = true
 layout_style = 1
 surface_ground_ratio = 0.62
-surface_height_variation = 0.045
+surface_height_variation = 0.0
+entrance_opening_ratio = 0.58
+entrance_slope_width_ratio = 0.42
 generated_rock_color = Color(0.211765, 0.196078, 0.176471, 1)
 generated_dark_color = Color(0.12549, 0.109804, 0.0980392, 1)
-generated_accent_color = Color(0.207843, 0.223529, 0.137255, 1)
+generated_accent_color = Color(0.815686, 0.603922, 0.243137, 1)
 generated_feature_color = Color(0.207843, 0.223529, 0.137255, 1)
 top_profile = Array[int]([0, 0, 0, 0])
 right_profile = Array[int]([0, 0, 0, 0])

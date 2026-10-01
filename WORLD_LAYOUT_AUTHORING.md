@@ -37,11 +37,11 @@ If neither the dock nor the toolbar group appears, the editor plugin did not com
 The same 2D toolbar group is visible from `Main`/`World` and opens the configured layout. When a `WorldLayout` scene is already open, it changes focus inside that scene and exposes:
 
 - **Biomes** — selects `BiomeLayer` and uses Godot's normal TileMap tools.
-- **Fixed Chunks** — selects the independent `ChunkLayer` and enables Select/Paint/Erase/Pick tools.
+- **Fixed Chunks** — selects the independent `ChunkLayer` and enables Select/Paint/Erase/Pick tools. In Select mode, click a fixed Chunk to highlight its complete footprint and show its authoring data in the World Layout Dock; double-click or use **Inspect SpecialChunkDef** to open the resource Inspector.
 - **Anchors** — selects the semantic `WorldAnchor` nodes.
 - **Validate** — compiles a snapshot using an open matching `WorldGenConfig` context.
 
-Biome colors, fixed chunk footprints/grid, and anchor markers are visible together. The dock can toggle
+Biome colors, fixed chunk footprints, and anchor markers are visible together. The orange Chunk grid is shown only while `ChunkLayer` is selected. The dock can toggle
 those overlays independently.
 
 ## Tool-mode dependency rule
@@ -62,6 +62,10 @@ Inspector, but calling a method such as `ChunkPaintPlacementDef.is_valid()` fail
 Static-only helpers such as constants/enums are allowed to remain non-tool. `WorldLayoutSmokeTest` checks
 `Script.is_tool()` for the editor resource graph to prevent regressions. After changing tool annotations,
 fully restart Godot so previously cached placeholder instances are discarded.
+
+### Overlay visibility
+
+The Scene Tree eye icons are authoritative editor state. Selecting `BiomeLayer`, `ChunkLayer`, or an anchor must not force it visible. The World Layout Dock checkboxes mirror the current node visibility and only change it when the checkbox itself is toggled. Runtime still hides all authoring overlays.
 
 ## Coordinate contract
 
@@ -128,7 +132,7 @@ Biome cell exists?
            no  -> Piece system generates a procedural chunk for the Biome
 ```
 
-The custom editor tools provide TileMap-like interaction without TileMap storage:
+The custom editor tools provide TileMap-like interaction without TileMap storage. **All ChunkLayer authoring graphics**—the orange grid, complete fixed-Chunk color backing, transparent art preview, footprint border, labels, selection handles, and hover preview—are rendered by the EditorPlugin as a screen-space viewport overlay, not by `ChunkLayer._draw()`. Force canvas overlay forwarding keeps authored Fixed Chunks visible as soon as a `WorldLayout` scene opens, regardless of the currently selected editor object. The orange grid is different: it is an active editing aid and is drawn only while the exact `ChunkLayer` node is selected. This keeps the default world overview clean while preserving stable screen-pixel line widths during Chunk editing. Each authored footprint is always filled with its full `SpecialChunkDef.editor_color` before an optional transparent `editor_preview` is composited, so a terrain-only PNG can never make the Chunk cell appear incomplete. Overlay bounds still come from `BiomeLayer.get_used_rect()`, so the grid visualizes the authored world rather than an independent rectangle.
 
 - Select (Q)
 - Paint (W)
@@ -170,6 +174,18 @@ values only:
 Background workers must never access `TileMapLayer`, `ChunkLayer`, the SceneTree, or instantiate layout
 scenes.
 
+## Default macro depth
+
+The default authored underground currently occupies chunk rows `0..25` below the surface row `-1`. Its broad progression is deliberately compact:
+
+```text
+Mine / Mine-to-Snow transition : y = 0..8
+Snow                           : y = 7..16
+Deep                           : y = 15..25
+```
+
+The overlap in the ranges above describes irregular horizontal transition rows; each individual cell still owns exactly one Biome. Changing the macro depth means repainting `BiomeLayer` and moving semantic anchors such as `main_path_end`, never adding depth thresholds back to `BiomeConfig` or the generator.
+
 ## Default surface
 
 The default authored layout demonstrates the intended world philosophy:
@@ -182,6 +198,65 @@ The default authored layout demonstrates the intended world philosophy:
 
 Surface and underground remain one continuous pixel simulation coordinate space. There is no level
 transition at the entrance.
+
+## Authored material layouts for fixed chunks
+
+A fixed `SpecialChunkDef` may reference `material_layout: Texture2D`. This is the authoritative pixel-material
+source for art-critical chunks such as the surface spawn, mine entrance, shop, shrine, boss arena, and treasure
+room.
+
+Contract:
+
+```text
+texture dimensions = size_in_chunks * PieceWorldConstants.CHUNK_SIZE
+transparent pixel  = air
+opaque pixel       = MaterialPalette source/display color
+```
+
+For critical authored content, enable `require_material_layout`. Validation then rejects a missing or wrong-size
+texture instead of silently substituting procedural placeholder art. `layout_style` remains only a fallback for
+non-critical/prototype SpecialChunks.
+
+The runtime thread contract is deliberate:
+
+```text
+SpecialChunkDef Texture2D
+  -> main-thread planner extracts RGBA8 Image
+  -> SpecialChunkPlacement owns Image copy
+  -> background worker crops/converts/collides the Image
+```
+
+Background workers must never call `Texture2D.get_image()`, `ResourceLoader`, or SceneTree APIs.
+
+When painting an authored material image, use exact colors already declared by `MaterialPalette`. Do not invent
+nearly matching colors and depend on nearest-color fallback for final art. Alpha zero is the only authored air
+representation.
+
+## Default surface opening
+
+The default surface is a horizontal series of fixed SpecialChunks:
+
+```text
+Left Boundary -> West Ground -> Grove -> Approach -> Spawn -> East Ground -> 1x2 Mine Entrance
+```
+
+The entrance occupies cells `(1, -1)` and `(1, 0)`. Its bottom opening is centered in socket slot 2 and uses an
+`OPEN_LARGE` profile, so the first procedural Mine chunk at `(1, 1)` receives the same opening contract. Changing
+the painted shaft without updating the socket profile, or changing the profile without repainting the shaft, is
+invalid authoring.
+
+The PlayerSpawn anchor sits above the authored solid surface and retains runtime clearance as defense in depth.
+The MainEntrance anchor marks the visible mouth of the slope, while MainPathStart marks the first procedural
+chunk below the fixed 1x2 entrance.
+
+## World presentation
+
+`WorldDefinition.presentation_profile` selects a `WorldPresentationProfile`. It controls background coverage,
+sky/horizon/underground colors, transition depth, and deterministic surface silhouettes. `WorldBackdrop` only
+executes that data; it does not know concrete world IDs or resource paths.
+
+Transparent pixels in Surface chunks reveal this backdrop, while the same continuous backdrop darkens into the
+underground without changing scenes or simulation spaces.
 
 ## Validation checklist
 

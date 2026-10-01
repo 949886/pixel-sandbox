@@ -217,6 +217,15 @@ func _place(chunk_def: SpecialChunkDef, origin: Vector2i, index: int, authored: 
 					% [str(coord), str(chunk_def.id)]
 				)
 				return
+	var authored_image: Image = null
+	if chunk_def.material_layout != null:
+		authored_image = chunk_def.create_authored_material_image()
+	if chunk_def.require_material_layout and authored_image == null:
+		push_error(
+			"SpecialChunkPlanner: fixed chunk '%s' requires a valid %s material layout."
+			% [str(chunk_def.id), str(chunk_def.expected_material_size())]
+		)
+		return
 	var placement: SpecialChunkPlacement = SpecialChunkPlacement.new()
 	placement.id = StringName("%s_%d_%d_%d" % [str(chunk_def.id), origin.x, origin.y, index])
 	placement.chunk_def = chunk_def
@@ -225,6 +234,7 @@ func _place(chunk_def: SpecialChunkDef, origin: Vector2i, index: int, authored: 
 	placement.biome_id = biome_map.get_biome(origin)
 	placement.seed = world_seed
 	placement.authored = authored
+	placement.authored_material_image = authored_image
 	placements.append(placement)
 	for yy: int in range(origin.y, origin.y + placement.size_in_chunks.y):
 		for xx: int in range(origin.x, origin.x + placement.size_in_chunks.x):

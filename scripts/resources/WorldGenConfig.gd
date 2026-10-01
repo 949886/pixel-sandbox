@@ -50,6 +50,8 @@ func is_valid() -> bool:
 			return false
 		if not definition.validate_profiles(units_per_chunk):
 			return false
+		if not definition.has_valid_material_layout():
+			return false
 		for allowed_biome: StringName in definition.allowed_biomes:
 			if allowed_biome == &"" or not biome_ids.has(allowed_biome):
 				return false
