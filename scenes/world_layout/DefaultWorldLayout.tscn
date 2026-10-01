@@ -109,7 +109,7 @@ clearance_offset = Vector2(0, -8)
 
 [node name="MainEntrance" type="Marker2D" parent="."]
 z_index = 20
-position = Vector2(680, -194)
+position = Vector2(768, -184)
 script = ExtResource("4_anchor")
 anchor_id = &"main_entrance"
 tags = Array[StringName]([&"main_entrance", &"surface"])

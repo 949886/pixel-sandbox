@@ -197,9 +197,12 @@ func _test_fixed_chunks(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -
 		assert(surface_def != null)
 		assert(surface_def.require_material_layout)
 		assert(surface_def.has_valid_material_layout())
+		assert(is_equal_approx(surface_def.surface_height_variation, 0.045))
+		assert(surface_def.generated_feature_color.to_rgba32() == Color8(46, 92, 42, 255).to_rgba32())
 		var material_image: Image = surface_def.create_authored_material_image()
 		assert(material_image != null)
 		assert(material_image.get_size() == surface_def.expected_material_size())
+		_assert_classic_surface_materials(material_image)
 
 	var structure: WorldStructure = WorldStructureBuilder.new(config.world_seed, config, snapshot).build()
 	var planning_map: BiomeMap = BiomeMap.new(config.world_seed, config, snapshot)
@@ -239,32 +242,54 @@ func _test_surface_entrance_clearance(config: WorldGenConfig) -> void:
 	assert(entrance_image != null and entrance_image.get_size() == Vector2i(512, 1024))
 	assert(east_image != null and east_image.get_size() == Vector2i(512, 512))
 
-	# The approach crosses the fixed-chunk seam through air. This catches a closed
-	# vertical wall at the authored entrance boundary.
-	for y: int in range(294, 316):
-		assert(east_image.get_pixel(511, y).a < 0.05)
-		assert(entrance_image.get_pixel(0, y).a < 0.05)
+	# The restored classic profile keeps the ground continuous across the seam.
+	# The entrance mouth starts inside the 1x2 entrance chunk rather than carving
+	# an opening through the left edge.
+	var east_surface_y: int = _first_opaque_y(east_image, 511)
+	var entrance_surface_y: int = _first_opaque_y(entrance_image, 0)
+	assert(east_surface_y >= 0)
+	assert(entrance_surface_y >= 0)
+	assert(absi(east_surface_y - entrance_surface_y) <= 2)
 
-	# Check a collider-sized clearance chain from the surface mouth to the bottom
-	# OPEN_LARGE socket. Decorative supports may frame the tunnel, but must never
-	# span the player's route.
+	# Check a collider-sized clearance chain along the classic diagonal passage and
+	# through the lower shaft to the OPEN_LARGE socket.
 	var path_points: Array[Vector2i] = [
-		Vector2i(58, 294),
-		Vector2i(96, 302),
-		Vector2i(132, 317),
-		Vector2i(170, 337),
-		Vector2i(208, 368),
-		Vector2i(244, 410),
-		Vector2i(278, 462),
-		Vector2i(305, 520),
-		Vector2i(320, 585),
-		Vector2i(320, 690),
-		Vector2i(320, 805),
-		Vector2i(320, 915),
-		Vector2i(320, 1010),
+		Vector2i(260, 346),
+		Vector2i(285, 410),
+		Vector2i(320, 470),
+		Vector2i(355, 535),
+		Vector2i(390, 600),
+		Vector2i(425, 670),
+		Vector2i(445, 735),
+		Vector2i(420, 775),
+		Vector2i(380, 810),
+		Vector2i(358, 860),
+		Vector2i(358, 940),
+		Vector2i(358, 1010),
 	]
 	for point: Vector2i in path_points:
 		_assert_air_clearance(entrance_image, point, Vector2i(6, 10))
+
+
+func _first_opaque_y(image: Image, x: int) -> int:
+	for y: int in range(image.get_height()):
+		if image.get_pixel(x, y).a >= 0.05:
+			return y
+	return -1
+
+
+func _assert_classic_surface_materials(image: Image) -> void:
+	var data: PackedByteArray = image.get_data()
+	var allowed: Dictionary = {
+		Color8(54, 50, 45, 255).to_rgba32(): true,
+		Color8(32, 28, 25, 255).to_rgba32(): true,
+		Color8(46, 92, 42, 255).to_rgba32(): true,
+	}
+	for offset: int in range(0, data.size(), 4):
+		if data[offset + 3] < 13:
+			continue
+		var color: Color = Color8(data[offset], data[offset + 1], data[offset + 2], data[offset + 3])
+		assert(allowed.has(color.to_rgba32()))
 
 
 func _assert_air_clearance(image: Image, center: Vector2i, half_size: Vector2i) -> void:
