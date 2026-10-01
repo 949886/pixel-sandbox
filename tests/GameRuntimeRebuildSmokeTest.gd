@@ -63,12 +63,12 @@ func _run_runtime_rebuild_stress() -> void:
 		assert(old_world != null)
 		assert(int(old_root.get_meta(&"game_id", GameManager.INVALID_GAME_ID)) == previous_game_id)
 
-		var old_root_ref := weakref(old_root)
-		var old_state_ref := weakref(old_state)
-		var old_flow_ref := weakref(old_flow)
-		var old_player_state_ref := weakref(old_player_state)
-		var old_player_ref := weakref(old_player)
-		var old_world_ref := weakref(old_world)
+		var old_root_ref: WeakRef = weakref(old_root)
+		var old_state_ref: WeakRef = weakref(old_state)
+		var old_flow_ref: WeakRef = weakref(old_flow)
+		var old_player_state_ref: WeakRef = weakref(old_player_state)
+		var old_player_ref: WeakRef = weakref(old_player)
+		var old_world_ref: WeakRef = weakref(old_world)
 
 		# Mutate representative per-game state. None of it may survive the
 		# destroy-and-rebuild boundary.

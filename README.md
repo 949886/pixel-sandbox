@@ -1338,3 +1338,11 @@ Procedural World
 当前 V4.x 的核心方向可以概括为：
 
 > **使用可组合的法术操控一个真实模拟的像素环境，通过环境、元素、地形和 Wand 构筑解决战斗与探索问题。**
+
+## World Layout editor
+
+The macro world is authored in a dedicated `WorldLayout` scene rather than being embedded into the runtime bootstrap scene. With the **World Layout Editor** plugin enabled, opening `Main.tscn` shows a **World Layout** dock that resolves the configured `WorldDefinition` through `WorldGenConfig` and provides one-click access to the current layout.
+
+Inside a WorldLayout scene, `BiomeLayer` remains a `TileMapLayer` for 2D biome painting, while `ChunkLayer` is an independent `Node2D` that stores only fixed authored `SpecialChunkDef` placements. The editor displays biome colors, the chunk grid/fixed-chunk footprints, and semantic `WorldAnchor` markers together. Default biome cells are serialized directly in the layout scene; bootstrap presets are migration/new-layout helpers only.
+
+See `WORLD_LAYOUT_AUTHORING.md` for the authoring workflow and invariants.

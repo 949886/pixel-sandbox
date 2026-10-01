@@ -4,8 +4,12 @@ extends Node2D
 
 ## Editor-authored macro world blueprint. BiomeLayer owns default generation
 ## semantics; independent ChunkLayer stores only fixed authored SpecialChunk placements.
+##
+## Saved BiomeLayer cells and ChunkLayer placements are authoritative. Bootstrap
+## data is migration/new-layout assistance only and is never required by the default world.
+@export_category("Migration / bootstrap")
 @export var bootstrap_preset: WorldLayoutPreset
-@export var use_bootstrap_when_empty: bool = true
+@export var use_bootstrap_when_empty: bool = false
 
 
 static func compile_snapshot(config: WorldGenConfig) -> WorldLayoutSnapshot:
@@ -25,7 +29,8 @@ static func compile_snapshot(config: WorldGenConfig) -> WorldLayoutSnapshot:
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
-		ensure_bootstrap()
+		if use_bootstrap_when_empty:
+			ensure_bootstrap()
 	else:
 		visible = false
 
@@ -42,6 +47,18 @@ func chunk_layer() -> ChunkLayer:
 		if child is ChunkLayer:
 			return child as ChunkLayer
 	return null
+
+
+func get_world_anchors() -> Array[WorldAnchor]:
+	var result: Array[WorldAnchor] = []
+	var pending: Array[Node] = [self]
+	while not pending.is_empty():
+		var node: Node = pending.pop_back()
+		for child: Node in node.get_children():
+			pending.append(child)
+			if child is WorldAnchor:
+				result.append(child as WorldAnchor)
+	return result
 
 
 func ensure_bootstrap() -> bool:
@@ -80,7 +97,7 @@ func build_snapshot(config: WorldGenConfig) -> WorldLayoutSnapshot:
 		push_error("WorldLayout: ChunkLayer fixed placements are invalid.")
 		return null
 
-	var snapshot := WorldLayoutSnapshot.new()
+	var snapshot: WorldLayoutSnapshot = WorldLayoutSnapshot.new()
 	snapshot.chunk_size = PieceWorldConstants.CHUNK_SIZE
 	snapshot.biome_by_cell = biomes.export_biome_ids()
 	snapshot.fixed_chunk_id_by_origin = chunks.export_fixed_chunk_origins()
@@ -121,18 +138,18 @@ func _validate_world_definition_anchors(snapshot: WorldLayoutSnapshot, definitio
 func _expand_fixed_chunk_occupancy(snapshot: WorldLayoutSnapshot, config: WorldGenConfig) -> bool:
 	for origin_value: Variant in snapshot.fixed_chunk_id_by_origin.keys():
 		var origin: Vector2i = origin_value
-		var chunk_id := StringName(snapshot.fixed_chunk_id_by_origin[origin])
+		var chunk_id: StringName = StringName(snapshot.fixed_chunk_id_by_origin[origin])
 		var chunk_def: SpecialChunkDef = config.get_special_chunk_def(chunk_id)
 		if chunk_def == null:
 			push_error("WorldLayout: Unknown fixed chunk id '%s'." % str(chunk_id))
 			return false
 		for y: int in range(origin.y, origin.y + chunk_def.size_in_chunks.y):
 			for x: int in range(origin.x, origin.x + chunk_def.size_in_chunks.x):
-				var coord := Vector2i(x, y)
+				var coord: Vector2i = Vector2i(x, y)
 				if not snapshot.biome_by_cell.has(coord):
 					push_error("WorldLayout: Fixed chunk '%s' occupies void cell %s." % [str(chunk_id), str(coord)])
 					return false
-				var biome_id := StringName(snapshot.biome_by_cell[coord])
+				var biome_id: StringName = StringName(snapshot.biome_by_cell[coord])
 				if not chunk_def.allowed_biomes.is_empty() and not chunk_def.allowed_biomes.has(biome_id):
 					push_error(
 						"WorldLayout: Fixed chunk '%s' is not allowed in biome '%s' at %s."
@@ -156,7 +173,7 @@ func _collect_anchors(snapshot: WorldLayoutSnapshot) -> bool:
 			pending.append(child)
 			if not child is WorldAnchor:
 				continue
-			var anchor := child as WorldAnchor
+			var anchor: WorldAnchor = child as WorldAnchor
 			if not anchor.is_valid():
 				push_error("WorldLayout: Invalid WorldAnchor node '%s'." % str(anchor.name))
 				success = false

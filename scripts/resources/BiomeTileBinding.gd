@@ -1,3 +1,4 @@
+@tool
 class_name BiomeTileBinding
 extends Resource
 

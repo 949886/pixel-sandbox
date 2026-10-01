@@ -7,7 +7,7 @@ The world layout deliberately does **not** introduce a Region layer.
 WorldDefinition
   -> WorldLayout (scene)
       -> BiomeLayer : TileMapLayer
-      -> ChunkLayer : Node2D (independent fixed-SpecialChunk authoring layer)
+      -> ChunkLayer : Node2D
       -> WorldAnchor nodes
   -> WorldLayoutSnapshot (runtime, thread-readable)
       -> WorldStructureBuilder
@@ -15,172 +15,183 @@ WorldDefinition
       -> PieceChunkGenerator
 ```
 
-The default layout is `scenes/world_layout/DefaultWorldLayout.tscn` and is referenced by
-`resources/world_layout/default_world_definition.tres`.
+The default layout is referenced by `WorldDefinition.layout_scene`. Runtime/editor code must resolve
+that reference through configured resources; do not add a script-path or scene-path literal to find it.
+
+## Editor entry points
+
+The enabled **World Layout Editor** plugin adds three entry points:
+
+1. A Godot 4.7 **EditorDock** named **World Layout**. The plugin focuses it once when loaded so it cannot remain hidden in an old editor layout.
+2. A **World Layout** navigation group in the 2D toolbar whenever `Main`, `World`, or a `WorldLayout` scene is active.
+3. **Tools > Open Current World Layout**.
+
+When `Main` or `World` is the edited scene, the plugin searches the scene's configured
+`WorldGenConfig`/template, resolves its `WorldDefinition`, and opens the referenced layout scene.
+No default world path is encoded in the plugin.
+
+`Main.tscn` remains a runtime bootstrap scene and therefore intentionally does not embed or duplicate the map. Its central 2D canvas can remain empty in edit mode; that is not the world authoring surface. The expected workflow is: open `Main` -> use either the visible 2D toolbar group or the **World Layout** dock -> **Open World Layout**. This keeps runtime composition data-driven while making the authored world one click away.
+
+If neither the dock nor the toolbar group appears, the editor plugin did not compile or is disabled. Resolve every GDScript parse error first, then verify **Project > Project Settings > Plugins > World Layout Editor** is enabled.
+
+The same 2D toolbar group is visible from `Main`/`World` and opens the configured layout. When a `WorldLayout` scene is already open, it changes focus inside that scene and exposes:
+
+- **Biomes** — selects `BiomeLayer` and uses Godot's normal TileMap tools.
+- **Fixed Chunks** — selects the independent `ChunkLayer` and enables Select/Paint/Erase/Pick tools.
+- **Anchors** — selects the semantic `WorldAnchor` nodes.
+- **Validate** — compiles a snapshot using an open matching `WorldGenConfig` context.
+
+Biome colors, fixed chunk footprints/grid, and anchor markers are visible together. The dock can toggle
+those overlays independently.
+
+## Tool-mode dependency rule
+
+The World Layout UI executes inside the Godot editor. Every instantiated custom GDScript object whose
+properties or methods are read by that `@tool` code must also declare `@tool`. This includes the authoring
+resources and validation snapshot, not only the visible Node scripts:
+
+```text
+WorldGenConfig / WorldDefinition / WorldStructureProfile
+BiomeConfig / BiomeTileBinding / BiomePaintRectDef
+WorldLayoutPreset / WorldLayoutSnapshot
+ChunkPaintPlacementDef / SpecialChunkDef / SpawnAnchorDef
+```
+
+Without this closure, Godot creates a placeholder script instance. Exported data may still appear in the
+Inspector, but calling a method such as `ChunkPaintPlacementDef.is_valid()` fails in editor drawing code.
+Static-only helpers such as constants/enums are allowed to remain non-tool. `WorldLayoutSmokeTest` checks
+`Script.is_tool()` for the editor resource graph to prevent regressions. After changing tool annotations,
+fully restart Godot so previously cached placeholder instances are discarded.
 
 ## Coordinate contract
 
 - One `BiomeLayer` cell is exactly one runtime chunk.
-- `ChunkLayer` uses the same integer chunk-coordinate grid, but it is **not a TileMap** and stores no tile IDs.
+- `ChunkLayer` placements use exactly the same chunk coordinate space.
 - Runtime chunk size is `PieceWorldConstants.CHUNK_SIZE` (currently 512 world pixels).
-- `Vector2i` world-layout cell coordinates and runtime chunk coordinates are the same coordinate space.
-- An empty `BiomeLayer` cell is **VOID**. No procedural or fixed chunk may occupy it.
-- `WorldStructureProfile` contains topology tuning only. It does **not** own min/max world bounds; structure bounds are derived from the painted Biome cells.
-
-Do not change this relationship locally in a generator. If chunk size changes, update the shared world constants and the Biome TileSet together. `ChunkLayer` reads the same shared chunk-size constant and therefore does not have a second cell-size asset to maintain.
+- `Vector2i` world-layout cell coordinates and runtime chunk coordinates are identical.
+- An empty `BiomeLayer` cell is **VOID**. No procedural chunk is generated there.
+- `WorldStructureProfile` contains topology tuning only. It does **not** own a second world rectangle;
+  structure bounds are derived from the authored Biome cells.
 
 ## BiomeLayer
 
 `BiomeLayer` is the authoritative answer to **where a biome exists**.
 `BiomeConfig` only answers **how that biome generates**.
 
-`BiomeLayer` intentionally inherits `TileMapLayer` because biome ownership really is a regular categorical grid. Open `DefaultWorldLayout.tscn`, select `BiomeLayer`, then use Godot's normal TileMap painting tools: paint, erase, rectangle, selection, copy/paste, and the visible grid.
-
-The default palette contains Surface, Mine, Snow and Deep. The visual tile is only an editor/storage representation. Runtime code must never interpret atlas/source integer IDs. The mapping is data:
+`BiomeLayer` intentionally inherits `TileMapLayer`, because biome ownership is a regular grid and
+Godot's native TileMap painting workflow is useful here. One tile is only an editor/storage proxy.
+Runtime code never interprets numeric source/atlas IDs directly:
 
 ```text
-TileSet cell -> BiomeTileBinding -> BiomeConfig
+TileMap cell
+  -> BiomeTileBinding
+  -> BiomeConfig
 ```
+
+The default layout stores its painted cells directly in `TileMapLayer.tile_map_data`. It does not rely
+on a bootstrap preset to appear in the editor. `WorldLayoutPreset` remains available only as an
+optional migration/new-layout seeding helper.
 
 To add a biome:
 
 1. Create/configure a `BiomeConfig` resource and register it in `WorldGenConfig.biome_configs`.
-2. Add a visual tile to the Biome TileSet/atlas.
-3. Add a `BiomeTileBinding` on `BiomeLayer` that connects that tile to the resource.
-4. Paint the desired cells in the editor.
+2. Add an editor tile to the Biome TileSet.
+3. Add a `BiomeTileBinding` mapping that tile to the Biome resource.
+4. Paint the desired cells and save the layout scene.
 
-Do **not** add `if biome_id == ...`, depth bands, hard-coded TileSet IDs, or resource paths to generation code.
+Do not add depth bands, `if biome_id == ...`, numeric TileSet ID branches, or resource paths to world
+generation code.
 
 ## ChunkLayer
 
-`ChunkLayer` is an independent authored **fixed SpecialChunk placement layer**. It deliberately extends `Node2D`, not `TileMapLayer`.
+`ChunkLayer` is **not** a `TileMapLayer` and must never become one.
 
-This distinction is architectural:
-
-- A normal runtime chunk is **not a tile**. It is dynamically filled by the Piece system from the current Biome and world topology.
-- `ChunkLayer` stores only the exceptional chunks whose exact placement was authored by a designer.
-- A fixed SpecialChunk reserves its complete `size_in_chunks` footprint before any random SpecialChunk or Piece generation is considered.
-- Procedural generation must never replace or paint over a fixed placement.
-
-The stored model is direct content data:
+It is an independent `Node2D` authoring component whose serialized data is:
 
 ```text
 ChunkLayer
-  -> Array[ChunkPaintPlacementDef]
+  -> placements: Array[ChunkPaintPlacementDef]
        -> origin: Vector2i
        -> chunk_def: SpecialChunkDef
 ```
 
-There is no `ChunkTileBinding`, TileSet source ID, atlas coordinate, alternative tile, or Scene Tile involved.
+Only fixed, hand-authored `SpecialChunkDef` placements are stored. Ordinary runtime chunks do not
+exist in this layer at all; the Piece system fills them procedurally.
 
-### ChunkLayer editor tools
-
-The project enables the `World Layout Chunk Layer Editor` plugin. Select the `ChunkLayer` node in a 2D scene to get a dedicated toolbar:
-
-- **Select (Q)**: normal Godot 2D selection; ChunkLayer does not consume paint input.
-- **Paint (W)**: place the selected fixed `SpecialChunkDef` on the chunk grid; left-drag paints multiple origins.
-- **Erase (E)**: erase the fixed placement under the cursor; clicking any occupied cell removes the whole multi-cell placement.
-- **Pick (R)**: pick an existing fixed SpecialChunk into the palette, then return to Paint mode.
-- **Right click** while a ChunkLayer paint tool is active: erase the fixed placement under the cursor.
-- Every edit participates in the editor Undo/Redo history.
-
-`ChunkLayer.palette_chunks` is data-driven and defines which SpecialChunks are offered by the toolbar. Adding a fixed chunk to the palette requires only assigning the resource; the editor plugin does not contain project chunk IDs or resource paths.
-
-The layer draws its own chunk grid and fixed footprints in editor space. If `SpecialChunkDef.editor_preview` is assigned, that texture is drawn in the footprint; otherwise `editor_color` and the display name are used. Multi-cell footprints come from `SpecialChunkDef.size_in_chunks` and therefore cannot disagree with runtime occupancy.
-
-A fixed placement is rejected when it:
-
-- overlaps another fixed placement,
-- extends into a VOID Biome cell,
-- uses a biome outside `SpecialChunkDef.allowed_biomes`, or
-- references a chunk definition that is not registered by the active `WorldGenConfig` during snapshot validation.
-
-The editor performs the first three checks immediately; snapshot compilation repeats authoritative validation so malformed scene/resource data cannot silently enter runtime.
-
-### Fixed chunk priority
-
-Fixed authored placements have strict priority:
+Resolution is therefore:
 
 ```text
-requested world cell
-  -> VOID?                       => no chunk
-  -> inside authored fixed chunk? => SpecialChunkManager owns it
-  -> otherwise                    => PieceChunkGenerator may generate it
+Biome cell exists?
+  no  -> VOID
+  yes -> authored fixed SpecialChunk occupies this cell?
+           yes -> fixed SpecialChunk owns the full authored footprint
+           no  -> Piece system generates a procedural chunk for the Biome
 ```
 
-`SpecialChunkPlanner` plans authored placements first. Random SpecialChunks reject any cell already reserved by those placements. `WorldManager` also skips normal Piece requests for every cell owned by a SpecialChunk and re-checks ownership before attaching asynchronous generation results. This double gate prevents a late worker result from overwriting an authored chunk.
+The custom editor tools provide TileMap-like interaction without TileMap storage:
 
-A fixed chunk does **not** replace the underlying Biome. Ambience, encounter/loot policy and other Biome semantics still come from `BiomeLayer`; only that footprint's terrain/structure source is fixed.
+- Select (Q)
+- Paint (W)
+- Erase (E)
+- Pick (R)
+- SpecialChunk palette
+- multi-cell footprint preview
+- overlap/VOID/allowed-biome checks
+- Undo/Redo
+
+`SpecialChunkDef.size_in_chunks` defines the occupied footprint. Designers place only the origin.
+Fixed chunks are reserved before random special chunks and procedural Piece generation, and runtime
+attachment performs additional guards so an asynchronous procedural result cannot overwrite them.
+
+There is deliberately no `ChunkTileBinding`, Chunk TileSet, scene tile, source ID, atlas coordinate,
+or alternative-tile protocol for fixed chunks.
 
 ## WorldAnchor
 
-Use `WorldAnchor` (`Marker2D`) for semantic world positions. `WorldDefinition` currently selects:
+`WorldAnchor` is a semantic `Marker2D` with an always-visible editor marker/label. `WorldDefinition`
+selects required anchors by ID, currently including player spawn, main surface entrance, main path
+start, and optional main path end.
 
-- player spawn,
-- main surface entrance,
-- main procedural path start,
-- optional main procedural path end.
-
-The selected anchors must be located inside authored Biome cells. Player spawn also carries a clearance radius/offset; `WorldManager` clears that safety area after the pixel chunk exists, which is a final guard against the player being trapped by generated material.
-
-Do not use magic spawn coordinates in `WorldManager`, `Player`, or `GameBootstrap`.
-
-## Bootstrap preset vs saved authoring data
-
-`WorldLayoutPreset` exists only to seed a new/empty WorldLayout.
-
-- Biome bootstrap data is copied into `BiomeLayer` when that layer has no painted cells.
-- Fixed chunk bootstrap data is copied into `ChunkLayer.placements` when the independent ChunkLayer has no placements.
-- Saved Biome cells and saved ChunkLayer placements are authoritative.
-- After authoring the layout, save the scene normally.
-- If an intentionally empty layout is required, set `use_bootstrap_when_empty = false` instead of relying on an invalid/empty preset.
+Important positions are authored as anchors, not hard-coded coordinates in `WorldManager`, `Player`,
+or `GameBootstrap`.
 
 ## Runtime and threading
 
-Editor scene nodes are authoring/storage backends, not runtime world generators.
-
-Before background generation starts, the main thread compiles the layout scene into a `WorldLayoutSnapshot`. The snapshot contains only thread-readable dictionaries/values:
+The scene-based authoring representation is compiled on the main thread into a
+`WorldLayoutSnapshot` before background generation begins. The snapshot contains plain thread-readable
+values only:
 
 - biome ID by cell,
 - fixed chunk ID by origin,
 - fixed-chunk occupancy,
-- anchors,
+- anchor data,
 - used bounds.
 
-Background workers read only this snapshot. They must never call `BiomeLayer`, `ChunkLayer`, access the scene tree, or instantiate layout scenes.
-
-Runtime resolution for a chunk is conceptually:
-
-```text
-if layout cell is VOID:
-    do not generate
-elif cell belongs to a fixed chunk:
-    SpecialChunkPlanner / SpecialChunkManager owns its authored terrain
-else:
-    biome = BiomeLayer snapshot value
-    PieceChunkGenerator generates procedural terrain for that biome
-```
+Background workers must never access `TileMapLayer`, `ChunkLayer`, the SceneTree, or instantiate layout
+scenes.
 
 ## Default surface
 
-The default layout demonstrates the intended world philosophy:
+The default authored layout demonstrates the intended world philosophy:
 
 - a fixed authored surface strip,
-- a safe player spawn on the surface,
-- a fixed 1x2 right/down mine entrance,
-- an irregular 2D Mine/Snow/Deep macro map,
-- procedural underground chunks everywhere not explicitly reserved by `ChunkLayer`.
+- safe player spawn,
+- a fixed multi-cell right/down mine entrance,
+- irregular 2D Mine/Snow/Deep macro shapes,
+- procedural underground chunks everywhere not explicitly overridden.
 
-The surface and underground remain one continuous pixel simulation coordinate space. There is no scene transition between them, so liquids, fire, explosions and digging can cross the entrance naturally.
+Surface and underground remain one continuous pixel simulation coordinate space. There is no level
+transition at the entrance.
 
 ## Validation checklist
 
-Before committing a world-layout change:
+Before committing a World Layout change:
 
-1. Open the layout scene and ensure every intended world cell has a Biome tile.
-2. Select `ChunkLayer` and verify fixed chunks appear as dedicated overlays, not TileMap tiles.
-3. Ensure fixed chunks are placed only once at their origin and multi-cell footprints do not overlap or extend into VOID.
-4. Keep important `WorldAnchor` nodes inside valid Biome cells.
-5. Run `WorldLayoutSmokeTest.tscn`.
-6. Run the existing gameplay/runtime smoke tests affected by world startup.
-7. Do not introduce GDScript resource/script path literals, numeric tile-to-content `match` tables, or a TileMap-based ChunkLayer.
+1. Open the World Layout dock from `Main`/`World` and jump to the active layout.
+2. Ensure every intended world cell has a Biome tile; empty cells intentionally mean VOID.
+3. Ensure every fixed chunk is placed only once at its origin.
+4. Verify multi-cell footprints do not overlap or enter VOID.
+5. Keep required `WorldAnchor` nodes inside authored Biome cells.
+6. Press **Validate Layout** in the dock.
+7. Run `WorldLayoutSmokeTest.tscn` and affected runtime smoke tests.
+8. Do not introduce GDScript resource/script path literals or numeric tile-to-content tables.

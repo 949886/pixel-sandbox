@@ -67,7 +67,7 @@ func _test_zero_radius_runtime() -> void:
 	var context := CastContext.create(caster, caster, self, self, Vector2.ZERO, Vector2.RIGHT)
 	var runtime := SpecialSpellRuntime.new()
 	add_child(runtime)
-	runtime.setup(SpecialSpellRuntime.Mode.BLACK_HOLE, context, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, Color.WHITE, Color.WHITE)
+	runtime.setup(SpecialSpellRuntime.Mode.BLACK_HOLE, context, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, -1, Color.WHITE, Color.WHITE)
 	assert(runtime.radius > 0.0)
 	runtime.free()
 	caster.free()

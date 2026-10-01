@@ -60,7 +60,7 @@ func get_origin_cells() -> Array[Vector2i]:
 	# intentionally absent from this component.
 	var result: Array[Vector2i] = []
 	for placement: ChunkPaintPlacementDef in placements:
-		if placement != null and placement.is_valid():
+		if _placement_is_valid(placement):
 			result.append(placement.origin)
 	return result
 
@@ -71,14 +71,14 @@ func is_empty() -> bool:
 
 func get_chunk_def_at_origin(cell: Vector2i) -> SpecialChunkDef:
 	for placement: ChunkPaintPlacementDef in placements:
-		if placement != null and placement.is_valid() and placement.origin == cell:
+		if _placement_is_valid(placement) and placement.origin == cell:
 			return placement.chunk_def
 	return null
 
 
 func get_placement_at(cell: Vector2i) -> ChunkPaintPlacementDef:
 	for placement: ChunkPaintPlacementDef in placements:
-		if placement == null or not placement.is_valid():
+		if not _placement_is_valid(placement):
 			continue
 		if _placement_contains_cell(placement, cell):
 			return placement
@@ -108,7 +108,7 @@ func set_chunk_origin(cell: Vector2i, chunk_def: SpecialChunkDef) -> bool:
 		var existing: ChunkPaintPlacementDef = updated[index]
 		if existing != null and existing.origin == cell:
 			updated.remove_at(index)
-	var placement := ChunkPaintPlacementDef.new()
+	var placement: ChunkPaintPlacementDef = ChunkPaintPlacementDef.new()
 	placement.chunk_def = chunk_def
 	placement.origin = cell
 	updated.append(placement)
@@ -134,7 +134,7 @@ func can_place_chunk(origin: Vector2i, chunk_def: SpecialChunkDef, allow_replace
 		return false
 
 	for placement: ChunkPaintPlacementDef in placements:
-		if placement == null or not placement.is_valid():
+		if not _placement_is_valid(placement):
 			continue
 		if allow_replace_same_origin and placement.origin == origin:
 			continue
@@ -158,7 +158,7 @@ func duplicate_placements() -> Array[ChunkPaintPlacementDef]:
 func set_placements_data(value: Array) -> void:
 	var copied: Array[ChunkPaintPlacementDef] = []
 	for item: Variant in value:
-		var placement := item as ChunkPaintPlacementDef
+		var placement: ChunkPaintPlacementDef = item as ChunkPaintPlacementDef
 		if placement != null:
 			copied.append(_duplicate_placement(placement))
 	placements = copied
@@ -170,7 +170,7 @@ func set_placements_data(value: Array) -> void:
 func export_fixed_chunk_origins() -> Dictionary:
 	var result: Dictionary = {}
 	for placement: ChunkPaintPlacementDef in placements:
-		if placement != null and placement.is_valid():
+		if _placement_is_valid(placement):
 			result[placement.origin] = placement.chunk_def.id
 	return result
 
@@ -180,13 +180,13 @@ func apply_bootstrap_placements(entries: Array[ChunkPaintPlacementDef]) -> bool:
 		return true
 	var updated: Array[ChunkPaintPlacementDef] = duplicate_placements()
 	for entry: ChunkPaintPlacementDef in entries:
-		if entry == null or not entry.is_valid():
+		if not _placement_is_valid(entry):
 			return false
 		var duplicate: ChunkPaintPlacementDef = _duplicate_placement(entry)
 		# Bootstrap data should itself be conflict-free. Do not silently replace an
 		# authored fixed chunk if a malformed preset overlaps another placement.
 		for existing: ChunkPaintPlacementDef in updated:
-			if existing != null and existing.is_valid() and _rects_overlap(
+			if _placement_is_valid(existing) and _rects_overlap(
 				duplicate.origin,
 				duplicate.chunk_def.size_in_chunks,
 				existing.origin,
@@ -214,11 +214,11 @@ func validate_placements(known_chunks: Array[SpecialChunkDef]) -> bool:
 
 	for i: int in range(placements.size()):
 		var placement: ChunkPaintPlacementDef = placements[i]
-		if placement == null or not placement.is_valid() or not known_ids.has(placement.chunk_def.id):
+		if not _placement_is_valid(placement) or not known_ids.has(placement.chunk_def.id):
 			return false
 		for j: int in range(i + 1, placements.size()):
 			var other: ChunkPaintPlacementDef = placements[j]
-			if other == null or not other.is_valid():
+			if not _placement_is_valid(other):
 				return false
 			if _rects_overlap(
 				placement.origin,
@@ -271,7 +271,7 @@ func _draw_grid() -> void:
 
 
 func _draw_placement(placement: ChunkPaintPlacementDef) -> void:
-	if placement == null or not placement.is_valid():
+	if not _placement_is_valid(placement):
 		return
 	var chunk_def: SpecialChunkDef = placement.chunk_def
 	var rect: Rect2 = cell_rect(placement.origin, chunk_def.size_in_chunks)
@@ -292,8 +292,8 @@ func _draw_hover_preview() -> void:
 	if not _editor_hover_cell is Vector2i:
 		return
 	var cell: Vector2i = _editor_hover_cell
-	var size_in_chunks := Vector2i.ONE
-	var preview_color := Color(0.9, 0.9, 0.9, hover_alpha)
+	var size_in_chunks: Vector2i = Vector2i.ONE
+	var preview_color: Color = Color(0.9, 0.9, 0.9, hover_alpha)
 	if _editor_preview_chunk != null:
 		size_in_chunks = _editor_preview_chunk.size_in_chunks
 		preview_color = _editor_preview_chunk.editor_color
@@ -313,7 +313,7 @@ func _draw_chunk_label(rect: Rect2, chunk_def: SpecialChunkDef) -> void:
 		return
 	var font: Font = ThemeDB.fallback_font
 	var font_size: int = maxi(16, ThemeDB.fallback_font_size)
-	var baseline := rect.position + Vector2(10.0, float(font_size) + 8.0)
+	var baseline: Vector2 = rect.position + Vector2(10.0, float(font_size) + 8.0)
 	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x - 20.0, font_size, Color(1, 1, 1, 0.95))
 
 
@@ -322,7 +322,7 @@ func _editor_grid_rect() -> Rect2i:
 	if parent != null:
 		for sibling: Node in parent.get_children():
 			if sibling is BiomeLayer:
-				var biome_layer := sibling as BiomeLayer
+				var biome_layer: BiomeLayer = sibling as BiomeLayer
 				var used: Rect2i = biome_layer.get_used_rect()
 				if used.size.x > 0 and used.size.y > 0:
 					return used
@@ -337,6 +337,19 @@ func _editor_grid_rect() -> Rect2i:
 		max_cell.x = maxi(max_cell.x, cell.x)
 		max_cell.y = maxi(max_cell.y, cell.y)
 	return Rect2i(min_cell, max_cell - min_cell + Vector2i.ONE)
+
+
+func _placement_is_valid(placement: ChunkPaintPlacementDef) -> bool:
+	if placement == null:
+		return false
+	# Tool scripts cannot call methods on placeholder instances. Keep drawing and
+	# validation quiet while the editor is reloading scripts, then use the real
+	# resource method once its script is available in tool mode.
+	if Engine.is_editor_hint():
+		var placement_script: Script = placement.get_script() as Script
+		if placement_script != null and not placement_script.is_tool():
+			return false
+	return placement.is_valid()
 
 
 func _placement_contains_cell(placement: ChunkPaintPlacementDef, cell: Vector2i) -> bool:
@@ -357,7 +370,7 @@ func _rects_overlap(a_origin: Vector2i, a_size: Vector2i, b_origin: Vector2i, b_
 func _duplicate_placement(placement: ChunkPaintPlacementDef) -> ChunkPaintPlacementDef:
 	if placement == null:
 		return null
-	var duplicate := ChunkPaintPlacementDef.new()
+	var duplicate: ChunkPaintPlacementDef = ChunkPaintPlacementDef.new()
 	duplicate.chunk_def = placement.chunk_def
 	duplicate.origin = placement.origin
 	return duplicate

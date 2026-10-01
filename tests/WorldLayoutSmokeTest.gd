@@ -2,16 +2,18 @@ extends Node
 
 
 func _ready() -> void:
-	var config := load("res://resources/world_gen/default_world_gen_config.tres") as WorldGenConfig
+	var config: WorldGenConfig = load("res://resources/world_gen/default_world_gen_config.tres") as WorldGenConfig
 	assert(config != null)
 	assert(config.is_valid())
 	assert(config.world_definition != null)
+	_test_editor_tool_dependency_closure(config)
 
 	var snapshot: WorldLayoutSnapshot = WorldLayout.compile_snapshot(config)
 	assert(snapshot != null)
 	assert(snapshot.is_valid())
 	assert(snapshot.chunk_size == PieceWorldConstants.CHUNK_SIZE)
 
+	_test_serialized_authoring_data(config)
 	_test_biome_layout(snapshot)
 	_test_chunk_layer_authoring_model(config)
 	_test_fixed_chunks(config, snapshot)
@@ -21,6 +23,56 @@ func _ready() -> void:
 
 	print("World Layout Smoke Test: PASS")
 	get_tree().quit()
+
+
+func _test_editor_tool_dependency_closure(config: WorldGenConfig) -> void:
+	# Every scripted object called from an @tool authoring script must itself be
+	# tool-enabled. Otherwise Godot loads it as a placeholder in the editor and
+	# method calls such as ChunkPaintPlacementDef.is_valid() fail.
+	var instances: Array[Object] = [
+		config,
+		config.world_definition,
+		config.structure_profile,
+		WorldLayoutSnapshot.new(),
+		WorldLayoutPreset.new(),
+		BiomePaintRectDef.new(),
+		BiomeTileBinding.new(),
+		ChunkPaintPlacementDef.new(),
+		SpawnAnchorDef.new(),
+	]
+	for biome: BiomeConfig in config.biome_configs:
+		instances.append(biome)
+	for chunk_def: SpecialChunkDef in config.special_chunk_defs:
+		instances.append(chunk_def)
+	for instance: Object in instances:
+		_assert_tool_script(instance)
+
+
+func _assert_tool_script(instance: Object) -> void:
+	assert(instance != null)
+	var instance_script: Script = instance.get_script() as Script
+	assert(instance_script != null)
+	assert(instance_script.is_tool())
+
+
+func _test_serialized_authoring_data(config: WorldGenConfig) -> void:
+	# The default editor scene must be immediately useful before _ready/bootstrap.
+	# This catches regressions where opening DefaultWorldLayout looks empty.
+	var layout_node: Node = config.world_definition.layout_scene.instantiate()
+	var layout: WorldLayout = layout_node as WorldLayout
+	assert(layout != null)
+	assert(not layout.use_bootstrap_when_empty)
+	assert(layout.bootstrap_preset == null)
+	var biomes: BiomeLayer = layout.biome_layer()
+	var chunks: ChunkLayer = layout.chunk_layer()
+	assert(biomes != null)
+	assert(chunks != null)
+	assert(biomes.get_used_cells().size() > 0)
+	assert(biomes.get_biome_config(Vector2i(-1, -1)).id == &"surface")
+	assert(biomes.get_biome_config(Vector2i(0, 0)).id == &"mine")
+	assert(chunks.placements.size() > 0)
+	assert(layout.get_world_anchors().size() >= 4)
+	layout.free()
 
 
 func _test_biome_layout(snapshot: WorldLayoutSnapshot) -> void:
@@ -39,12 +91,13 @@ func _test_biome_layout(snapshot: WorldLayoutSnapshot) -> void:
 
 func _test_chunk_layer_authoring_model(config: WorldGenConfig) -> void:
 	var layout_node: Node = config.world_definition.layout_scene.instantiate()
-	var layout := layout_node as WorldLayout
+	var layout: WorldLayout = layout_node as WorldLayout
 	assert(layout != null)
 	var chunks: ChunkLayer = layout.chunk_layer()
 	assert(chunks != null)
-	assert(chunks is Node2D)
-	assert(not (chunks is TileMapLayer))
+	var chunk_script: Script = chunks.get_script() as Script
+	assert(chunk_script != null)
+	assert(chunk_script.get_instance_base_type() == &"Node2D")
 	assert(chunks.palette_chunks.size() > 0)
 	assert(chunks.get_chunk_def_at_origin(Vector2i(-1, -1)) != null)
 	var entrance_placement: ChunkPaintPlacementDef = chunks.get_placement_at(Vector2i(1, 0))
@@ -60,17 +113,17 @@ func _test_fixed_chunks(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -
 	assert(snapshot.get_fixed_chunk_origin(Vector2i(1, -1)) == Vector2i(1, -1))
 	assert(snapshot.get_fixed_chunk_origin(Vector2i(1, 0)) == Vector2i(1, -1))
 
-	var entrance := config.get_special_chunk_def(&"surface_entrance_chunk")
+	var entrance: SpecialChunkDef = config.get_special_chunk_def(&"surface_entrance_chunk")
 	assert(entrance != null)
 	assert(entrance.size_in_chunks == Vector2i(1, 2))
 	assert(not entrance.allow_random_placement)
 	assert(entrance.allowed_biomes.has(&"surface"))
 	assert(entrance.allowed_biomes.has(&"mine"))
 
-	var structure := WorldStructureBuilder.new(config.world_seed, config, snapshot).build()
-	var planning_map := BiomeMap.new(config.world_seed, config, snapshot)
+	var structure: WorldStructure = WorldStructureBuilder.new(config.world_seed, config, snapshot).build()
+	var planning_map: BiomeMap = BiomeMap.new(config.world_seed, config, snapshot)
 	planning_map.world_structure = structure
-	var planner := SpecialChunkPlanner.new(config.world_seed, config, planning_map, structure)
+	var planner: SpecialChunkPlanner = SpecialChunkPlanner.new(config.world_seed, config, planning_map, structure)
 	var placement: SpecialChunkPlacement = planner.get_chunk_at(Vector2i(1, 0))
 	assert(placement != null)
 	assert(placement.authored)
@@ -88,7 +141,7 @@ func _test_fixed_chunks(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -
 
 
 func _test_anchors(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -> void:
-	var definition := config.world_definition
+	var definition: WorldDefinition = config.world_definition
 	var spawn_position: Variant = snapshot.get_anchor_position(definition.player_spawn_anchor_id)
 	assert(spawn_position is Vector2)
 	assert(snapshot.get_anchor_cell(definition.player_spawn_anchor_id) == Vector2i(-1, -1))
@@ -99,7 +152,7 @@ func _test_anchors(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -> voi
 
 
 func _test_structure(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -> void:
-	var structure := WorldStructureBuilder.new(config.world_seed, config, snapshot).build()
+	var structure: WorldStructure = WorldStructureBuilder.new(config.world_seed, config, snapshot).build()
 	assert(structure != null)
 	assert(structure.nodes.size() == snapshot.biome_by_cell.size())
 	assert(structure.has_node(Vector2i(-1, -1)))
@@ -118,7 +171,7 @@ func _test_structure(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -> v
 
 
 func _test_biome_map(config: WorldGenConfig, snapshot: WorldLayoutSnapshot) -> void:
-	var map := BiomeMap.new(config.world_seed, config, snapshot)
+	var map: BiomeMap = BiomeMap.new(config.world_seed, config, snapshot)
 	assert(map.get_biome(Vector2i(0, 0)) == &"mine")
 	assert(map.get_biome(Vector2i(5, 14)) == &"snow")
 	assert(map.get_biome(Vector2i(0, 40)) == &"deep")
